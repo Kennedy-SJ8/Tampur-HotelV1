@@ -1,8 +1,12 @@
 package com.hoteltampur.reservas.controller;
 
 import com.hoteltampur.reservas.model.Habitacion;
+import com.hoteltampur.reservas.model.HabitacionEntity;
 import com.hoteltampur.reservas.model.Reserva;
+import com.hoteltampur.reservas.model.ReservaEntity;
 import com.hoteltampur.reservas.model.ReservaRequest;
+import com.hoteltampur.reservas.repository.HabitacionRepository;
+import com.hoteltampur.reservas.repository.ReservaRepository;
 import com.hoteltampur.reservas.service.CorreoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,31 +26,12 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
-/**
- * Endpoints del motor de reservas del Hotel Támpur.
- * <p>
- * Incluye validación de datos de entrada y dos capas de protección contra
- * reservas duplicadas (por ejemplo, cuando el usuario presiona "Confirmar"
- * varias veces seguidas en el formulario web):
- * <ol>
- *   <li><b>Idempotencia:</b> el frontend genera una clave única por intento
- *       de reserva. Si esa clave ya fue procesada, se devuelve la reserva
- *       existente en vez de crear una nueva.</li>
- *   <li><b>Detección por contenido:</b> aunque no llegue la clave (por
- *       ejemplo, en un cliente distinto), se rechaza cualquier solicitud que
- *       coincida en DNI, habitación y fechas con una reserva activa reciente.</li>
- * </ol>
- */
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "*")
@@ -54,70 +39,49 @@ public class ReservasController {
 
     private static final Logger log = LoggerFactory.getLogger(ReservasController.class);
 
-    /** DNI peruano: 8 dígitos. Se acepta también un pasaporte alfanumérico de 6 a 12 caracteres. */
     private static final Pattern PATRON_DNI = Pattern.compile("^[A-Za-z0-9]{6,12}$");
     private static final Pattern PATRON_CORREO = Pattern.compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
 
-    private final Map<String, Double> tarifas = new HashMap<>(Map.of(
+    private final Map<String, Double> tarifas = Map.of(
             "Simple", 90.0,
             "Doble", 140.0,
             "Matrimonial", 180.0
-    ));
+    );
 
-    private final List<Habitacion> habitaciones = new ArrayList<>(List.of(
-            new Habitacion("S1", "Simple", 90.0, "Libre"),
-            new Habitacion("S2", "Simple", 90.0, "Limpieza"),
-            new Habitacion("D1", "Doble", 140.0, "Libre"),
-            new Habitacion("D2", "Doble", 140.0, "Ocupada"),
-            new Habitacion("M1", "Matrimonial", 180.0, "Libre"),
-            new Habitacion("M2", "Matrimonial", 180.0, "Limpieza")
-    ));
-
-    /** Reservas registradas, indexadas por código. */
-    private final Map<String, Reserva> reservas = new ConcurrentHashMap<>();
-
-    /** Claves de idempotencia ya procesadas -> código de reserva generado. */
-    private final Map<String, String> solicitudesProcesadas = new ConcurrentHashMap<>();
-
+    private final HabitacionRepository habitacionRepo;
+    private final ReservaRepository reservaRepo;
     private final CorreoService correoService;
 
-    public ReservasController(CorreoService correoService) {
+    public ReservasController(HabitacionRepository habitacionRepo,
+                              ReservaRepository reservaRepo,
+                              CorreoService correoService) {
+        this.habitacionRepo = habitacionRepo;
+        this.reservaRepo = reservaRepo;
         this.correoService = correoService;
     }
 
     @GetMapping("/habitaciones")
     public List<Habitacion> habitaciones() {
-        return habitaciones;
+        return habitacionRepo.findAll().stream()
+                .map(HabitacionEntity::toRecord)
+                .toList();
     }
 
     @GetMapping("/disponibilidad")
     public List<Habitacion> disponibilidad(@RequestParam LocalDate fechaEntrada,
                                             @RequestParam LocalDate fechaSalida) {
-        Map<String, Long> ocupadasPorTipo = reservas.values().stream()
-                .filter(r -> !"Cancelada".equalsIgnoreCase(r.estado()))
-                .filter(r -> r.fechaSalida().isAfter(fechaEntrada) && r.fechaEntrada().isBefore(fechaSalida))
-                .collect(Collectors.groupingBy(Reserva::tipoHabitacion, Collectors.counting()));
-        Map<String, Long> totalesPorTipo = habitaciones.stream()
-                .collect(Collectors.groupingBy(Habitacion::tipo, Collectors.counting()));
-        return habitaciones.stream()
-                .filter(h -> "Libre".equals(h.estado()))
-                .filter(h -> ocupadasPorTipo.getOrDefault(h.tipo(), 0L) < totalesPorTipo.getOrDefault(h.tipo(), 0L))
+        List<HabitacionEntity> libres = habitacionRepo.findByEstado("Libre");
+        return libres.stream()
+                .filter(h -> {
+                    long ocupadas = reservaRepo.countOcupadasPorTipo(
+                            h.getTipo(), fechaEntrada, fechaSalida);
+                    long totales = habitacionRepo.countByTipo(h.getTipo());
+                    return ocupadas < totales;
+                })
+                .map(HabitacionEntity::toRecord)
                 .toList();
     }
 
-    /**
-     * Crea una reserva nueva.
-     * <p>
-     * Responde:
-     * <ul>
-     *   <li>400 Bad Request si los datos no son válidos.</li>
-     *   <li>200 OK con la reserva existente si la misma clave de idempotencia
-     *       ya fue procesada (reintento / doble clic detectado por clave).</li>
-     *   <li>409 Conflict si ya existe una reserva activa con el mismo DNI,
-     *       habitación y fechas (reintento / doble clic detectado por datos).</li>
-     *   <li>201 Created con la reserva nueva en el caso normal.</li>
-     * </ul>
-     */
     @PostMapping("/reservas")
     public ResponseEntity<?> crearReserva(@RequestBody ReservaRequest r) {
         List<String> errores = validar(r);
@@ -130,44 +94,35 @@ public class ReservasController {
                     "No hay habitaciones disponibles de tipo " + r.tipoHabitacion() + " para esas fechas.")));
         }
 
-        // 1) Protección por clave de idempotencia (mismo intento reenviado).
         if (r.idempotencyKey() != null && !r.idempotencyKey().isBlank()) {
-            String codigoExistente = solicitudesProcesadas.get(r.idempotencyKey());
-            if (codigoExistente != null) {
-                Reserva existente = reservas.get(codigoExistente);
-                if (existente != null) {
-                    log.info("Solicitud repetida detectada por idempotencyKey, se devuelve {}", codigoExistente);
-                    return ResponseEntity.ok(existente);
-                }
+            ReservaEntity existente = reservaRepo.findById("KEY-" + r.idempotencyKey()).orElse(null);
+            if (existente != null) {
+                log.info("Solicitud repetida detectada por idempotencyKey");
+                return ResponseEntity.ok(existente.toRecord());
             }
         }
 
-        // 2) Protección por contenido (mismo huésped, habitación y fechas ya reservados).
-        Reserva duplicada = buscarReservaDuplicada(r);
-        if (duplicada != null) {
-            log.info("Reserva duplicada detectada por contenido, se rechaza a favor de {}", duplicada.codigo());
+        List<ReservaEntity> duplicadas = reservaRepo.buscarDuplicada(
+                r.dni().trim(), r.tipoHabitacion(), r.fechaEntrada(), r.fechaSalida());
+        if (!duplicadas.isEmpty()) {
+            log.info("Reserva duplicada detectada por contenido");
             return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
                     "error", "Ya existe una reserva activa con estos datos.",
-                    "reservaExistente", duplicada
+                    "reservaExistente", duplicadas.get(0).toRecord()
             ));
         }
 
-        Reserva reserva = registrarReserva(r);
-
-        if (r.idempotencyKey() != null && !r.idempotencyKey().isBlank()) {
-            solicitudesProcesadas.put(r.idempotencyKey(), reserva.codigo());
-        }
+        ReservaEntity reserva = registrarReserva(r);
 
         try {
-            correoService.enviarConfirmacion(reserva);
+            correoService.enviarConfirmacion(reserva.toRecord());
         } catch (Exception e) {
-            log.warn("No se pudo enviar el correo de confirmación de {}: {}", reserva.codigo(), e.getMessage());
+            log.warn("No se pudo enviar el correo de confirmación de {}: {}", reserva.getCodigo(), e.getMessage());
         }
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(reserva);
+        return ResponseEntity.status(HttpStatus.CREATED).body(reserva.toRecord());
     }
 
-    /** Valida los campos obligatorios y las reglas de negocio básicas de la solicitud. */
     private List<String> validar(ReservaRequest r) {
         List<String> errores = new ArrayList<>();
 
@@ -200,108 +155,68 @@ public class ReservasController {
         return valor == null || valor.isBlank();
     }
 
-    /**
-     * Busca una reserva activa (no cancelada) con el mismo DNI, tipo de
-     * habitación y rango de fechas. Se usa como red de seguridad adicional
-     * a la clave de idempotencia.
-     */
-    private Reserva buscarReservaDuplicada(ReservaRequest r) {
-        return reservas.values().stream()
-                .filter(res -> !"Cancelada".equalsIgnoreCase(res.estado()))
-                .filter(res -> Objects.equals(res.dni(), r.dni()))
-                .filter(res -> Objects.equals(res.tipoHabitacion(), r.tipoHabitacion()))
-                .filter(res -> Objects.equals(res.fechaEntrada(), r.fechaEntrada()))
-                .filter(res -> Objects.equals(res.fechaSalida(), r.fechaSalida()))
-                .findFirst()
-                .orElse(null);
-    }
-
-    /**
-     * Indica si hay al menos una habitación libre del tipo solicitado para el
-     * rango de fechas. Las habitaciones "Ocupada", "Limpieza" o "Mantenimiento"
-     * no se consideran disponibles.
-     */
     private boolean hayDisponibilidad(ReservaRequest r) {
-        long libres = habitaciones.stream()
-                .filter(h -> "Libre".equals(h.estado()) && r.tipoHabitacion().equals(h.tipo()))
-                .count();
-        long ocupadas = reservas.values().stream()
-                .filter(res -> !"Cancelada".equalsIgnoreCase(res.estado()))
-                .filter(res -> r.tipoHabitacion().equals(res.tipoHabitacion()))
-                .filter(res -> res.fechaSalida().isAfter(r.fechaEntrada())
-                        && res.fechaEntrada().isBefore(r.fechaSalida()))
-                .count();
+        long libres = habitacionRepo.countByTipoAndEstado(r.tipoHabitacion(), "Libre");
+        long ocupadas = reservaRepo.countOcupadasPorTipo(
+                r.tipoHabitacion(), r.fechaEntrada(), r.fechaSalida());
         return ocupadas < libres;
     }
 
-    /** Calcula el total, genera el código y guarda la reserva en memoria. */
-    private Reserva registrarReserva(ReservaRequest r) {
+    private ReservaEntity registrarReserva(ReservaRequest r) {
         double precioNoche = tarifas.getOrDefault(r.tipoHabitacion(), 90.0);
         long noches = ChronoUnit.DAYS.between(r.fechaEntrada(), r.fechaSalida());
-        if (noches <= 0) {
-            noches = 1;
-        }
+        if (noches <= 0) noches = 1;
 
         String codigo = generarCodigoUnico();
-        Reserva reserva = new Reserva(
-                codigo,
-                r.tipoHabitacion(),
-                r.nombre().trim(),
-                r.dni().trim(),
-                r.correo() == null ? null : r.correo().trim(),
-                r.telefono(),
-                r.fechaEntrada(),
-                r.fechaSalida(),
-                (int) noches,
-                precioNoche * noches,
-                "Pendiente"
+        ReservaEntity entity = new ReservaEntity(
+                codigo, r.tipoHabitacion(), r.nombre().trim(), r.dni().trim(),
+                r.correo() == null ? null : r.correo().trim(), r.telefono(),
+                r.fechaEntrada(), r.fechaSalida(), (int) noches,
+                precioNoche * noches, "Pendiente"
         );
-        reservas.put(codigo, reserva);
-        return reserva;
+        return reservaRepo.save(entity);
     }
 
-    /** Genera un código "TMP-XXXXXX" garantizando que no choque con uno existente. */
     private String generarCodigoUnico() {
         String codigo;
         do {
             codigo = "TMP-" + UUID.randomUUID().toString().substring(0, 6).toUpperCase();
-        } while (reservas.containsKey(codigo));
+        } while (reservaRepo.existsById(codigo));
         return codigo;
     }
 
     @GetMapping("/reservas")
-    public Collection<Reserva> listarReservas() {
-        return reservas.values();
+    public List<Reserva> listarReservas() {
+        return reservaRepo.findAll().stream()
+                .map(ReservaEntity::toRecord)
+                .toList();
     }
 
     @GetMapping("/reservas/{codigo}")
     public ResponseEntity<Reserva> obtenerReserva(@PathVariable String codigo) {
-        Reserva reserva = reservas.get(codigo);
-        return reserva == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(reserva);
+        return reservaRepo.findById(codigo)
+                .map(ReservaEntity::toRecord)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PatchMapping("/reservas/{codigo}/estado")
     public ResponseEntity<Reserva> actualizarEstado(@PathVariable String codigo,
                                                     @RequestBody Map<String, String> body) {
-        Reserva actual = reservas.get(codigo);
-        if (actual == null) {
-            return ResponseEntity.notFound().build();
-        }
-        String nuevoEstado = body.getOrDefault("estado", actual.estado());
-        Reserva actualizada = new Reserva(
-                actual.codigo(), actual.tipoHabitacion(), actual.nombre(), actual.dni(),
-                actual.correo(), actual.telefono(), actual.fechaEntrada(), actual.fechaSalida(),
-                actual.noches(), actual.total(), nuevoEstado
-        );
-        reservas.put(codigo, actualizada);
-        return ResponseEntity.ok(actualizada);
+        return reservaRepo.findById(codigo).map(actual -> {
+            String nuevoEstado = body.getOrDefault("estado", actual.getEstado());
+            actual.setEstado(nuevoEstado);
+            reservaRepo.save(actual);
+            return ResponseEntity.ok(actual.toRecord());
+        }).orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/reservas/{codigo}")
     public ResponseEntity<Void> eliminarReserva(@PathVariable String codigo) {
-        if (reservas.remove(codigo) == null) {
+        if (!reservaRepo.existsById(codigo)) {
             return ResponseEntity.notFound().build();
         }
+        reservaRepo.deleteById(codigo);
         return ResponseEntity.noContent().build();
     }
 }
