@@ -292,7 +292,7 @@
             <button class="btn-sm btn-eliminar" onclick="eliminarReservaBackend('${r.codigo}')">Eliminar</button>
           </td>
         </tr>`).join('');
-      cont.innerHTML=`<table class="tabla"><thead><tr><th>Código</th><th>Huésped</th><th>Habitación</th><th>Fechas</th><th>Noches</th><th>Total</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>${filas}</tbody></table>`;
+      cont.innerHTML=`<div class="tabla-wrap"><table class="tabla"><thead><tr><th>Código</th><th>Huésped</th><th>Habitación</th><th>Fechas</th><th>Noches</th><th>Total</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>${filas}</tbody></table></div>`;
     }catch(e){
       renderReservasLocal();
     }
@@ -324,7 +324,7 @@
           <button class="btn-sm btn-eliminar" onclick="eliminarReservaLocal(${i})">Eliminar</button>
         </td>
       </tr>`).join('');
-    cont.innerHTML=`<table class="tabla"><thead><tr><th>Código</th><th>Huésped</th><th>Habitación</th><th>Fechas</th><th>Noches</th><th>Total</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>${filas}</tbody></table>`;
+    cont.innerHTML=`<div class="tabla-wrap"><table class="tabla"><thead><tr><th>Código</th><th>Huésped</th><th>Habitación</th><th>Fechas</th><th>Noches</th><th>Total</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>${filas}</tbody></table></div>`;
   }
   function accionReservaLocal(i,estado){ const rs=getReservas(); rs[i].estado=estado; setReservas(rs); renderReservas(); }
   function eliminarReservaLocal(i){ const rs=getReservas(); rs.splice(i,1); setReservas(rs); renderReservas(); }
@@ -488,21 +488,65 @@
       const res=await fetch(API_BACKOFFICE+'/api/limpieza',{headers:headersAdmin()});
       if(!res.ok) throw new Error('offline');
       const habitaciones=await res.json(); // [{numero,piso,limpiada}]
-      pintarLimpieza(habitaciones, true);
+      const confirmadas=await obtenerReservasConfirmadas();
+      pintarLimpieza(habitaciones, true, confirmadas);
     }catch(e){
       const locales=habitacionesQueNecesitanLimpiezaHoyLocal();
       const marcadas=getLimpiezaMarcadasLocal();
       const habitaciones=locales.map(h=>({...h, limpiada:marcadas.has(h.numero)}));
-      pintarLimpieza(habitaciones, false);
+      const confirmadas=getReservas().filter(r=>r.estado==='Confirmada')
+        .map(r=>({tipoHabitacion:r.habitacion,nombre:r.nombre,fechaEntrada:r.llegada,fechaSalida:r.salida}));
+      pintarLimpieza(habitaciones, false, confirmadas);
     }
   }
 
-  function pintarLimpieza(habitaciones, desdeServidor){
+  /** Obtiene las reservas confirmadas desde el backend para mostrar sus fechas de ocupación. */
+  async function obtenerReservasConfirmadas(){
+    try{
+      const res=await fetch(API_RESERVAS+'/api/reservas');
+      if(!res.ok) return [];
+      const rs=await res.json();
+      return rs.filter(r=>r.estado==='Confirmada')
+        .map(r=>({tipoHabitacion:r.tipoHabitacion,nombre:r.nombre,fechaEntrada:r.fechaEntrada,fechaSalida:r.fechaSalida}));
+    }catch(e){ return []; }
+  }
+
+  /** Formatea una fecha ISO (yyyy-mm-dd) a un texto legible en español, sin desfase de zona horaria. */
+  function formatearFechaOcupacion(iso){
+    if(!iso) return '';
+    const d=new Date(iso+'T00:00:00');
+    return d.toLocaleDateString('es-PE',{weekday:'long',day:'numeric',month:'long'});
+  }
+
+  function pintarLimpieza(habitaciones, desdeServidor, confirmadas){
     const cont=document.getElementById('dashContenido');
     const hoy=new Date().toLocaleDateString('es-PE',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 
+    const confirmadasOrdenadas=[...(confirmadas||[])].sort((a,b)=>(a.fechaEntrada||'').localeCompare(b.fechaEntrada||''));
+    const ocupacionesHtml=confirmadasOrdenadas.length?`
+      <div class="limp-ocupaciones no-imprimir">
+        <h3>🛎️ Ocupaciones próximas · reservas confirmadas</h3>
+        <div class="ocupaciones-grid">
+          ${confirmadasOrdenadas.map(r=>`
+            <div class="ocupacion">
+              <div class="ocup-top"><span class="ocup-tipo">Habitación ${r.tipoHabitacion}</span></div>
+              <div class="ocup-huesped">${r.nombre}</div>
+              <div class="ocup-fecha">
+                <span class="ico-fecha"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 9h18"/></svg></span>
+                <span>Check-in: <b>${formatearFechaOcupacion(r.fechaEntrada)}</b> <span class="hora">1:00 p.m.</span></span>
+              </div>
+              <div class="ocup-fecha">
+                <span class="ico-fecha"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span>
+                <span>Check-out: <b>${formatearFechaOcupacion(r.fechaSalida)}</b> <span class="hora">12:00 p.m.</span></span>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>`:'';
+
     if(habitaciones.length===0){
-      cont.innerHTML=`<p style="color:#888">No hay habitaciones pendientes de limpieza para hoy.</p>`;
+      cont.innerHTML=`
+        ${ocupacionesHtml}
+        <p style="color:#888">No hay habitaciones pendientes de limpieza para hoy.</p>`;
       return;
     }
 
@@ -536,6 +580,7 @@
           ${desdeServidor?'':'<span style="color:#c0392b;font-size:.85rem">⚠ Backend no conectado: guardando en modo local.</span>'}
         </div>
       </div>
+      ${ocupacionesHtml}
       <div id="listaLimpiezaImprimible">
         <div class="limp-solo-impresion">
           <h2>Hotel Támpur · Lista de limpieza</h2>

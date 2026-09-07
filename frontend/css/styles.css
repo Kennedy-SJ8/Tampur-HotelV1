@@ -25,7 +25,7 @@
   header.scrolled{background:rgba(31,61,52,.92);backdrop-filter:blur(12px);box-shadow:0 8px 30px rgba(0,0,0,.18)}
   header.scrolled .barra{padding:12px 0}
   .logo{display:flex;align-items:center;gap:10px;color:#fff}
-  .logo .marca{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--terracota),var(--terracota-2));display:grid;place-items:center;font-family:'Playfair Display',serif;font-weight:700;font-size:1.4rem}
+  .logo .marca{width:42px;height:42px;border-radius:12px;flex:none;box-shadow:0 6px 16px rgba(201,111,59,.35)}
   .logo b{font-family:'Playfair Display',serif;font-size:1.25rem;letter-spacing:.5px}
   .logo small{display:block;font-size:.68rem;font-weight:400;opacity:.75;letter-spacing:1px;text-transform:uppercase}
   nav{display:flex;align-items:center;gap:26px}
@@ -146,7 +146,7 @@
 
   /* Login */
   .admin-caja{background:#fff;border-radius:22px;width:min(400px,100%);padding:36px 34px;position:relative;box-shadow:0 30px 80px -20px rgba(0,0,0,.5);display:flex;flex-direction:column}
-  .admin-caja .marca-mini{width:54px;height:54px;border-radius:15px;background:linear-gradient(135deg,var(--terracota),var(--terracota-2));display:grid;place-items:center;font-family:'Playfair Display',serif;font-weight:700;font-size:1.5rem;color:#fff;margin-bottom:18px}
+  .admin-caja .marca-mini{width:54px;height:54px;border-radius:15px;margin-bottom:18px;box-shadow:0 6px 16px rgba(201,111,59,.35)}
   .admin-caja h3{font-family:'Playfair Display',serif;color:var(--verde);font-size:1.5rem;margin-bottom:4px}
   .admin-caja .sub{color:var(--gris);font-size:.9rem;margin-bottom:22px}
   .admin-caja .error{color:#c0392b;font-size:.85rem;min-height:20px;margin-bottom:8px}
@@ -154,12 +154,12 @@
 
   /* Shell (flexbox: sidebar fija + contenido fluido) */
   .admin-dash{padding:0;background:#f4f1ea}
-  .admin-shell{display:flex;width:100%;height:100vh}
+  .admin-shell{display:flex;width:100%;height:100vh;height:100dvh}
 
   /* Sidebar */
   .admin-shell aside{display:flex;flex-direction:column;width:260px;flex:none;background:linear-gradient(180deg,var(--verde),#17302a);color:#fff;padding:26px 16px;gap:6px}
   .admin-shell aside .titulo{display:flex;align-items:center;gap:12px;padding:0 12px 24px;border-bottom:1px solid rgba(255,255,255,.14);margin-bottom:18px}
-  .admin-shell aside .titulo .marca{width:40px;height:40px;flex:none;border-radius:11px;background:linear-gradient(135deg,var(--terracota),var(--terracota-2));display:grid;place-items:center;font-family:'Playfair Display',serif;font-weight:700;font-size:1.3rem;color:#fff}
+  .admin-shell aside .titulo .marca{width:40px;height:40px;flex:none;border-radius:11px;box-shadow:0 4px 12px rgba(201,111,59,.35)}
   .admin-shell aside .titulo b{font-family:'Playfair Display',serif;font-size:1.15rem;display:block;line-height:1.1}
   .admin-shell aside .titulo small{display:block;font-size:.66rem;opacity:.7;letter-spacing:1px;text-transform:uppercase}
   .admin-shell aside button{display:flex;align-items:center;gap:10px;background:none;border:none;color:rgba(255,255,255,.82);text-align:left;padding:13px 14px;border-radius:11px;font-family:inherit;font-size:.95rem;cursor:pointer;transition:.18s;border-left:3px solid transparent}
@@ -173,7 +173,8 @@
   .admin-shell main h2{font-family:'Playfair Display',serif;color:var(--verde);font-size:1.9rem;margin-bottom:22px}
 
   /* Tabla de reservas */
-  .tabla{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden;box-shadow:var(--sombra)}
+  .tabla-wrap{overflow-x:auto;border-radius:14px;box-shadow:var(--sombra);background:#fff;-webkit-overflow-scrolling:touch}
+  .tabla{width:100%;border-collapse:collapse;min-width:720px}
   .tabla th,.tabla td{padding:13px 16px;text-align:left;font-size:.88rem;border-bottom:1px solid #eef0ec}
   .tabla thead th{background:var(--verde);color:#fff;font-weight:600;font-size:.78rem;letter-spacing:.4px;text-transform:uppercase}
   .tabla tbody tr:nth-child(even){background:#faf8f3}
@@ -230,13 +231,29 @@
 
   @media(max-width:820px){
     .admin-shell{flex-direction:column}
-    .admin-shell aside{width:100%;flex-direction:row;overflow-x:auto;align-items:center;padding:12px;gap:6px}
-    .admin-shell aside .titulo{border:none;padding:0 10px;margin:0;flex:none}
-    .admin-shell aside button{white-space:nowrap;border-left:none;border-bottom:3px solid transparent;border-radius:8px}
+    .admin-shell aside{width:100%;flex-direction:row;overflow-x:auto;align-items:center;padding:10px 12px;gap:6px}
+    .admin-shell aside .titulo{border:none;padding:0 8px;margin:0;flex:none}
+    .admin-shell aside .titulo b{font-size:1rem}
+    .admin-shell aside button{white-space:nowrap;border-left:none;border-bottom:3px solid transparent;border-radius:8px;padding:10px 12px;font-size:.85rem}
     .admin-shell aside button.activo{border-bottom-color:var(--terracota-2)}
     .admin-shell aside button.salir{margin:0 0 0 auto}
+    .tarjetas-kpi{grid-template-columns:1fr 1fr}
+    .admin-shell main{padding:22px 18px}
+  }
+
+  @media(max-width:520px){
+    .admin-shell aside{padding:8px;gap:2px}
+    .admin-shell aside .titulo{display:none}
+    .admin-shell aside button{padding:9px 10px;font-size:.78rem}
+    .admin-shell main{padding:18px 12px}
+    .admin-shell main h2{font-size:1.4rem;margin-bottom:16px}
     .tarjetas-kpi{grid-template-columns:1fr}
-    .admin-shell main{padding:20px}
+    .kpi{padding:16px 18px}
+    .kpi .num{font-size:1.6rem}
+    .tabla th,.tabla td{padding:10px 12px;font-size:.8rem}
+    .btn-sm{padding:5px 10px;font-size:.74rem}
+    .plano{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+    .limp-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}
   }
 
   @media(max-width:900px){
@@ -267,6 +284,20 @@
   .limp-item.limpiada{background:#eef7f0;border-color:#bfe2c8;border-left-color:#2e8b57}
   .limp-item.limpiada .limp-num{text-decoration:line-through;color:var(--gris)}
   .limp-item.limpiada .limp-estado{background:#d1e7dd;color:#155724}
+
+  /* Ocupaciones próximas (reservas confirmadas) */
+  .limp-ocupaciones{margin-bottom:28px}
+  .limp-ocupaciones h3{font-family:'Playfair Display',serif;color:var(--verde);font-size:1.2rem;margin-bottom:12px}
+  .ocupaciones-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+  .ocupacion{background:#fff;border-radius:12px;border-left:5px solid var(--terracota);padding:14px 16px;box-shadow:var(--sombra)}
+  .ocupacion .ocup-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .ocup-tipo{font-weight:700;color:var(--verde);font-size:.95rem}
+  .ocup-huesped{font-size:.8rem;color:var(--gris);margin-bottom:10px}
+  .ocup-fecha{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--tinta);padding:4px 0}
+  .ocup-fecha .ico-fecha{flex:none;width:20px;height:20px;display:grid;place-items:center;color:var(--terracota)}
+  .ocup-fecha .ico-fecha svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .ocup-fecha b{color:var(--terracota);font-weight:600}
+  .ocup-fecha .hora{background:var(--crema);padding:2px 8px;border-radius:6px;font-weight:600;color:var(--verde)}
 
   /* ---------- IMPRESIÓN ---------- */
   @media print{
