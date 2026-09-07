@@ -2,19 +2,24 @@ package com.hoteltampur.pagos.service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CorreoService {
 
+    private static final Logger log = LoggerFactory.getLogger(CorreoService.class);
     private final JavaMailSender mailSender;
 
     public CorreoService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
 
+    @Async
     public void enviarConfirmacionPago(String correo, String nombre, String codigoReserva,
                                        String voucher, String metodo, Double monto) {
         if (correo == null || correo.isBlank()) {
@@ -27,8 +32,8 @@ public class CorreoService {
             helper.setSubject("Pago aprobado - Reserva " + codigoReserva + " · Hotel Támpur");
             helper.setText(contenidoHtml(nombre, codigoReserva, voucher, metodo, monto), true);
             mailSender.send(mensaje);
-        } catch (MessagingException e) {
-            throw new RuntimeException("No se pudo enviar el correo de pago", e);
+        } catch (Exception e) {
+            log.warn("No se pudo enviar correo de pago {}: {}", codigoReserva, e.getMessage());
         }
     }
 

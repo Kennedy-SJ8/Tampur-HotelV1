@@ -236,6 +236,8 @@
     let codigo, total, noches, voucher='', pagoEstado='', desdeServidor=false, esDuplicada=false;
     let respuesta;
     try{
+      const ctrl=new AbortController();
+      const timer=setTimeout(()=>ctrl.abort(),90000);
       respuesta=await fetch(API_RESERVAS+'/api/reservas',{
         method:'POST', headers:{'Content-Type':'application/json'},
         body:JSON.stringify({
@@ -243,10 +245,12 @@
           nombre, dni, correo, telefono:tel,
           fechaEntrada:en, fechaSalida:sa,
           idempotencyKey
-        })
+        }),
+        signal:ctrl.signal
       });
+      clearTimeout(timer);
     }catch(e){
-      respuesta=null; // Sin conexión con el backend: se resuelve más abajo con el modo local.
+      respuesta=null;
     }
 
     if(respuesta && respuesta.status===400){
