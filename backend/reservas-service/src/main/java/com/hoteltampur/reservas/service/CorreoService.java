@@ -3,24 +3,19 @@ package com.hoteltampur.reservas.service;
 import com.hoteltampur.reservas.model.Reserva;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CorreoService {
 
-    private static final Logger log = LoggerFactory.getLogger(CorreoService.class);
     private final JavaMailSender mailSender;
 
     public CorreoService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
 
-    @Async
     public void enviarConfirmacion(Reserva r) {
         if (r.correo() == null || r.correo().isBlank()) {
             return;
@@ -32,8 +27,8 @@ public class CorreoService {
             helper.setSubject("Confirmación de reserva " + r.codigo() + " · Hotel Támpur");
             helper.setText(contenidoHtml(r), true);
             mailSender.send(mensaje);
-        } catch (Exception e) {
-            log.warn("No se pudo enviar correo {}: {}", r.codigo(), e.getMessage());
+        } catch (MessagingException e) {
+            throw new RuntimeException("No se pudo enviar el correo de confirmación", e);
         }
     }
 

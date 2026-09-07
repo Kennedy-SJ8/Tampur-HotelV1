@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 
 @RestController
@@ -38,6 +40,8 @@ import java.util.regex.Pattern;
 public class ReservasController {
 
     private static final Logger log = LoggerFactory.getLogger(ReservasController.class);
+    private static final java.util.concurrent.ExecutorService emailExecutor =
+            Executors.newFixedThreadPool(2);
 
     private static final Pattern PATRON_DNI = Pattern.compile("^[A-Za-z0-9]{6,12}$");
     private static final Pattern PATRON_CORREO = Pattern.compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
@@ -115,13 +119,13 @@ public class ReservasController {
         ReservaEntity reserva = registrarReserva(r);
 
         final Reserva record = reserva.toRecord();
-        Thread.startVirtualThread(() -> {
+        CompletableFuture.runAsync(() -> {
             try {
                 correoService.enviarConfirmacion(record);
             } catch (Exception e) {
-                log.warn("No se pudo enviar el correo de confirmación de {}: {}", record.codigo(), e.getMessage());
+                log.warn("No se pudo enviar el correo de {}: {}", record.codigo(), e.getMessage());
             }
-        });
+        }, emailExecutor);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(reserva.toRecord());
     }

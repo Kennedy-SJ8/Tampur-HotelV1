@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 
 @RestController
 @RequestMapping("/api")
@@ -30,6 +32,8 @@ public class PagosController {
     }
 
     private static final Logger log = LoggerFactory.getLogger(PagosController.class);
+    private static final java.util.concurrent.ExecutorService emailExecutor =
+            Executors.newFixedThreadPool(2);
     private final PagoRepository pagoRepo;
     private final CorreoService correoService;
 
@@ -56,14 +60,14 @@ public class PagosController {
             final String codigo = r.codigoReserva();
             final String met = r.metodo();
             final Double monto = r.monto();
-            Thread.startVirtualThread(() -> {
+            CompletableFuture.runAsync(() -> {
                 try {
                     correoService.enviarConfirmacionPago(correo, nombre, codigo,
                             voucher, met, monto);
                 } catch (Exception e) {
                     log.warn("No se pudo enviar el correo de pago: {}", e.getMessage());
                 }
-            });
+            }, emailExecutor);
         }
 
         return new Pago(entity.getId(), entity.getCodigoReserva(),
