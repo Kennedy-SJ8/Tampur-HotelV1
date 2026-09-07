@@ -51,12 +51,19 @@ public class PagosController {
         pagoRepo.save(entity);
 
         if ("APROBADO".equals(estado)) {
-            try {
-                correoService.enviarConfirmacionPago(r.correo(), r.nombre(), r.codigoReserva(),
-                        voucher, r.metodo(), r.monto());
-            } catch (Exception e) {
-                log.warn("No se pudo enviar el correo de pago: {}", e.getMessage());
-            }
+            final String correo = r.correo();
+            final String nombre = r.nombre();
+            final String codigo = r.codigoReserva();
+            final String met = r.metodo();
+            final Double monto = r.monto();
+            Thread.startVirtualThread(() -> {
+                try {
+                    correoService.enviarConfirmacionPago(correo, nombre, codigo,
+                            voucher, met, monto);
+                } catch (Exception e) {
+                    log.warn("No se pudo enviar el correo de pago: {}", e.getMessage());
+                }
+            });
         }
 
         return new Pago(entity.getId(), entity.getCodigoReserva(),

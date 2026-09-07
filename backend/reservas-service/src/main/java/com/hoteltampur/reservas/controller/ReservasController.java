@@ -114,11 +114,14 @@ public class ReservasController {
 
         ReservaEntity reserva = registrarReserva(r);
 
-        try {
-            correoService.enviarConfirmacion(reserva.toRecord());
-        } catch (Exception e) {
-            log.warn("No se pudo enviar el correo de confirmación de {}: {}", reserva.getCodigo(), e.getMessage());
-        }
+        final Reserva record = reserva.toRecord();
+        Thread.startVirtualThread(() -> {
+            try {
+                correoService.enviarConfirmacion(record);
+            } catch (Exception e) {
+                log.warn("No se pudo enviar el correo de confirmación de {}: {}", record.codigo(), e.getMessage());
+            }
+        });
 
         return ResponseEntity.status(HttpStatus.CREATED).body(reserva.toRecord());
     }
