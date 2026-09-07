@@ -65,7 +65,7 @@
     <div class="item"><b>0%</b>Comisión de terceros</div>
     <div class="item"><b>Check-in 1:00 p.m.</b>Check-out 12:00 p.m.</div>
     <div class="item"><b>3 tipos</b>Simple · Doble · Matrimonial</div>
-    <div class="item"><b>3,200</b>msnm de altura</div>
+    <div class="item"><b data-contar="3200">3,200</b>msnm de altura</div>
     <div class="item"><b>Yape / Plin</b>Tarjeta y efectivo</div>
   </div>
 </div>
@@ -76,6 +76,20 @@
       <span class="kicker">Alojamiento</span>
       <h2>Nuestras habitaciones</h2>
       <p>Espacios cómodos y cálidos pensados para el clima de altura. Elija el tipo ideal para su estadía.</p>
+    </div>
+    <div class="selector-moneda revelar">
+      <label for="selMoneda">Mostrar precios en</label>
+      <select id="selMoneda">
+        <option value="PEN">S/ · Soles (PEN)</option>
+        <option value="USD">US$ · Dólares (USD)</option>
+        <option value="EUR">€ · Euros (EUR)</option>
+        <option value="GBP">£ · Libras (GBP)</option>
+        <option value="BRL">R$ · Reales (BRL)</option>
+        <option value="MXN">MX$ · Pesos mexicanos (MXN)</option>
+        <option value="ARS">AR$ · Pesos argentinos (ARS)</option>
+        <option value="CLP">CL$ · Pesos chilenos (CLP)</option>
+      </select>
+      <span class="tasa-hint" id="tasaHint"></span>
     </div>
     <div class="tarjetas">
       <article class="tarjeta revelar">
@@ -236,7 +250,7 @@
     </div>
     <div class="resumen">
       <span id="rDetalle">Seleccione fechas</span>
-      <b id="rTotal">S/ 0</b>
+      <span style="text-align:right"><b id="rTotal">S/ 0</b><br><span id="rTotalConv" style="font-size:.82rem;color:var(--gris)"></span></span>
     </div>
     <button class="btn btn-primario" id="btnConfirmarReserva" style="width:100%;justify-content:center;margin-top:14px" onclick="confirmarReserva()">Confirmar reserva</button>
   </div>

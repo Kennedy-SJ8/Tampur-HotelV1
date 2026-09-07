@@ -57,6 +57,13 @@
   .campo input,.campo select{background:rgba(255,255,255,.95);border:none;border-radius:12px;padding:12px 14px;font-family:inherit;font-size:.95rem;color:var(--tinta);outline:none}
   .buscador .btn-primario{align-self:end;padding:13px 24px;white-space:nowrap}
 
+  /* Animaciones de entrada del hero */
+  .hero .etiqueta,.hero h1,.hero p.lead,.hero .buscador{animation:heroSubir .75s cubic-bezier(.22,.61,.36,1) both}
+  .hero h1{animation-delay:.1s}
+  .hero p.lead{animation-delay:.22s}
+  .hero .buscador{animation-delay:.34s}
+  @keyframes heroSubir{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:none}}
+
   /* ---------- FRANJA VENTAJA ---------- */
   .franja{background:var(--verde);color:#fff;padding:26px 0;margin-top:-1px}
   .franja .contenedor{display:flex;flex-wrap:wrap;gap:14px 40px;justify-content:center;text-align:center}
@@ -84,6 +91,14 @@
   .tarjeta ul{list-style:none;display:flex;flex-direction:column;gap:8px;color:var(--gris);font-size:.9rem}
   .tarjeta ul li::before{content:"✓";color:var(--terracota);font-weight:700;margin-right:8px}
   .tarjeta .btn-primario{margin-top:auto;justify-content:center}
+
+  /* Selector de moneda (extranjeros) */
+  .selector-moneda{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin:-30px 0 38px}
+  .selector-moneda label{font-size:.85rem;font-weight:600;color:var(--verde)}
+  .selector-moneda select{border:1.5px solid #e3ded2;background:var(--crema);padding:11px 18px;border-radius:999px;font-family:inherit;font-size:.9rem;font-weight:600;color:var(--verde);cursor:pointer;outline:none;transition:.25s}
+  .selector-moneda select:hover{border-color:var(--terracota-2)}
+  .selector-moneda select:focus{border-color:var(--terracota);background:#fff}
+  .tasa-hint{font-size:.8rem;color:var(--verde-2);background:var(--arena);padding:5px 14px;border-radius:999px;font-weight:500}
 
   /* Amenidades */
   .amenidades{background:var(--verde);color:#fff}
@@ -122,8 +137,10 @@
 
   /* WhatsApp flotante */
   .wa{position:fixed;right:22px;bottom:22px;z-index:60;width:58px;height:58px;border-radius:50%;background:#25d366;display:grid;place-items:center;box-shadow:0 10px 24px rgba(37,211,102,.45);transition:.3s}
+  .wa::after{content:"";position:absolute;inset:0;border-radius:50%;animation:pulsoWa 2.4s infinite;pointer-events:none}
   .wa:hover{transform:scale(1.08)}
   .wa svg{width:30px;height:30px;fill:#fff}
+  @keyframes pulsoWa{0%{box-shadow:0 0 0 0 rgba(37,211,102,.55)}70%{box-shadow:0 0 0 18px rgba(37,211,102,0)}100%{box-shadow:0 0 0 0 rgba(37,211,102,0)}}
 
   /* Modal reserva */
   .modal{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(15,30,25,.6);backdrop-filter:blur(4px)}

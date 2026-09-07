@@ -22,10 +22,7 @@
   const TARIFAS={simple:90,doble:140,matrimonial:180};
   function cargarTarifas(){
     try{ const t=JSON.parse(localStorage.getItem('tampur_tarifas')); if(t){ Object.assign(TARIFAS,t); } }catch(e){}
-    const b=document.querySelectorAll('.tarjeta .precio b');
-    b[0].textContent='S/ '+TARIFAS.simple;
-    b[1].textContent='S/ '+TARIFAS.doble;
-    b[2].textContent='S/ '+TARIFAS.matrimonial;
+    pintarPrecios();
   }
 
   // ===== Conexión con los microservicios =====
@@ -47,6 +44,106 @@
     }catch(e){}
   }
 
+  // ===== Conversión de moneda (para huéspedes extranjeros) =====
+  const MONEDAS=[
+    {code:'PEN',simbolo:'S/',nombre:'Soles peruanos'},
+    {code:'USD',simbolo:'US$',nombre:'Dólar estadounidense'},
+    {code:'EUR',simbolo:'€',nombre:'Euro'},
+    {code:'GBP',simbolo:'£',nombre:'Libra esterlina'},
+    {code:'BRL',simbolo:'R$',nombre:'Real brasileño'},
+    {code:'MXN',simbolo:'MX$',nombre:'Peso mexicano'},
+    {code:'ARS',simbolo:'AR$',nombre:'Peso argentino'},
+    {code:'CLP',simbolo:'CL$',nombre:'Peso chileno'}
+  ];
+  let monedaActual='PEN';
+  let tasasMoneda={PEN:1};
+
+  /** Carga los tipos de cambio (base PEN) desde una API gratuita, con caché de 6 horas. */
+  async function cargarTasas(){
+    try{
+      const cache=JSON.parse(localStorage.getItem('tampur_tasas'));
+      if(cache && cache.rates && (Date.now()-cache.t)<6*3600*1000){
+        tasasMoneda=cache.rates;
+      } else {
+        const res=await fetch('https://open.er-api.com/v6/latest/PEN');
+        if(!res.ok) throw new Error('bad');
+        const data=await res.json();
+        if(data && data.result==='success' && data.rates){
+          tasasMoneda=data.rates;
+          localStorage.setItem('tampur_tasas',JSON.stringify({rates:data.rates,t:Date.now()}));
+        }
+      }
+      pintarPrecios();
+      actualizarPistaMoneda();
+    }catch(e){}
+  }
+
+  /** Convierte un monto en soles a la moneda seleccionada y lo formatea. */
+  function formatearPrecio(pen){
+    const valor=pen*(tasasMoneda[monedaActual]||1);
+    const maxDec=valor>=1000?0:(valor>=100?0:2);
+    const numero=valor.toLocaleString('es-PE',{minimumFractionDigits:0,maximumFractionDigits:maxDec});
+    const m=MONEDAS.find(x=>x.code===monedaActual);
+    return (m?m.simbolo+' ':'')+numero;
+  }
+
+  function actualizarPistaMoneda(){
+    const hint=document.getElementById('tasaHint');
+    if(!hint) return;
+    if(monedaActual==='PEN'){ hint.textContent=''; return; }
+    const m=MONEDAS.find(x=>x.code===monedaActual);
+    const porUnidad=1/(tasasMoneda[monedaActual]||1);
+    hint.textContent='1 '+(m?m.simbolo:'')+' ≈ S/ '+porUnidad.toFixed(2);
+  }
+
+  function pintarPrecios(){
+    const b=document.querySelectorAll('.tarjeta .precio b');
+    const precios=[TARIFAS.simple,TARIFAS.doble,TARIFAS.matrimonial];
+    b.forEach((el,i)=>{ if(precios[i]!=null) el.textContent=formatearPrecio(precios[i]); });
+  }
+
+  function refrescarTotal(){
+    document.getElementById('rTotal').textContent='S/ '+totalActual;
+    const conv=document.getElementById('rTotalConv');
+    if(conv) conv.textContent=(monedaActual!=='PEN'&&totalActual>0)?('≈ '+formatearPrecio(totalActual)):'';
+  }
+
+  function iniciarMoneda(){
+    const sel=document.getElementById('selMoneda');
+    if(!sel) return;
+    const guardada=localStorage.getItem('tampur_moneda');
+    if(guardada){ monedaActual=guardada; sel.value=guardada; }
+    sel.addEventListener('change',()=>{
+      monedaActual=sel.value;
+      localStorage.setItem('tampur_moneda',monedaActual);
+      pintarPrecios();
+      actualizarPistaMoneda();
+    });
+  }
+
+  // ===== Animación de contadores (números que suben al entrar en pantalla) =====
+  function animarContadores(){
+    const els=document.querySelectorAll('[data-contar]');
+    if(!els.length) return;
+    const io=new IntersectionObserver(entradas=>{
+      entradas.forEach(e=>{
+        if(!e.isIntersecting) return;
+        const el=e.target;
+        const objetivo=parseFloat(el.dataset.contar)||0;
+        const dur=1300, inicio=performance.now();
+        const tick=ahora=>{
+          const p=Math.min((ahora-inicio)/dur,1);
+          const suave=1-Math.pow(1-p,3);
+          el.textContent=Math.round(objetivo*suave).toLocaleString('es-PE');
+          if(p<1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+        io.unobserve(el);
+      });
+    },{threshold:.5});
+    els.forEach(el=>io.observe(el));
+  }
+
   // Identificador único por cada intento de reserva. Se regenera cada vez que
   // se abre el modal, y viaja al backend para que este pueda detectar si el
   // mismo intento llega más de una vez (doble clic, doble envío, reintento).
@@ -66,6 +163,8 @@
     document.getElementById('rSubtitulo').textContent='Tarifa: S/ '+tarifaActual+' por noche';
     document.getElementById('rDetalle').textContent='Seleccione fechas';
     document.getElementById('rTotal').textContent='S/ 0';
+    const conv0=document.getElementById('rTotalConv'); if(conv0) conv0.textContent='';
+    totalActual=0;
     modal.classList.add('abierto');
     calcular();
   }
@@ -82,9 +181,9 @@
       if(noches>0){
         totalActual=noches*tarifaActual;
         document.getElementById('rDetalle').textContent=noches+' noche'+(noches>1?'s':'')+' · '+habitacionActual;
-        document.getElementById('rTotal').textContent='S/ '+totalActual;
+        refrescarTotal();
         if(document.getElementById('qrBox').style.display==='block') generarQrYape();
-      } else { totalActual=0; document.getElementById('rDetalle').textContent='La salida debe ser posterior'; document.getElementById('rTotal').textContent='S/ 0'; }
+      } else { totalActual=0; document.getElementById('rDetalle').textContent='La salida debe ser posterior'; refrescarTotal(); }
     }
   }
 
@@ -439,6 +538,9 @@
 
   cargarTarifas();
   cargarDisponibilidad();
+  cargarTasas();
+  iniciarMoneda();
+  animarContadores();
 
   // ===================== LIMPIEZA DEL DÍA =====================
   // Estructura del hotel simulada (debe coincidir con backoffice-service): Piso 1 = 101-107, Piso 2 = 201-212, Piso 3 = 301-305.
