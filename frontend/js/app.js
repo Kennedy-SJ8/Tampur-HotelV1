@@ -412,26 +412,41 @@
     document.getElementById('adminLogin').classList.remove('abierto');
     document.getElementById('adminDash').classList.remove('abierto');
   }
+  function toggleAdminPw(){
+    const inp=document.getElementById('aClave');
+    const icoOpen=inp.parentElement.querySelector('.pw-ico-open');
+    const icoHide=inp.parentElement.querySelector('.pw-ico-hide');
+    if(inp.type==='password'){ inp.type='text'; icoOpen.style.display='none'; icoHide.style.display='block'; }
+    else { inp.type='password'; icoOpen.style.display='block'; icoHide.style.display='none'; }
+  }
+  function showAdminError(msg){
+    const el=document.getElementById('aError');
+    el.textContent=msg; el.classList.add('visible');
+  }
+  function hideAdminError(){ document.getElementById('aError').classList.remove('visible'); }
   async function loginAdmin(){
     const u=document.getElementById('aUsuario').value.trim();
     const c=document.getElementById('aClave').value;
-    const errEl=document.getElementById('aError');
-    if(!u||!c){ errEl.textContent='Ingrese usuario y contraseña'; return; }
+    const btn=document.getElementById('btnAdminLogin');
+    hideAdminError();
+    if(!u||!c){ showAdminError('Ingrese usuario y contraseña.'); return; }
+    btn.disabled=true; btn.querySelector('.btn-text').style.display='none'; btn.querySelector('.btn-loading').style.display='inline';
     try{
       const res=await fetch(API_BACKOFFICE+'/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usuario:u,clave:c})});
       if(res.ok){
         const data=await res.json();
         sessionStorage.setItem('tampur_admin_token',data.token);
-        errEl.textContent='';
         document.getElementById('adminLogin').classList.remove('abierto');
+        document.getElementById('aClave').value='';
         entrarDash();
       } else {
         const data=await res.json().catch(()=>null);
-        errEl.textContent=(data&&data.error)?data.error:'Usuario o contraseña incorrectos';
+        showAdminError((data&&data.error)?data.error:'Usuario o contraseña incorrectos.');
       }
     }catch(e){
-      errEl.textContent='No se pudo conectar con el servidor. Verifique que backoffice-service esté corriendo (puerto 8083).';
+      showAdminError('No se pudo conectar con el servidor.');
     }
+    btn.disabled=false; btn.querySelector('.btn-text').style.display='inline'; btn.querySelector('.btn-loading').style.display='none';
   }
   function entrarDash(){
     document.getElementById('adminDash').classList.add('abierto');
@@ -484,10 +499,13 @@
     }
   }
   async function accionReservaBackend(codigo, estado){
+    const accion=estado==='Confirmada'?'confirmar':'cancelar';
+    if(!confirm('¿Desea '+accion+' la reserva '+codigo+'?')) return;
     try{ await fetch(API_RESERVAS+'/api/reservas/'+codigo+'/estado',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({estado:estado})}); }catch(e){}
     renderReservas();
   }
   async function eliminarReservaBackend(codigo){
+    if(!confirm('¿Eliminar permanentemente la reserva '+codigo+'? Esta acción no se puede deshacer.')) return;
     try{ await fetch(API_RESERVAS+'/api/reservas/'+codigo,{method:'DELETE'}); }catch(e){}
     renderReservas();
   }
@@ -512,8 +530,15 @@
       </tr>`).join('');
     cont.innerHTML=`<div class="tabla-wrap"><table class="tabla"><thead><tr><th>Código</th><th>Huésped</th><th>Habitación</th><th>Fechas</th><th>Noches</th><th>Total</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>${filas}</tbody></table></div>`;
   }
-  function accionReservaLocal(i,estado){ const rs=getReservas(); rs[i].estado=estado; setReservas(rs); renderReservas(); }
-  function eliminarReservaLocal(i){ const rs=getReservas(); rs.splice(i,1); setReservas(rs); renderReservas(); }
+  function accionReservaLocal(i,estado){
+    const accion=estado==='Confirmada'?'confirmar':'cancelar';
+    if(!confirm('¿Desea '+accion+' la reserva?')) return;
+    const rs=getReservas(); rs[i].estado=estado; setReservas(rs); renderReservas();
+  }
+  function eliminarReservaLocal(i){
+    if(!confirm('¿Eliminar permanentemente esta reserva? Esta acción no se puede deshacer.')) return;
+    const rs=getReservas(); rs.splice(i,1); setReservas(rs); renderReservas();
+  }
 
   function getHabitaciones(){
     return JSON.parse(localStorage.getItem('tampur_habitaciones')||'[{"id":"S1","tipo":"Simple","estado":"Libre"},{"id":"S2","tipo":"Simple","estado":"Limpieza"},{"id":"D1","tipo":"Doble","estado":"Libre"},{"id":"D2","tipo":"Doble","estado":"Ocupada"},{"id":"M1","tipo":"Matrimonial","estado":"Libre"},{"id":"M2","tipo":"Matrimonial","estado":"Limpieza"}]');
@@ -609,14 +634,19 @@
     const t=JSON.parse(localStorage.getItem('tampur_tarifas')||JSON.stringify(TARIFAS));
     document.getElementById('dashContenido').innerHTML=`
       <div class="formulario" style="max-width:440px">
-        <div class="campo-form"><label>Habitación Simple (S/ por noche)</label><input type="number" id="tSimple" value="${t.simple}" min="0"></div>
-        <div class="campo-form"><label>Habitación Doble (S/ por noche)</label><input type="number" id="tDoble" value="${t.doble}" min="0"></div>
-        <div class="campo-form"><label>Habitación Matrimonial (S/ por noche)</label><input type="number" id="tMatrimonial" value="${t.matrimonial}" min="0"></div>
+        <p style="color:var(--gris);font-size:.9rem;margin-bottom:16px">Configure el precio por noche para cada tipo de habitación.</p>
+        <div class="campo-form"><label>Habitación Simple (S/ por noche)</label><input type="number" id="tSimple" value="${t.simple}" min="0" step="1"></div>
+        <div class="campo-form"><label>Habitación Doble (S/ por noche)</label><input type="number" id="tDoble" value="${t.doble}" min="0" step="1"></div>
+        <div class="campo-form"><label>Habitación Matrimonial (S/ por noche)</label><input type="number" id="tMatrimonial" value="${t.matrimonial}" min="0" step="1"></div>
         <button class="btn btn-primario" onclick="guardarTarifas()">Guardar tarifas</button>
       </div>`;
   }
   function guardarTarifas(){
-    const t={simple:+document.getElementById('tSimple').value, doble:+document.getElementById('tDoble').value, matrimonial:+document.getElementById('tMatrimonial').value};
+    const s=+document.getElementById('tSimple').value;
+    const d=+document.getElementById('tDoble').value;
+    const m=+document.getElementById('tMatrimonial').value;
+    if(isNaN(s)||isNaN(d)||isNaN(m)||s<0||d<0||m<0){ alert('Ingrese valores numéricos válidos (mayores o iguales a 0).'); return; }
+    const t={simple:s,doble:d,matrimonial:m};
     localStorage.setItem('tampur_tarifas',JSON.stringify(t));
     Object.assign(TARIFAS,t);
     cargarTarifas();
