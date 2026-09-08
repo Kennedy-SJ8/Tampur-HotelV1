@@ -185,6 +185,7 @@ public class ReservasController {
                 precioNoche * noches, "Pendiente"
         );
         entity.setMetodoPago(r.metodoPago());
+        entity.setHuespedes(r.huespedes() != null ? r.huespedes() : 1);
         return reservaRepo.save(entity);
     }
 

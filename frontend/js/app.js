@@ -12,8 +12,12 @@
   document.getElementById('buscador').addEventListener('submit',e=>{
     e.preventDefault();
     const en=document.getElementById('entrada').value, sa=document.getElementById('salida').value;
+    const huespedes=document.getElementById('huespedes').value;
     document.getElementById('habitaciones').scrollIntoView({behavior:'smooth'});
     if(en&&sa){ document.getElementById('rEntrada').value=en; document.getElementById('rSalida').value=sa; }
+    // Pasar huéspedes al modal de reserva
+    const selHuespedes=document.getElementById('rHuespedes');
+    if(selHuespedes){ selHuespedes.value=huespedes; }
   });
 
   // Reserva
@@ -325,6 +329,7 @@
     const correo=document.getElementById('rCorreo').value.trim();
     const tel=document.getElementById('rTelefono').value.trim();
     const metodo=document.getElementById('rMetodo').value;
+    const huespedes=parseInt(document.getElementById('rHuespedes').value)||1;
     const voucherFile=document.getElementById('rVoucher').files[0];
     const voucherUrl=voucherFile?voucherFile.name:null;
     const en=document.getElementById('rEntrada').value, sa=document.getElementById('rSalida').value;
@@ -347,6 +352,7 @@
           nombre, dni, correo, telefono:tel,
           fechaEntrada:en, fechaSalida:sa,
           metodoPago:metodo,
+          huespedes,
           idempotencyKey
         }),
         signal:ctrl.signal

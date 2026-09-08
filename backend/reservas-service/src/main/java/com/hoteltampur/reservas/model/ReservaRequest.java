@@ -19,6 +19,7 @@ public record ReservaRequest(
         LocalDate fechaEntrada,
         LocalDate fechaSalida,
         String metodoPago,
+        Integer huespedes,
         String idempotencyKey
 ) {
 }

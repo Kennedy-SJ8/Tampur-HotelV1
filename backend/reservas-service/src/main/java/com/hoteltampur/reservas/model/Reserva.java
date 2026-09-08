@@ -16,6 +16,7 @@ public record Reserva(
         String estado,
         String numeroHabitacion,
         String metodoPago,
+        int huespedes,
         boolean checkinHoy,
         boolean checkoutHoy
 ) {

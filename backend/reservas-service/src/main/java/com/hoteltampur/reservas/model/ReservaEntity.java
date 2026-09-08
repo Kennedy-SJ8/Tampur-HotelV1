@@ -29,6 +29,7 @@ public class ReservaEntity implements Persistable<String> {
     private String estado;
     private String numeroHabitacion;
     private String metodoPago;
+    private int huespedes;
     private LocalDateTime creadoEn;
 
     @Transient
@@ -102,6 +103,9 @@ public class ReservaEntity implements Persistable<String> {
     public String getMetodoPago() { return metodoPago; }
     public void setMetodoPago(String metodoPago) { this.metodoPago = metodoPago; }
 
+    public int getHuespedes() { return huespedes; }
+    public void setHuespedes(int huespedes) { this.huespedes = huespedes; }
+
     public LocalDateTime getCreadoEn() { return creadoEn; }
     public void setCreadoEn(LocalDateTime creadoEn) { this.creadoEn = creadoEn; }
 
@@ -111,6 +115,6 @@ public class ReservaEntity implements Persistable<String> {
         boolean esCheckoutHoy = fechaSalida != null && fechaSalida.equals(hoy);
         return new Reserva(codigo, tipoHabitacion, nombre, dni, correo, telefono,
                 fechaEntrada, fechaSalida, noches, total, estado, numeroHabitacion,
-                metodoPago, esCheckinHoy, esCheckoutHoy);
+                metodoPago, huespedes, esCheckinHoy, esCheckoutHoy);
     }
 }

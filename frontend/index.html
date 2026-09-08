@@ -234,11 +234,17 @@
       <div class="campo-form"><label data-i18n="reserva_tel">Teléfono (opcional)</label><input type="tel" id="rTelefono" placeholder="943 000 000" maxlength="15"><span class="campo-error" id="errTelefono"></span></div>
     </div>
     <div class="campo-form">
-      <label data-i18n="reserva_metodo_pago">Método de pago</label>
+      <label data-i18n="reserva MetodoPago">Método de pago</label>
       <select id="rMetodo">
         <option value="yape">Yape</option>
         <option value="plin">Plin</option>
         <option value="efectivo" data-i18n="reserva_efectivo">Efectivo en recepción</option>
+      </select>
+    </div>
+    <div class="campo-form">
+      <label data-i18n="reserva_huespedes">Número de huéspedes</label>
+      <select id="rHuespedes">
+        <option value="1">1 huésped</option><option value="2">2 huéspedes</option><option value="3">3 huéspedes</option><option value="4">4 huéspedes</option><option value="5">5+ huéspedes</option>
       </select>
     </div>
     <div id="qrBox" style="display:none">
