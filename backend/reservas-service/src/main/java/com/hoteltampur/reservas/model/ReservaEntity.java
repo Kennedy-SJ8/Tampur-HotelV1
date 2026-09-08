@@ -27,6 +27,7 @@ public class ReservaEntity implements Persistable<String> {
     private int noches;
     private double total;
     private String estado;
+    private String numeroHabitacion;
     private LocalDateTime creadoEn;
 
     @Transient
@@ -94,11 +95,14 @@ public class ReservaEntity implements Persistable<String> {
     public String getEstado() { return estado; }
     public void setEstado(String estado) { this.estado = estado; }
 
+    public String getNumeroHabitacion() { return numeroHabitacion; }
+    public void setNumeroHabitacion(String numeroHabitacion) { this.numeroHabitacion = numeroHabitacion; }
+
     public LocalDateTime getCreadoEn() { return creadoEn; }
     public void setCreadoEn(LocalDateTime creadoEn) { this.creadoEn = creadoEn; }
 
     public Reserva toRecord() {
         return new Reserva(codigo, tipoHabitacion, nombre, dni, correo, telefono,
-                fechaEntrada, fechaSalida, noches, total, estado);
+                fechaEntrada, fechaSalida, noches, total, estado, numeroHabitacion);
     }
 }

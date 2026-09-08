@@ -509,6 +509,10 @@
           <td><b>${r.codigo}</b></td>
           <td>${r.nombre}<br><small style="color:#999">DNI: ${r.dni}</small></td>
           <td>${r.tipoHabitacion}</td>
+          <td style="white-space:nowrap">
+            <input id="hab_${r.codigo}" value="${r.numeroHabitacion||''}" placeholder="N°" style="width:64px;padding:6px;border:1.5px solid var(--niebla-2);border-radius:8px;font-family:inherit;font-size:.85rem;text-align:center">
+            <button class="btn-sm btn-confirmar" style="margin-left:4px" onclick="asignarHabitacion('${r.codigo}')">OK</button>
+          </td>
           <td>${r.fechaEntrada} → ${r.fechaSalida}</td>
           <td>${r.noches}</td>
           <td>S/ ${r.total}</td>
@@ -519,7 +523,7 @@
             <button class="btn-sm btn-eliminar" onclick="eliminarReservaBackend('${r.codigo}')">Eliminar</button>
           </td>
         </tr>`).join('');
-      cont.innerHTML=`<div class="tabla-wrap"><table class="tabla"><thead><tr><th>Código</th><th>Huésped</th><th>Habitación</th><th>Fechas</th><th>Noches</th><th>Total</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>${filas}</tbody></table></div>`;
+      cont.innerHTML=`<div class="tabla-wrap"><table class="tabla"><thead><tr><th>Código</th><th>Huésped</th><th>Tipo</th><th>N° Hab.</th><th>Fechas</th><th>Noches</th><th>Total</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>${filas}</tbody></table></div>`;
     }catch(e){
       renderReservasLocal();
     }
@@ -528,6 +532,16 @@
     const accion=estado==='Confirmada'?'confirmar':'cancelar';
     if(!confirm('¿Desea '+accion+' la reserva '+codigo+'?')) return;
     try{ await fetch(API_RESERVAS+'/api/reservas/'+codigo+'/estado',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({estado:estado})}); }catch(e){}
+    renderReservas();
+  }
+  async function asignarHabitacion(codigo){
+    const inp=document.getElementById('hab_'+codigo);
+    const num=inp?inp.value.trim():'';
+    if(!num){ alert('Ingrese el número de habitación.'); return; }
+    try{
+      const res=await fetch(API_RESERVAS+'/api/reservas/'+codigo+'/habitacion',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({numeroHabitacion:num})});
+      if(!res.ok) throw new Error('bad');
+    }catch(e){ alert('No se pudo asignar la habitación. Verifique la conexión.'); }
     renderReservas();
   }
   async function eliminarReservaBackend(codigo){

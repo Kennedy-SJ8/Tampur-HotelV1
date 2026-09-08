@@ -13,6 +13,7 @@ public record Reserva(
         LocalDate fechaSalida,
         int noches,
         double total,
-        String estado
+        String estado,
+        String numeroHabitacion
 ) {
 }

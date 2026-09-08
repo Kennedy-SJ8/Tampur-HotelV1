@@ -220,6 +220,23 @@ public class ReservasController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
+    @PatchMapping("/reservas/{codigo}/habitacion")
+    public ResponseEntity<?> asignarHabitacion(@PathVariable String codigo,
+                                               @RequestBody Map<String, String> body) {
+        ReservaEntity actual = reservaRepo.findById(codigo).orElse(null);
+        if (actual == null) {
+            return ResponseEntity.notFound().build();
+        }
+        String numero = body.getOrDefault("numeroHabitacion", "");
+        if (numero.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Indique el número de habitación."));
+        }
+        actual.setNumeroHabitacion(numero.trim().toUpperCase());
+        reservaRepo.save(actual);
+        log.info("Habitación {} asignada a la reserva {}", numero.trim().toUpperCase(), codigo);
+        return ResponseEntity.ok(actual.toRecord());
+    }
+
     @DeleteMapping("/reservas/{codigo}")
     public ResponseEntity<Void> eliminarReserva(@PathVariable String codigo) {
         if (!reservaRepo.existsById(codigo)) {
