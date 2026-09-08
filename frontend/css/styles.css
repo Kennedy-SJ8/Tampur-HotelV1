@@ -515,41 +515,38 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);padding-top:22px;text-a
 }
 
 /* ======================== CALENDARIO ======================== */
-.cal-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.cal-top{display:flex;align-items:center;gap:12px;margin-bottom:10px}
 .btn-cal-nav{background:var(--grafito);color:#fff;border:none;width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:.9rem;transition:background .2s}
 .btn-cal-nav:hover{background:var(--copper)}
 .btn-cal-hoy{background:var(--arena);color:var(--text);border:1px solid var(--borde);border-radius:6px;padding:4px 12px;cursor:pointer;font-size:.8rem;font-weight:500;transition:all .2s}
 .btn-cal-hoy:hover{background:var(--copper);color:#fff;border-color:var(--copper)}
 .cal-mes-label{font-family:'Fraunces',serif;font-size:1.15rem;font-weight:600;color:var(--text)}
-.cal-leyenda{margin-left:auto;display:flex;gap:14px;font-size:.8rem;color:var(--gris)}
+.cal-leyenda{display:flex;gap:14px;font-size:.8rem;color:var(--gris);margin-bottom:14px}
 .cal-leg-item{display:flex;align-items:center;gap:4px}
 .cal-dot{width:12px;height:12px;border-radius:3px;display:inline-block}
 .cal-libre{background:#e8e5e0}
 .cal-reservada{background:var(--copper)}
 .cal-mantenimiento{background:#e74c3c}
-.cal-grid-wrap{overflow-x:auto;border:1px solid var(--borde);border-radius:10px;background:var(--blanco);position:relative}
-.cal-grid{display:inline-grid;min-width:100%}
-.cal-loading{padding:40px;text-align:center;color:var(--gris);font-style:italic}
-.cal-header{display:contents}
-.cal-row{display:contents}
-.cal-celda{padding:6px 4px;text-align:center;border-bottom:1px solid var(--borde);border-right:1px solid var(--borde);font-size:.75rem;min-width:38px;min-height:32px;cursor:pointer;transition:background .15s,transform .1s}
-.cal-celda:hover{background:var(--arena)}
-.cal-celda:active{transform:scale(.95)}
-.cal-celda-hab{background:var(--grafito);color:#fff;font-weight:600;cursor:default;min-width:80px;text-align:left;padding-left:10px;position:sticky;left:0;z-index:2}
-.cal-celda-hab small{display:block;font-weight:400;opacity:.7;font-size:.65rem}
-.cal-celda-dia{background:var(--arena);font-weight:600;color:var(--text)}
-.cal-celda-dia small{display:block;font-weight:400;font-size:.6rem;color:var(--gris)}
-.cal-domingo{color:#e74c3c}
-.cal-reservada{background:var(--copper) !important;color:#fff;cursor:default}
-.cal-mantenimiento{background:#e74c3c !important;color:#fff}
-.cal-hoy{outline:2px solid var(--copper);outline-offset:-2px;z-index:1}
-.cal-tooltip{display:none;position:absolute;background:var(--grafito);color:#fff;padding:8px 12px;border-radius:8px;font-size:.78rem;line-height:1.4;pointer-events:none;z-index:100;max-width:220px;box-shadow:0 4px 12px rgba(0,0,0,.25)}
-.tip-reserva{color:#f0c27a;font-weight:600}
-.tip-mant{color:#f87171;font-weight:600}
-.tip-libre{color:#a3e635;font-weight:600}
-.cal-occupancy{display:flex;gap:1px;height:8px;margin-bottom:8px;border-radius:4px;overflow:hidden}
-.cal-occ-bar{display:flex;gap:1px;width:100%;align-items:flex-end}
-.occ-seg{flex:1;border-radius:1px;transition:height .3s}
-.occ-low{background:#a3e635}
-.occ-mid{background:var(--copper)}
-.occ-full{background:#e74c3c}
+.cal-loading{padding:30px;text-align:center;color:var(--gris);font-style:italic}
+.cal-habs{display:flex;flex-direction:column;gap:10px}
+.cal-hab-card{background:var(--blanco);border:1px solid var(--borde);border-radius:10px;padding:14px 16px;transition:box-shadow .2s}
+.cal-hab-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.cal-hab-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.cal-hab-id{font-family:'Fraunces',serif;font-weight:700;font-size:1.05rem;color:var(--text);min-width:28px}
+.cal-hab-tipo{color:var(--gris);font-size:.85rem}
+.cal-hab-resumen{margin-left:auto;display:flex;gap:10px;font-size:.78rem}
+.res-libre{color:#6b7280}
+.res-ocupado{color:var(--copper);font-weight:600}
+.res-mant{color:#e74c3c;font-weight:600}
+.cal-hab-mini{user-select:none}
+.mini-cal-header{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px}
+.mini-cal-dow{text-align:center;font-size:.65rem;font-weight:600;color:var(--gris);padding:2px 0}
+.mini-cal-dias{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.mini-cal-vacio{aspect-ratio:1}
+.mini-cal-dia{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:5px;font-size:.72rem;font-weight:500;cursor:pointer;transition:all .15s;color:var(--text)}
+.mini-cal-dia:hover{background:var(--arena);transform:scale(1.15)}
+.mini-cal-dia:active{transform:scale(.9)}
+.mini-cal-dia.hoy{outline:2px solid var(--copper);outline-offset:1px;font-weight:700}
+.mini-cal-dia.reservada{background:var(--copper);color:#fff;cursor:default}
+.mini-cal-dia.reservada:hover{transform:none}
+.mini-cal-dia.mantenimiento{background:#e74c3c;color:#fff}
