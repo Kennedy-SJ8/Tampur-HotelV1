@@ -9,6 +9,7 @@ import java.util.List;
 @Repository
 public interface HabitacionRepository extends JpaRepository<HabitacionEntity, String> {
     List<HabitacionEntity> findByEstado(String estado);
+    List<HabitacionEntity> findByTipo(String tipo);
     long countByTipo(String tipo);
     long countByTipoAndEstado(String tipo, String estado);
 }

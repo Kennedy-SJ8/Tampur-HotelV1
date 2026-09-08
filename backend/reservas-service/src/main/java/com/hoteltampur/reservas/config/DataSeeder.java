@@ -25,21 +25,35 @@ public class DataSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (habitacionRepo.count() > 0) {
-            log.info("Habitaciones ya existentes, se omite el seed.");
-            return;
+        List<HabitacionEntity> existentes = habitacionRepo.findAll();
+        // Actualizar precios de tipos existentes
+        existentes.forEach(h -> {
+            switch (h.getTipo()) {
+                case "Simple" -> h.setPrecioNoche(60.0);
+                case "Matrimonial" -> h.setPrecioNoche(80.0);
+                case "Queen" -> h.setPrecioNoche(120.0);
+                case "King" -> h.setPrecioNoche(140.0);
+                default -> {}
+            }
+        });
+        habitacionRepo.saveAll(existentes);
+
+        // Agregar tipos que no existen aún
+        java.util.Set<String> tiposExistentes = new java.util.HashSet<>();
+        existentes.forEach(h -> tiposExistentes.add(h.getTipo()));
+        List<HabitacionEntity> nuevos = new java.util.ArrayList<>();
+        if (!tiposExistentes.contains("Queen")) {
+            nuevos.add(new HabitacionEntity("Q1", "Queen", 120.0, "Libre"));
+            nuevos.add(new HabitacionEntity("Q2", "Queen", 120.0, "Libre"));
         }
-        List<HabitacionEntity> iniciales = List.of(
-                new HabitacionEntity("S1", "Simple", 60.0, "Libre"),
-                new HabitacionEntity("S2", "Simple", 60.0, "Libre"),
-                new HabitacionEntity("M1", "Matrimonial", 80.0, "Libre"),
-                new HabitacionEntity("M2", "Matrimonial", 80.0, "Libre"),
-                new HabitacionEntity("Q1", "Queen", 120.0, "Libre"),
-                new HabitacionEntity("Q2", "Queen", 120.0, "Libre"),
-                new HabitacionEntity("K1", "King", 140.0, "Libre"),
-                new HabitacionEntity("K2", "King", 140.0, "Libre")
-        );
-        habitacionRepo.saveAll(iniciales);
-        log.info("Habitaciones iniciales insertadas: {}", iniciales.size());
+        if (!tiposExistentes.contains("King")) {
+            nuevos.add(new HabitacionEntity("K1", "King", 140.0, "Libre"));
+            nuevos.add(new HabitacionEntity("K2", "King", 140.0, "Libre"));
+        }
+        if (!nuevos.isEmpty()) {
+            habitacionRepo.saveAll(nuevos);
+            log.info("Nuevos tipos insertados: {}", nuevos.size());
+        }
+        log.info("DataSeeder completado. Total habitaciones: {}", habitacionRepo.count());
     }
 }

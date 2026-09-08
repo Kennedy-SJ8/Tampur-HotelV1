@@ -553,6 +553,7 @@
   function cambiarTab(tab){
     document.querySelectorAll('.admin-shell aside button[data-tab]').forEach(b=>b.classList.toggle('activo',b.dataset.tab===tab));
     if(tab==='reservas') renderReservas();
+    else if(tab==='calendario') renderCalendario();
     else if(tab==='habitaciones') renderHabitaciones();
     else if(tab==='limpieza') renderLimpieza();
     else if(tab==='caja') renderCaja();
@@ -830,6 +831,101 @@
     Object.assign(TARIFAS,t);
     cargarTarifas();
     alert('Tarifas actualizadas correctamente');
+  }
+
+  // ===================== CALENDARIO DE HABITACIONES =====================
+  const HAB_CALENDARIO = [
+    {id:'S1',tipo:'Simple',piso:1},{id:'S2',tipo:'Simple',piso:1},
+    {id:'M1',tipo:'Matrimonial',piso:2},{id:'M2',tipo:'Matrimonial',piso:2},
+    {id:'Q1',tipo:'Queen',piso:2},{id:'Q2',tipo:'Queen',piso:2},
+    {id:'K1',tipo:'King',piso:3},{id:'K2',tipo:'King',piso:3}
+  ];
+  let calAnio, calMes;
+
+  function renderCalendario(){
+    const hoy=new Date();
+    if(!calAnio){ calAnio=hoy.getFullYear(); calMes=hoy.getMonth()+1; }
+    document.getElementById('dashTitulo').textContent=t('cal_titulo')==='Calendario de habitaciones'?'Calendario de habitaciones':t('cal_titulo');
+    document.getElementById('dashContenido').innerHTML=`
+      <div class="cal-controls">
+        <button class="btn-cal-nav" onclick="calNav(-1)">◀</button>
+        <span class="cal-mes-label" id="calMesLabel"></span>
+        <button class="btn-cal-nav" onclick="calNav(1)">▶</button>
+        <span class="cal-leyenda">
+          <span class="cal-leg-item"><span class="cal-dot cal-libre"></span>${t('cal_libre')||'Libre'}</span>
+          <span class="cal-leg-item"><span class="cal-dot cal-reservada"></span>${t('cal_reservada')||'Reservada'}</span>
+          <span class="cal-leg-item"><span class="cal-dot cal-mantenimiento"></span>${t('cal_mantenimiento')||'Mantenimiento'}</span>
+        </span>
+      </div>
+      <div class="cal-grid-wrap"><div id="calGrid" class="cal-grid"></div></div>`;
+    cargarCalendario();
+  }
+
+  function calNav(direccion){
+    calMes+=direccion;
+    if(calMes>12){calMes=1;calAnio++;}
+    if(calMes<1){calMes=12;calAnio--;}
+    cargarCalendario();
+  }
+
+  async function cargarCalendario(){
+    const meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    const mesLabel=document.getElementById('calMesLabel');
+    if(mesLabel) mesLabel.textContent=meses[calMes-1]+' '+calAnio;
+
+    const grid=document.getElementById('calGrid');
+    if(!grid) return;
+
+    const primerDia=new Date(calAnio,calMes-1,1);
+    const ultimoDia=new Date(calAnio,calMes,0);
+    const numDias=ultimoDia.getDate();
+    const diasSemana=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+
+    // Cargar datos de disponibilidad
+    let datos={};
+    try{
+      const res=await fetch(API_RESERVAS+'/api/disponibilidad?anio='+calAnio+'&mes='+calMes);
+      if(res.ok){
+        const arr=await res.json();
+        arr.forEach(d=>{ datos[d.habitacion+'_'+d.fecha]=d.estado; });
+      }
+    }catch(e){}
+
+    let html='<div class="cal-header"><div class="cal-celda cal-celda-hab"></div>';
+    for(let d=1;d<=numDias;d++){
+      const dow=new Date(calAnio,calMes-1,d).getDay();
+      const esDomingo=dow===0;
+      html+=`<div class="cal-celda cal-celda-dia${esDomingo?' cal-domingo':''}">${d}<small>${diasSemana[(dow+6)%7]}</small></div>`;
+    }
+    html+='</div>';
+
+    HAB_CALENDARIO.forEach(hab=>{
+      html+=`<div class="cal-row"><div class="cal-celda cal-celda-hab">${hab.id}<small>${hab.tipo}</small></div>`;
+      for(let d=1;d<=numDias;d++){
+        const fecha=`${calAnio}-${String(calMes).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const clave=hab.id+'_'+fecha;
+        const estado=datos[clave]||'';
+        const clase=estado==='reservada'?'cal-reservada':estado==='mantenimiento'?'cal-mantenimiento':'';
+        const hoy=new Date();
+        const esHoy=d===hoy.getDate()&&calMes===hoy.getMonth()+1&&calAnio===hoy.getFullYear();
+        html+=`<div class="cal-celda${clase?' '+clase:''}${esHoy?' cal-hoy':''}" data-hab="${hab.id}" data-fecha="${fecha}" onclick="toggleCalelda(this)" title="${hab.id} - ${fecha}${estado?' ('+estado+')':''}"></div>`;
+      }
+      html+='</div>';
+    });
+
+    grid.innerHTML=html;
+  }
+
+  async function toggleCalelda(celda){
+    const hab=celda.dataset.hab;
+    const fecha=celda.dataset.fecha;
+    try{
+      const res=await fetch(API_RESERVAS+'/api/disponibilidad/toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({habitacion:hab,fecha:fecha})});
+      if(!res.ok) throw new Error();
+      const r=await res.json();
+      if(r.accion==='liberada'){celda.className=celda.className.replace(/cal-reservada|cal-mantenimiento/g,'').trim();}
+      else{celda.classList.add(r.estado==='mantenimiento'?'cal-mantenimiento':'cal-reservada');}
+    }catch(e){ alert('Error al actualizar disponibilidad'); }
   }
 
   cargarTarifas();

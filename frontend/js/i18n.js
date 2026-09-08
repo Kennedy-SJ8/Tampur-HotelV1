@@ -93,7 +93,8 @@ const traducciones = {
     admin_usuario: 'Usuario', admin_contrasena: 'Contraseña',
     admin_ingresar: 'Ingresar', admin_cargando: 'Entrando...', admin_err_credenciales: 'Credenciales incorrectas',
     admin_nav_reservas: 'Monitorear reservas', admin_nav_plano: 'Plano de habitaciones',
-    admin_nav_limpieza: 'Limpieza del día',
+    admin_nav_limpieza: 'Limpieza del día', admin_nav_calendario: 'Calendario de habitaciones',
+    cal_titulo: 'Calendario de habitaciones', cal_libre: 'Libre', cal_reservada: 'Reservada', cal_mantenimiento: 'Mantenimiento',
     // Monitorear
     mon_total: 'Total', mon_confirmadas: 'Confirmadas', mon_pendientes: 'Pendientes',
     mon_canceladas: 'Canceladas', mon_ingresos: 'Ingresos confirmados',
@@ -217,7 +218,8 @@ const traducciones = {
     admin_usuario: 'Username', admin_contrasena: 'Password',
     admin_ingresar: 'Sign in', admin_cargando: 'Signing in...', admin_err_credenciales: 'Invalid credentials',
     admin_nav_reservas: 'Monitor bookings', admin_nav_plano: 'Room plan',
-    admin_nav_limpieza: 'Daily cleaning',
+    admin_nav_limpieza: 'Daily cleaning', admin_nav_calendario: 'Room calendar',
+    cal_titulo: 'Room calendar', cal_libre: 'Free', cal_reservada: 'Reserved', cal_mantenimiento: 'Maintenance',
     // Monitorear
     mon_total: 'Total', mon_confirmadas: 'Confirmed', mon_pendientes: 'Pending',
     mon_canceladas: 'Cancelled', mon_ingresos: 'Confirmed revenue',

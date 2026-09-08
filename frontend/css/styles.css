@@ -513,3 +513,29 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);padding-top:22px;text-a
   .limp-num{font-size:1rem}
   .limp-estado{display:none}
 }
+
+/* ======================== CALENDARIO ======================== */
+.cal-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.btn-cal-nav{background:var(--grafito);color:#fff;border:none;width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:.9rem;transition:background .2s}
+.btn-cal-nav:hover{background:var(--copper)}
+.cal-mes-label{font-family:'Fraunces',serif;font-size:1.15rem;font-weight:600;color:var(--text)}
+.cal-leyenda{margin-left:auto;display:flex;gap:14px;font-size:.8rem;color:var(--gris)}
+.cal-leg-item{display:flex;align-items:center;gap:4px}
+.cal-dot{width:12px;height:12px;border-radius:3px;display:inline-block}
+.cal-libre{background:#e8e5e0}
+.cal-reservada{background:var(--copper)}
+.cal-mantenimiento{background:#e74c3c}
+.cal-grid-wrap{overflow-x:auto;border:1px solid var(--borde);border-radius:10px;background:var(--blanco)}
+.cal-grid{display:inline-grid;min-width:100%}
+.cal-header{display:contents}
+.cal-row{display:contents}
+.cal-celda{padding:6px 4px;text-align:center;border-bottom:1px solid var(--borde);border-right:1px solid var(--borde);font-size:.75rem;min-width:38px;min-height:32px;cursor:pointer;transition:background .15s}
+.cal-celda:hover{background:var(--arena)}
+.cal-celda-hab{background:var(--grafito);color:#fff;font-weight:600;cursor:default;min-width:80px;text-align:left;padding-left:10px;position:sticky;left:0;z-index:2}
+.cal-celda-hab small{display:block;font-weight:400;opacity:.7;font-size:.65rem}
+.cal-celda-dia{background:var(--arena);font-weight:600;color:var(--text)}
+.cal-celda-dia small{display:block;font-weight:400;font-size:.6rem;color:var(--gris)}
+.cal-domingo{color:#e74c3c}
+.cal-reservada{background:var(--copper) !important;color:#fff}
+.cal-mantenimiento{background:#e74c3c !important;color:#fff}
+.cal-hoy{outline:2px solid var(--copper);outline-offset:-2px;z-index:1}

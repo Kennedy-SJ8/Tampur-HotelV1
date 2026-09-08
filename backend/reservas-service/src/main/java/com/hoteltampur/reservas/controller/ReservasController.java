@@ -1,10 +1,12 @@
 package com.hoteltampur.reservas.controller;
 
+import com.hoteltampur.reservas.model.DisponibilidadEntity;
 import com.hoteltampur.reservas.model.Habitacion;
 import com.hoteltampur.reservas.model.HabitacionEntity;
 import com.hoteltampur.reservas.model.Reserva;
 import com.hoteltampur.reservas.model.ReservaEntity;
 import com.hoteltampur.reservas.model.ReservaRequest;
+import com.hoteltampur.reservas.repository.DisponibilidadRepository;
 import com.hoteltampur.reservas.repository.HabitacionRepository;
 import com.hoteltampur.reservas.repository.ReservaRepository;
 import com.hoteltampur.reservas.service.CorreoService;
@@ -27,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -47,22 +50,25 @@ public class ReservasController {
     private static final Pattern PATRON_DNI = Pattern.compile("^[A-Za-z0-9]{6,12}$");
     private static final Pattern PATRON_CORREO = Pattern.compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
 
-    private final Map<String, Double> tarifas = Map.of(
+    private final Map<String, Double> tarifas = new HashMap<>(Map.of(
             "Simple", 60.0,
             "Matrimonial", 80.0,
             "Queen", 120.0,
             "King", 140.0
-    );
+    ));
 
     private final HabitacionRepository habitacionRepo;
     private final ReservaRepository reservaRepo;
+    private final DisponibilidadRepository disponibilidadRepo;
     private final CorreoService correoService;
 
     public ReservasController(HabitacionRepository habitacionRepo,
                               ReservaRepository reservaRepo,
+                              DisponibilidadRepository disponibilidadRepo,
                               CorreoService correoService) {
         this.habitacionRepo = habitacionRepo;
         this.reservaRepo = reservaRepo;
+        this.disponibilidadRepo = disponibilidadRepo;
         this.correoService = correoService;
     }
 
@@ -121,6 +127,9 @@ public class ReservasController {
         log.info("Guardando reserva...");
         ReservaEntity reserva = registrarReserva(r);
         log.info("Reserva guardada: {}", reserva.getCodigo());
+
+        // Auto-bloquear fechas en calendario
+        bloquearFechas(r.fechaEntrada(), r.fechaSalida(), null, reserva.getCodigo());
 
         final Reserva record = reserva.toRecord();
         CompletableFuture.runAsync(() -> {
@@ -246,11 +255,13 @@ public class ReservasController {
         if (!reservaRepo.existsById(codigo)) {
             return ResponseEntity.notFound().build();
         }
+        // Liberar fechas del calendario
+        disponibilidadRepo.deleteByCodigoReserva(codigo);
         reservaRepo.deleteById(codigo);
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/habitaciones/precios")
+    @PatchMapping("/admin/precios")
     public ResponseEntity<?> actualizarPrecios(@RequestBody Map<String, Double> body) {
         body.forEach((tipo, precio) -> {
             if (precio != null && precio >= 0) {
@@ -261,5 +272,35 @@ public class ReservasController {
             }
         });
         return ResponseEntity.ok(tarifas);
+    }
+
+    /** Bloquea todas las noches entre entrada y salida para habitaciones del tipo dado.
+     *  Si tipoHabitacion es null, bloquea para todas las del tipo de la reserva. */
+    private void bloquearFechas(LocalDate entrada, LocalDate salida, String tipoHabitacion, String codigoReserva) {
+        List<HabitacionEntity> habitaciones;
+        if (tipoHabitacion != null) {
+            habitaciones = habitacionRepo.findByTipo(tipoHabitacion);
+        } else {
+            // Buscar por el tipo de la reserva ya guardada
+            ReservaEntity res = reservaRepo.findById(codigoReserva).orElse(null);
+            if (res == null) return;
+            habitaciones = habitacionRepo.findByTipo(res.getTipoHabitacion());
+        }
+
+        List<DisponibilidadEntity> bloques = new ArrayList<>();
+        LocalDate fecha = entrada;
+        while (fecha.isBefore(salida)) {
+            for (HabitacionEntity h : habitaciones) {
+                String id = h.getId() + "_" + fecha.toString();
+                if (!disponibilidadRepo.existsById(id)) {
+                    bloques.add(new DisponibilidadEntity(id, h.getId(), fecha, "reservada", codigoReserva));
+                }
+            }
+            fecha = fecha.plusDays(1);
+        }
+        if (!bloques.isEmpty()) {
+            disponibilidadRepo.saveAll(bloques);
+            log.info("Fechas bloqueadas: {} noches x {} habitaciones", ChronoUnit.DAYS.between(entrada, salida), habitaciones.size());
+        }
     }
 }
