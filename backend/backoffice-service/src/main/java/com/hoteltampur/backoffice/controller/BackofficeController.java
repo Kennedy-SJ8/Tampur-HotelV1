@@ -153,6 +153,13 @@ public class BackofficeController {
                 seleccionadas.add(h.numero());
             }
         }
+        // Asegurar al menos 8 habitaciones para limpieza
+        List<Habitacion> ordenadas = new ArrayList<>(habitaciones);
+        Collections.shuffle(ordenadas, azar);
+        for (Habitacion h : ordenadas) {
+            if (seleccionadas.size() >= 8) break;
+            seleccionadas.add(h.numero());
+        }
         return seleccionadas;
     }
 

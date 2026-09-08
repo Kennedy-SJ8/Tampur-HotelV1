@@ -73,6 +73,9 @@ nav{display:flex;align-items:center;gap:26px}
 nav a{color:#fff;font-size:.92rem;font-weight:500;position:relative;opacity:.9}
 nav a::after{content:"";position:absolute;left:0;bottom:-6px;width:0;height:2px;background:var(--cobre);box-shadow:0 0 8px var(--cobre);transition:.3s}
 nav a:hover::after{width:100%}
+nav .btn-primario::after{display:none}
+nav .btn-idioma{display:inline-flex;align-items:center;background:transparent;border:1.5px solid rgba(255,255,255,.5);color:#fff;padding:5px 12px;border-radius:999px;font-family:'Space Grotesk',sans-serif;font-size:.75rem;font-weight:700;cursor:pointer;transition:.25s;letter-spacing:1px}
+nav .btn-idioma:hover{background:rgba(255,255,255,.15);border-color:var(--cobre)}
 
 .hamburguesa{display:none;background:none;border:none;cursor:pointer;flex-direction:column;gap:5px;padding:6px}
 .hamburguesa span{width:24px;height:2px;background:#fff;border-radius:2px}
