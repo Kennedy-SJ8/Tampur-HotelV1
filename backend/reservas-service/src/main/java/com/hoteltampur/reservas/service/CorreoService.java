@@ -4,6 +4,7 @@ import com.hoteltampur.reservas.model.Reserva;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,9 @@ public class CorreoService {
         try {
             MimeMessage mensaje = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mensaje, "UTF-8");
+            String remitente = ((JavaMailSenderImpl) mailSender).getUsername();
+            helper.setFrom("Hotel Támpur <" + remitente + ">");
+            helper.setReplyTo(remitente);
             helper.setTo(r.correo());
             helper.setSubject("Confirmación de reserva " + r.codigo() + " · Hotel Támpur");
             helper.setText(contenidoHtml(r), true);
