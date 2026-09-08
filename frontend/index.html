@@ -56,7 +56,7 @@
           <option>1</option><option>2</option><option>3</option><option>4</option><option>5+</option>
         </select>
       </div>
-      <button type="submit" class="btn btn-primario">Buscar</button>
+      <button type="submit" class="btn btn-primario" data-i18n="btn_buscar">Buscar</button>
     </form>
   </div>
 </section>
@@ -79,7 +79,7 @@
       <p data-i18n="sec_habitaciones_lead">Espacios cómodos y cálidos pensados para el clima de altura. Elija el tipo ideal para su estadía.</p>
     </div>
     <div class="selector-moneda revelar">
-      <label for="selMoneda">Mostrar precios en</label>
+      <label for="selMoneda" data-i18n="lbl_moneda">Mostrar precios en</label>
       <select id="selMoneda">
         <option value="PEN">S/ · Soles (PEN)</option>
         <option value="USD">US$ · Dólares (USD)</option>
@@ -177,11 +177,11 @@
         <form class="formulario" id="formConsulta">
           <h3>Envíe su consulta</h3>
           <div class="fila">
-            <div class="campo-form"><label>Nombre</label><input type="text" id="cNombre" required></div>
-            <div class="campo-form"><label>Correo</label><input type="email" id="cCorreo" required></div>
+            <div class="campo-form"><label data-i18n="form_nombre">Nombre</label><input type="text" id="cNombre" required></div>
+            <div class="campo-form"><label data-i18n="form_correo">Correo</label><input type="email" id="cCorreo" required></div>
           </div>
-          <div class="campo-form"><label>Mensaje</label><textarea id="cMensaje" rows="3" placeholder="Quisiera información sobre..."></textarea></div>
-          <button class="btn btn-primario" type="submit">Enviar consulta</button>
+          <div class="campo-form"><label data-i18n="form_mensaje">Mensaje</label><textarea id="cMensaje" rows="3" placeholder="Quisiera información sobre..."></textarea></div>
+          <button class="btn btn-primario" type="submit" data-i18n="form_enviar">Enviar consulta</button>
         </form>
       </div>
     </div>
@@ -222,23 +222,23 @@
     <h3 id="rTitulo">Reserva</h3>
     <p class="sub" id="rSubtitulo">Complete sus datos para confirmar.</p>
     <div class="fila">
-      <div class="campo-form"><label>Llegada</label><input type="date" id="rEntrada"><span class="campo-error" id="errEntrada"></span></div>
-      <div class="campo-form"><label>Salida</label><input type="date" id="rSalida"><span class="campo-error" id="errSalida"></span></div>
+      <div class="campo-form"><label data-i18n="reserva_llegada">Llegada</label><input type="date" id="rEntrada"><span class="campo-error" id="errEntrada"></span></div>
+      <div class="campo-form"><label data-i18n="reserva_salida">Salida</label><input type="date" id="rSalida"><span class="campo-error" id="errSalida"></span></div>
     </div>
     <div class="fila">
-      <div class="campo-form"><label>Nombre completo</label><input type="text" id="rNombre" placeholder="Juan Pérez" maxlength="100"><span class="campo-error" id="errNombre"></span></div>
-      <div class="campo-form"><label>DNI / Pasaporte</label><input type="text" id="rDni" placeholder="12345678" maxlength="12"><span class="campo-error" id="errDni"></span></div>
+      <div class="campo-form"><label data-i18n="reserva_nombre">Nombre completo</label><input type="text" id="rNombre" placeholder="Juan Pérez" maxlength="100"><span class="campo-error" id="errNombre"></span></div>
+      <div class="campo-form"><label data-i18n="reserva_dni">DNI / Pasaporte</label><input type="text" id="rDni" placeholder="12345678" maxlength="12"><span class="campo-error" id="errDni"></span></div>
     </div>
     <div class="fila">
-      <div class="campo-form"><label>Correo electrónico</label><input type="email" id="rCorreo" placeholder="correo@ejemplo.com" maxlength="100"><span class="campo-error" id="errCorreo"></span></div>
-      <div class="campo-form"><label>Teléfono (opcional)</label><input type="tel" id="rTelefono" placeholder="943 000 000" maxlength="15"><span class="campo-error" id="errTelefono"></span></div>
+      <div class="campo-form"><label data-i18n="reserva_email">Correo electrónico</label><input type="email" id="rCorreo" placeholder="correo@ejemplo.com" maxlength="100"><span class="campo-error" id="errCorreo"></span></div>
+      <div class="campo-form"><label data-i18n="reserva_tel">Teléfono (opcional)</label><input type="tel" id="rTelefono" placeholder="943 000 000" maxlength="15"><span class="campo-error" id="errTelefono"></span></div>
     </div>
     <div class="campo-form">
-      <label>Método de pago</label>
+      <label data-i18n="reserva_metodo_pago">Método de pago</label>
       <select id="rMetodo">
         <option value="yape">Yape</option>
         <option value="plin">Plin</option>
-        <option value="efectivo">Efectivo en recepción</option>
+        <option value="efectivo" data-i18n="reserva_efectivo">Efectivo en recepción</option>
       </select>
     </div>
     <div id="qrBox" style="display:none">
@@ -247,20 +247,20 @@
         <div class="pago-qr-wrap">
           <div id="qrCode" class="pago-qr"></div>
         </div>
-        <p class="pago-monto">Monto: <b id="qrMonto">S/ 0</b></p>
-        <p class="pago-numero">Al número: <b>943 370 504</b></p>
+        <p class="pago-monto"><span data-i18n="pago_monto">Monto</span>: <b id="qrMonto">S/ 0</b></p>
+        <p class="pago-numero"><span data-i18n="pago_numero">Al número</span>: <b>943 370 504</b></p>
         <div class="pago-pasos">
-          <p><b>Cómo pagar:</b></p>
+          <p><b data-i18n="pago_como_pagar">Cómo pagar:</b></p>
           <ol>
-            <li>Abre la app de <span id="pagoApp">Yape</span></li>
-            <li>Escanea este código QR</li>
-            <li>Envía el monto exacto</li>
-            <li>Adjunta la captura de pantalla</li>
+            <li><span data-i18n="pago_paso1">Abre la app de</span> <span id="pagoApp">Yape</span></li>
+            <li data-i18n="pago_paso2">Escanea este código QR</li>
+            <li data-i18n="pago_paso3">Envía el monto exacto</li>
+            <li data-i18n="pago_paso4">Adjunta la captura de pantalla</li>
           </ol>
         </div>
-        <label class="pago-voucher-btn" for="rVoucher">Adjuntar comprobante</label>
+        <label class="pago-voucher-btn" for="rVoucher" data-i18n="pago_subir">Adjuntar comprobante</label>
         <input type="file" id="rVoucher" accept="image/*" style="display:none" onchange="mostrarNombreArchivo(this)">
-        <p class="sub pago-voucher-nombre" id="voucherNombre">No seleccionado</p>
+        <p class="sub pago-voucher-nombre" id="voucherNombre" data-i18n="pago_nombre_arch">No seleccionado</p>
         <span class="campo-error" id="errVoucher"></span>
       </div>
     </div>
@@ -268,7 +268,7 @@
       <span id="rDetalle">Seleccione fechas</span>
       <span style="text-align:right"><b id="rTotal">S/ 0</b><br><span id="rTotalConv" style="font-size:.82rem;color:var(--gris)"></span></span>
     </div>
-    <button class="btn btn-primario" id="btnConfirmarReserva" style="width:100%;justify-content:center;margin-top:14px" onclick="confirmarReserva()">Confirmar reserva</button>
+    <button class="btn btn-primario" id="btnConfirmarReserva" style="width:100%;justify-content:center;margin-top:14px" onclick="confirmarReserva()" data-i18n="reserva_confirmar">Confirmar reserva</button>
   </div>
 </div>
 
