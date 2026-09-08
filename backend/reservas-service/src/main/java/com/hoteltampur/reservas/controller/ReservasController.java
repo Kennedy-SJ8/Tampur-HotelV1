@@ -158,6 +158,12 @@ public class ReservasController {
         if (esVacio(r.tipoHabitacion()) || !tarifas.containsKey(r.tipoHabitacion())) {
             errores.add("El tipo de habitación no es válido.");
         }
+        // Validar huéspedes por tipo: Simple=1, resto=2
+        int maxHuespedes = "Simple".equals(r.tipoHabitacion()) ? 1 : 2;
+        int huespedes = r.huespedes() != null ? r.huespedes() : 1;
+        if (huespedes < 1 || huespedes > maxHuespedes) {
+            errores.add("La habitación " + r.tipoHabitacion() + " admite máximo " + maxHuespedes + " huésped" + (maxHuespedes > 1 ? "es" : "") + ".");
+        }
         if (r.fechaEntrada() == null || r.fechaSalida() == null) {
             errores.add("Debe indicar fecha de llegada y de salida.");
         } else {
@@ -223,14 +229,44 @@ public class ReservasController {
     }
 
     @PatchMapping("/reservas/{codigo}/estado")
-    public ResponseEntity<Reserva> actualizarEstado(@PathVariable String codigo,
+    public ResponseEntity<?> actualizarEstado(@PathVariable String codigo,
                                                     @RequestBody Map<String, String> body) {
         return reservaRepo.findById(codigo).map(actual -> {
             String nuevoEstado = body.getOrDefault("estado", actual.getEstado());
             actual.setEstado(nuevoEstado);
+
+            // Al confirmar, asignar habitación libre automáticamente si no tiene
+            if ("Confirmada".equals(nuevoEstado) && (actual.getNumeroHabitacion() == null || actual.getNumeroHabitacion().isBlank())) {
+                String num = asignarHabitacionLibre(actual.getTipoHabitacion(), actual.getFechaEntrada(), actual.getFechaSalida());
+                if (num != null) {
+                    actual.setNumeroHabitacion(num);
+                    log.info("Habitación {} auto-asignada a reserva {}", num, codigo);
+                }
+            }
+
             reservaRepo.save(actual);
-            return ResponseEntity.ok(actual.toRecord());
+            return ResponseEntity.ok(Map.of("ok", true, "reserva", actual.toRecord()));
         }).orElse(ResponseEntity.notFound().build());
+    }
+
+    private String asignarHabitacionLibre(String tipo, java.time.LocalDate entrada, java.time.LocalDate salida) {
+        Map<String, String[]> rangos = Map.of(
+            "Simple", new String[]{"S1", "S2"},
+            "Matrimonial", new String[]{"M1", "M2"},
+            "Queen", new String[]{"Q1", "Q2"},
+            "King", new String[]{"K1", "K2"}
+        );
+        String[] nums = rangos.getOrDefault(tipo, new String[]{});
+        for (String n : nums) {
+            long ocupadas = reservaRepo.findAll().stream()
+                .filter(r -> n.equals(r.getNumeroHabitacion()))
+                .filter(r -> !"Cancelada".equals(r.getEstado()))
+                .filter(r -> r.getFechaEntrada() != null && r.getFechaSalida() != null)
+                .filter(r -> !r.getFechaSalida().isBefore(entrada) && !r.getFechaEntrada().isAfter(salida))
+                .count();
+            if (ocupadas == 0) return n;
+        }
+        return nums.length > 0 ? nums[0] : null;
     }
 
     @PatchMapping("/reservas/{codigo}/habitacion")

@@ -5,28 +5,29 @@ import com.hoteltampur.reservas.repository.HabitacionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-/**
- * Inserta las habitaciones iniciales del hotel si la tabla está vacía.
- * Se ejecuta una sola vez al arrancar el servicio.
- */
 @Component
 public class DataSeeder implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(DataSeeder.class);
     private final HabitacionRepository habitacionRepo;
+    private final JdbcTemplate jdbc;
 
-    public DataSeeder(HabitacionRepository habitacionRepo) {
+    public DataSeeder(HabitacionRepository habitacionRepo, JdbcTemplate jdbc) {
         this.habitacionRepo = habitacionRepo;
+        this.jdbc = jdbc;
     }
 
     @Override
     public void run(String... args) {
+        // Asegurar que las columnas nuevas existan en las tablas
+        asegurarColumnas();
+
         List<HabitacionEntity> existentes = habitacionRepo.findAll();
-        // Actualizar precios de tipos existentes
         existentes.forEach(h -> {
             switch (h.getTipo()) {
                 case "Simple" -> h.setPrecioNoche(60.0);
@@ -38,7 +39,6 @@ public class DataSeeder implements CommandLineRunner {
         });
         habitacionRepo.saveAll(existentes);
 
-        // Agregar tipos que no existen aún
         java.util.Set<String> tiposExistentes = new java.util.HashSet<>();
         existentes.forEach(h -> tiposExistentes.add(h.getTipo()));
         List<HabitacionEntity> nuevos = new java.util.ArrayList<>();
@@ -55,5 +55,50 @@ public class DataSeeder implements CommandLineRunner {
             log.info("Nuevos tipos insertados: {}", nuevos.size());
         }
         log.info("DataSeeder completado. Total habitaciones: {}", habitacionRepo.count());
+    }
+
+    private void asegurarColumnas() {
+        String[][] columnasReservas = {
+            {"numero_habitacion", "VARCHAR(10)"},
+            {"metodo_pago", "VARCHAR(20)"},
+            {"huespedes", "INTEGER DEFAULT 1"},
+            {"creado_en", "TIMESTAMP"}
+        };
+        for (String[] col : columnasReservas) {
+            try {
+                jdbc.execute("ALTER TABLE reservas ADD COLUMN IF NOT EXISTS " + col[0] + " " + col[1]);
+            } catch (Exception e) {
+                log.warn("No se pudo agregar columna reservas.{}: {}", col[0], e.getMessage());
+            }
+        }
+
+        String[][] columnasHabitaciones = {
+            {"precio_noche", "DOUBLE PRECISION"},
+            {"estado", "VARCHAR(20)"}
+        };
+        for (String[] col : columnasHabitaciones) {
+            try {
+                jdbc.execute("ALTER TABLE habitaciones ADD COLUMN IF NOT EXISTS " + col[0] + " " + col[1]);
+            } catch (Exception e) {
+                log.warn("No se pudo agregar columna habitaciones.{}: {}", col[0], e.getMessage());
+            }
+        }
+
+        // Crear tabla disponibilidad si no existe
+        try {
+            jdbc.execute("""
+                CREATE TABLE IF NOT EXISTS disponibilidad (
+                    id VARCHAR(50) PRIMARY KEY,
+                    numero_habitacion VARCHAR(10),
+                    fecha DATE,
+                    estado VARCHAR(20),
+                    codigo_reserva VARCHAR(30)
+                )
+            """);
+        } catch (Exception e) {
+            log.warn("No se pudo crear tabla disponibilidad: {}", e.getMessage());
+        }
+
+        log.info("Esquema de BD verificado.");
     }
 }

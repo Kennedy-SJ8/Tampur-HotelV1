@@ -49,57 +49,35 @@ public class DisponibilidadController {
         });
 
         // Agregar reservas activas (Pendiente o Confirmada) que NO estén ya en disponibilidad
-        reservaRepo.findAll().stream()
-            .filter(r -> !"Cancelada".equals(r.getEstado()))
-            .filter(r -> r.getFechaEntrada() != null && r.getFechaSalida() != null)
-            .filter(r -> !r.getFechaEntrada().isAfter(fin) && !r.getFechaSalida().isBefore(inicio))
-            .forEach(r -> {
-                LocalDate entrada = r.getFechaEntrada().isBefore(inicio) ? inicio : r.getFechaEntrada();
-                LocalDate salida = r.getFechaSalida().isAfter(fin.plusDays(1)) ? fin.plusDays(1) : r.getFechaSalida();
-                String numero = r.getNumeroHabitacion();
-                if (numero == null || numero.isBlank()) {
-                    // Asignar número por tipo si no tiene
-                    numero = asignarNumeroPorTipo(r.getTipoHabitacion(), r.getCodigo());
-                }
-                if (numero == null || numero.isBlank()) return;
-                LocalDate f = entrada;
-                while (f.isBefore(salida)) {
-                    String clave = numero + "_" + f.toString();
-                    if (!mapa.containsKey(clave)) {
-                        Map<String, Object> m = new HashMap<>();
-                        m.put("habitacion", numero);
-                        m.put("fecha", f.toString());
-                        m.put("estado", "reservada");
-                        m.put("reserva", r.getCodigo());
-                        mapa.put(clave, m);
+        try {
+            reservaRepo.findAll().stream()
+                .filter(r -> r.getNumeroHabitacion() != null && !r.getNumeroHabitacion().isBlank())
+                .filter(r -> !"Cancelada".equals(r.getEstado()))
+                .filter(r -> r.getFechaEntrada() != null && r.getFechaSalida() != null)
+                .filter(r -> !r.getFechaEntrada().isAfter(fin) && !r.getFechaSalida().isBefore(inicio))
+                .forEach(r -> {
+                    LocalDate entrada = r.getFechaEntrada().isBefore(inicio) ? inicio : r.getFechaEntrada();
+                    LocalDate salida = r.getFechaSalida().isAfter(fin.plusDays(1)) ? fin.plusDays(1) : r.getFechaSalida();
+                    String numero = r.getNumeroHabitacion();
+                    LocalDate f = entrada;
+                    while (f.isBefore(salida)) {
+                        String clave = numero + "_" + f.toString();
+                        if (!mapa.containsKey(clave)) {
+                            Map<String, Object> m = new HashMap<>();
+                            m.put("habitacion", numero);
+                            m.put("fecha", f.toString());
+                            m.put("estado", "reservada");
+                            m.put("reserva", r.getCodigo());
+                            mapa.put(clave, m);
+                        }
+                        f = f.plusDays(1);
                     }
-                    f = f.plusDays(1);
-                }
-            });
+                });
+        } catch (Exception e) {
+            // Si falla la query de reservas, solo mostrar datos de disponibilidad
+        }
 
         return new ArrayList<>(mapa.values());
-    }
-
-    /** Asigna un número de habitación disponible por tipo. */
-    private String asignarNumeroPorTipo(String tipo, String codigoReserva) {
-        if (tipo == null) return null;
-        Map<String, String[]> rangos = Map.of(
-            "Simple", new String[]{"S1","S2"},
-            "Matrimonial", new String[]{"M1","M2"},
-            "Queen", new String[]{"Q1","Q2"},
-            "King", new String[]{"K1","K2"}
-        );
-        String[] nums = rangos.get(tipo);
-        if (nums == null) return null;
-        // Intentar el primero, si está ocupado el segundo
-        for (String n : nums) {
-            long ocupadasEnRango = reservaRepo.buscarDuplicada(codigoReserva.split("-")[0], tipo,
-                    LocalDate.now().minusYears(1), LocalDate.now().plusYears(1)).stream()
-                    .filter(r -> n.equals(r.getNumeroHabitacion()))
-                    .count();
-            if (ocupadasEnRango == 0) return n;
-        }
-        return nums[0]; // fallback
     }
 
     /** Marcar fechas como reservada (automático al crear reserva). */

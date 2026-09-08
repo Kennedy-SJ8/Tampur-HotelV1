@@ -523,23 +523,28 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);padding-top:22px;text-a
 .cal-mes-label{font-family:'Fraunces',serif;font-size:1.15rem;font-weight:600;color:var(--text)}
 .cal-leyenda{margin-left:auto;display:flex;gap:12px;font-size:.78rem;color:var(--gris)}
 .cal-leg-item{display:flex;align-items:center;gap:4px}
-.cal-dot{width:10px;height:10px;border-radius:3px;display:inline-block}
-.cal-libre{background:#e8e5e0}
-.cal-reservada{background:var(--copper)}
-.cal-mantenimiento{background:#e74c3c}
+.cal-dot{width:14px;height:14px;border-radius:4px;display:inline-block;position:relative;overflow:hidden}
+.cal-dot::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 2px,rgba(255,255,255,.15) 2px,rgba(255,255,255,.15) 4px)}
+.cal-libre{background:linear-gradient(135deg,#e8e5e0,#f5f3f0)}
+.cal-reservada{background:linear-gradient(135deg,#b7873e,#d4a24e)}
+.cal-mantenimiento{background:linear-gradient(135deg,#dc2626,#ef4444)}
 .cal-loading{padding:30px;text-align:center;color:var(--gris);font-style:italic}
 
 /* Badges */
 .cal-badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-bottom:12px}
-.cal-badge{background:var(--blanco);border:1.5px solid var(--borde);border-radius:8px;padding:10px 8px;cursor:pointer;text-align:center;transition:all .2s;display:flex;flex-direction:column;gap:2px}
+.cal-badge{background:var(--blanco);border:1.5px solid var(--borde);border-radius:8px;padding:10px 8px;cursor:pointer;text-align:center;transition:all .2s;display:flex;flex-direction:column;gap:2px;position:relative;overflow:hidden}
+.cal-badge::before{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;transition:all .3s}
 .cal-badge:hover{border-color:var(--copper);box-shadow:0 2px 8px rgba(183,135,62,.15);transform:translateY(-1px)}
 .cal-badge.badge-activo{border-color:var(--copper);background:linear-gradient(135deg,#fdf6ee,#fff);box-shadow:0 2px 10px rgba(183,135,62,.2)}
 .badge-id{font-family:'Fraunces',serif;font-weight:700;font-size:1.1rem;color:var(--text)}
 .badge-tipo{font-size:.72rem;color:var(--gris)}
 .badge-ocu{font-size:.68rem;font-weight:600;margin-top:2px}
 .badge-libre .badge-ocu{color:#16a34a}
+.badge-libre::before{background:linear-gradient(90deg,#16a34a,#4ade80)}
 .badge-partial .badge-ocu{color:var(--copper)}
+.badge-partial::before{background:linear-gradient(90deg,var(--copper),#d4a24e)}
 .badge-full .badge-ocu{color:#e74c3c}
+.badge-full::before{background:linear-gradient(90deg,#dc2626,#ef4444)}
 
 /* Panel flotante */
 .cal-panel{background:var(--blanco);border:1.5px solid var(--borde);border-radius:12px;padding:18px;margin-bottom:14px;box-shadow:0 4px 16px rgba(0,0,0,.08);animation:panelIn .2s ease}
@@ -560,10 +565,19 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);padding-top:22px;text-a
 .mini-cal-dow{text-align:center;font-size:.7rem;font-weight:600;color:var(--gris);padding:3px 0}
 .mini-cal-dias{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
 .mini-cal-vacio{aspect-ratio:1}
-.mini-cal-dia{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:.82rem;font-weight:500;cursor:pointer;transition:all .15s;color:var(--text)}
-.mini-cal-dia:hover{background:var(--arena);transform:scale(1.12)}
+.mini-cal-dia{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:.82rem;font-weight:500;cursor:pointer;transition:all .15s;color:var(--text);position:relative;overflow:hidden}
+.mini-cal-dia:hover{transform:scale(1.12);z-index:2}
 .mini-cal-dia:active{transform:scale(.9)}
 .mini-cal-dia.hoy{outline:2px solid var(--copper);outline-offset:1px;font-weight:700}
-.mini-cal-dia.reservada{background:var(--copper);color:#fff;cursor:default}
+/* Libre */
+.mini-cal-dia:not(.reservada):not(.mantenimiento):hover{background:var(--arena);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+/* Reservada */
+.mini-cal-dia.reservada{background:linear-gradient(135deg,#b7873e,#d4a24e);color:#fff;cursor:default;font-weight:700;box-shadow:inset 0 1px 2px rgba(0,0,0,.15)}
+.mini-cal-dia.reservada::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 3px,rgba(255,255,255,.08) 3px,rgba(255,255,255,.08) 6px);pointer-events:none}
+.mini-cal-dia.reservada::after{content:'✓';position:absolute;top:1px;right:2px;font-size:.45rem;opacity:.6}
 .mini-cal-dia.reservada:hover{transform:none}
-.mini-cal-dia.mantenimiento{background:#e74c3c;color:#fff}
+/* Mantenimiento */
+.mini-cal-dia.mantenimiento{background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;font-weight:700;box-shadow:inset 0 1px 2px rgba(0,0,0,.15)}
+.mini-cal-dia.mantenimiento::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(-45deg,transparent,transparent 3px,rgba(255,255,255,.1) 3px,rgba(255,255,255,.1) 6px);pointer-events:none}
+.mini-cal-dia.mantenimiento::after{content:'⚠';position:absolute;top:1px;right:2px;font-size:.45rem;opacity:.7}
+.mini-cal-dia.mantenimiento:hover{transform:none}
