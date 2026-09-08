@@ -1,0 +1,17 @@
+name: keepalive
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Despertar reservas-service
+        run: curl -sS -o /dev/null -m 45 https://reservas-service-5nkp.onrender.com/api/habitaciones || true
+      - name: Despertar pagos-service
+        run: curl -sS -o /dev/null -m 45 https://pagos-service-dxob.onrender.com/api/pagos || true
+      - name: Despertar backoffice-service
+        run: curl -sS -o /dev/null -m 45 https://backoffice-service-bhdd.onrender.com/api/admin/login || true
