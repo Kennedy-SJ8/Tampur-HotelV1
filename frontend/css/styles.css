@@ -3,8 +3,6 @@
 :root{
   --grafito:#161a22;          /* grafito frío (fondo principal) */
   --grafito-2:#232936;        /* grafito más claro */
-  --cobre:#c96f3b;            /* acento cálido (cobre) */
-  --cobre-2:#e58a4f;          /* cobre claro */
   --cian:#22d3ee;             /* resplandor cian / tec */
   --cian-2:#8bf2ff;           /* cian claro */
   --niebla:#f4f5f8;           /* fondo claro frío */
@@ -54,7 +52,7 @@ nav a:hover::after{width:100%}
   url('../assets/img/hero.jpg') center/cover no-repeat}
 .hero .velo{position:absolute;inset:0;z-index:-1;background:
   radial-gradient(circle at 80% 18%,rgba(34,211,238,.18),transparent 46%),
-  radial-gradient(circle at 12% 88%,rgba(201,111,59,.22),transparent 50%)}
+  radial-gradient(circle at 12% 88%,rgba(34,211,238,.22),transparent 50%)}
 .hero .contenido{padding:150px 0 120px;width:min(1180px,90%);margin:0 auto}
 .hero .etiqueta{display:inline-flex;align-items:center;gap:8px;background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.4);padding:8px 16px;border-radius:999px;font-size:.8rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:22px;color:var(--cian-2);box-shadow:0 0 20px -6px rgba(34,211,238,.5)}
 .hero h1{font-size:clamp(2.4rem,5.4vw,4.4rem);line-height:1.06;max-width:14ch;margin-bottom:20px}
@@ -94,7 +92,7 @@ section.bloque{padding:96px 0}
 .tarjeta .foto img{width:100%;height:100%;object-fit:cover;transition:.6s}
 .tarjeta:hover .foto img{transform:scale(1.08)}
 .tarjeta .precio{position:absolute;bottom:12px;left:12px;background:rgba(22,26,34,.88);color:#fff;padding:8px 14px;border-radius:999px;font-size:.85rem;backdrop-filter:blur(4px)}
-.tarjeta .precio b{font-family:'Fraunces',serif;font-size:1.15rem;color:var(--cobre-2)}
+.tarjeta .precio b{font-family:'Fraunces',serif;font-size:1.15rem;color:var(--cian-2)}
 .tarjeta .cuerpo{padding:24px;display:flex;flex-direction:column;gap:12px;flex:1}
 .tarjeta h3{font-size:1.4rem;color:var(--grafito)}
 .tarjeta ul{list-style:none;display:flex;flex-direction:column;gap:8px;color:var(--gris);font-size:.9rem}
@@ -118,7 +116,7 @@ section.bloque{padding:96px 0}
 .grid-amenidades{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
 .amen{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:var(--radio);padding:28px;transition:.3s}
 .amen:hover{background:rgba(255,255,255,.08);transform:translateY(-4px);border-color:rgba(34,211,238,.4);box-shadow:0 0 30px -10px rgba(34,211,238,.35)}
-.amen .ico{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--cobre),var(--cobre-2));display:grid;place-items:center;margin-bottom:16px;box-shadow:0 0 24px -6px rgba(201,111,59,.7)}
+.amen .ico{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--cian),var(--cian-2));display:grid;place-items:center;margin-bottom:16px;box-shadow:0 0 24px -6px rgba(34,211,238,.7)}
 .amen .ico svg{width:26px;height:26px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .amen h3{font-size:1.15rem;margin-bottom:6px}
 .amen p{font-size:.9rem;color:rgba(255,255,255,.7)}
@@ -129,7 +127,7 @@ section.bloque{padding:96px 0}
 .mapa iframe{width:100%;height:100%;border:0;min-height:420px;filter:grayscale(.2) contrast(1.05)}
 .datos{display:flex;flex-direction:column;gap:18px}
 .dato{display:flex;gap:14px;align-items:flex-start}
-.dato .punto{width:42px;height:42px;flex:none;border-radius:12px;background:var(--niebla-2);display:grid;place-items:center;color:var(--cobre);font-size:1.1rem;box-shadow:inset 0 0 0 1px rgba(34,211,238,.15)}
+.dato .punto{width:42px;height:42px;flex:none;border-radius:12px;background:var(--niebla-2);display:grid;place-items:center;color:var(--cian);font-size:1.1rem;box-shadow:inset 0 0 0 1px rgba(34,211,238,.15)}
 .dato h3{font-size:1rem;color:var(--grafito);margin-bottom:2px}
 .dato p{color:var(--gris);font-size:.9rem}
 .formulario{background:#fff;border-radius:var(--radio);box-shadow:var(--sombra);padding:28px;border:1px solid rgba(22,26,34,.05)}
@@ -168,12 +166,12 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);padding-top:22px;text-a
 .modal h3{font-family:'Fraunces',serif;color:var(--grafito);font-size:1.6rem;margin-bottom:4px}
 .modal .sub{color:var(--gris);font-size:.9rem;margin-bottom:20px}
 .modal .resumen{background:var(--niebla);border-radius:14px;padding:16px;margin-top:20px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--niebla-2)}
-.modal .resumen b{font-size:1.3rem;color:var(--cobre)}
+.modal .resumen b{font-size:1.3rem;color:var(--cian)}
 .alerta-exito{background:#e6f4ea;border:1px solid #b8dfc2;color:#1f6b3c;border-radius:14px;padding:20px;text-align:center}
 .alerta-exito .codigo{font-family:'Space Grotesk',monospace;font-size:1.5rem;font-weight:700;letter-spacing:2px;color:var(--grafito);margin:10px 0}
 
 /* Pago Yape/Plin */
-.pago-box{background:var(--niebla);border:2px solid var(--cobre);border-radius:16px;padding:24px;text-align:center;margin-top:8px}
+.pago-box{background:var(--niebla);border:2px solid var(--cian);border-radius:16px;padding:24px;text-align:center;margin-top:8px}
 .pago-badge{display:inline-block;padding:6px 20px;border-radius:999px;font-weight:700;font-size:.85rem;letter-spacing:1px;margin-bottom:16px;color:#fff}
 .pago-badge.yape{background:#7B2D8E;box-shadow:0 0 20px -4px rgba(123,45,142,.6)}
 .pago-badge.plin{background:#00BFA5;box-shadow:0 0 20px -4px rgba(0,191,165,.6)}
@@ -339,7 +337,7 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);padding-top:22px;text-a
 .limp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
 .limp-item{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--niebla-2);border-left:5px solid #f0ad4e;border-radius:12px;padding:12px 14px;cursor:pointer;transition:.2s;box-shadow:var(--sombra)}
 .limp-item:hover{border-color:var(--cian)}
-.limp-item input{width:18px;height:18px;accent-color:var(--cobre);flex:none}
+.limp-item input{width:18px;height:18px;accent-color:var(--cian);flex:none}
 .limp-num{font-family:'Fraunces',serif;font-size:1.15rem;color:var(--grafito);flex:1}
 .limp-estado{display:inline-block;padding:3px 11px;border-radius:999px;font-size:.72rem;font-weight:700;background:#fff3cd;color:#8a6d1a}
 .limp-item.limpiada{background:#eef7f0;border-color:#bfe2c8;border-left-color:#2e8b57}
@@ -350,14 +348,14 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);padding-top:22px;text-a
 .limp-ocupaciones{margin-bottom:28px}
 .limp-ocupaciones h3{font-family:'Fraunces',serif;color:var(--grafito);font-size:1.2rem;margin-bottom:12px}
 .ocupaciones-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
-.ocupacion{background:#fff;border-radius:12px;border-left:5px solid var(--cobre);padding:14px 16px;box-shadow:var(--sombra)}
+.ocupacion{background:#fff;border-radius:12px;border-left:5px solid var(--cian);padding:14px 16px;box-shadow:var(--sombra)}
 .ocupacion .ocup-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .ocup-tipo{font-weight:700;color:var(--grafito);font-size:.95rem}
 .ocup-huesped{font-size:.8rem;color:var(--gris);margin-bottom:10px}
 .ocup-fecha{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--tinta);padding:4px 0}
 .ocup-fecha .ico-fecha{flex:none;width:20px;height:20px;display:grid;place-items:center;color:var(--cian)}
 .ocup-fecha .ico-fecha svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.ocup-fecha b{color:var(--cobre);font-weight:600}
+.ocup-fecha b{color:var(--cian);font-weight:600}
 .ocup-fecha .hora{background:var(--niebla);padding:2px 8px;border-radius:6px;font-weight:600;color:var(--grafito)}
 
 /* ---------- IMPRESIÓN ---------- */
