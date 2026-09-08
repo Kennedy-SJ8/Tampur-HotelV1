@@ -1,38 +1,72 @@
 package com.hoteltampur.reservas.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hoteltampur.reservas.model.Reserva;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class CorreoService {
 
-    private final JavaMailSender mailSender;
+    private static final Logger log = LoggerFactory.getLogger(CorreoService.class);
+    private static final String FROM_EMAIL = "kennedyjacay17@gmail.com";
+    private static final String FROM_NAME = "Hotel Támpur";
 
-    public CorreoService(JavaMailSender mailSender) {
-        this.mailSender = mailSender;
+    private final String apiKey;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final HttpClient httpClient = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(10))
+            .build();
+
+    public CorreoService(@Value("${SENDGRID_API_KEY:}") String apiKey) {
+        this.apiKey = apiKey;
     }
 
     public void enviarConfirmacion(Reserva r) {
         if (r.correo() == null || r.correo().isBlank()) {
             return;
         }
+        if (apiKey == null || apiKey.isBlank()) {
+            log.warn("SENDGRID_API_KEY no configurado; no se envía correo a {}", r.correo());
+            return;
+        }
         try {
-            MimeMessage mensaje = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mensaje, "UTF-8");
-            String remitente = ((JavaMailSenderImpl) mailSender).getUsername();
-            helper.setFrom("Hotel Támpur <" + remitente + ">");
-            helper.setReplyTo(remitente);
-            helper.setTo(r.correo());
-            helper.setSubject("Confirmación de reserva " + r.codigo() + " · Hotel Támpur");
-            helper.setText(contenidoHtml(r), true);
-            mailSender.send(mensaje);
-        } catch (MessagingException e) {
-            throw new RuntimeException("No se pudo enviar el correo de confirmación", e);
+            enviar(r.correo(), "Confirmación de reserva " + r.codigo() + " · Hotel Támpur", contenidoHtml(r));
+            log.info("Correo de confirmación enviado a {}", r.correo());
+        } catch (Exception e) {
+            log.warn("No se pudo enviar el correo de {}: {}", r.codigo(), e.getMessage());
+        }
+    }
+
+    private void enviar(String para, String asunto, String html) throws Exception {
+        Map<String, Object> body = new HashMap<>();
+        body.put("personalizations", List.of(Map.of("to", List.of(Map.of("email", para)))));
+        body.put("from", Map.of("email", FROM_EMAIL, "name", FROM_NAME));
+        body.put("subject", asunto);
+        body.put("content", List.of(Map.of("type", "text/html", "value", html)));
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.sendgrid.com/v3/mail/send"))
+                .timeout(Duration.ofSeconds(15))
+                .header("Authorization", "Bearer " + apiKey)
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(body)))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() >= 400) {
+            throw new RuntimeException("SendGrid " + response.statusCode() + ": " + response.body());
         }
     }
 
