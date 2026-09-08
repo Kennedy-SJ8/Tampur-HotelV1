@@ -66,7 +66,7 @@
     <div class="item"><b>Check-in 1:00 p.m.</b>Check-out 12:00 p.m.</div>
     <div class="item"><b>3 tipos</b>Simple · Doble · Matrimonial</div>
     <div class="item"><b data-contar="3200">3,200</b>msnm de altura</div>
-    <div class="item"><b>Yape / Plin</b>Tarjeta y efectivo</div>
+    <div class="item"><b>Yape / Plin</b>Efectivo en recepción</div>
   </div>
 </div>
 
@@ -171,7 +171,7 @@
         <div class="dato"><div class="punto">📍</div><div><h3>Dirección</h3><p>Magnolias 197, San Mateo, Huarochirí, Lima</p></div></div>
         <div class="dato"><div class="punto">📞</div><div><h3>Teléfono / WhatsApp</h3><p>943 370 504</p></div></div>
         <div class="dato"><div class="punto">🕐</div><div><h3>Horarios</h3><p>Check-in 1:00 p.m. · Check-out 12:00 p.m.</p></div></div>
-        <div class="dato"><div class="punto">💳</div><div><h3>Medios de pago</h3><p>Tarjeta, Yape, Plin y efectivo</p></div></div>
+        <div class="dato"><div class="punto">💳</div><div><h3>Medios de pago</h3><p>Yape, Plin y efectivo en recepción</p></div></div>
 
         <form class="formulario" id="formConsulta">
           <h3>Envíe su consulta</h3>
@@ -235,18 +235,32 @@
     <div class="campo-form">
       <label>Método de pago</label>
       <select id="rMetodo">
-        <option value="tarjeta">Tarjeta (culqi / mercado pago)</option>
         <option value="yape">Yape</option>
         <option value="plin">Plin</option>
         <option value="efectivo">Efectivo en recepción</option>
       </select>
     </div>
-    <div class="campo-form" id="qrBox" style="display:none;text-align:center">
-      <label>Escanea con Yape / Plin para pagar</label>
-      <div id="qrCode" style="background:#fff;padding:12px;border-radius:12px;display:inline-block;line-height:0"></div>
-      <p class="sub" style="margin-top:8px">Monto: <b id="qrMonto">S/ 0</b> · Al número <b>943 370 504</b></p>
-      <input type="file" id="rVoucher" accept="image/*">
-      <p class="sub" style="margin-top:4px">Adjunta la captura del comprobante (opcional).</p>
+    <div id="qrBox" style="display:none">
+      <div class="pago-box">
+        <div class="pago-badge" id="pagoBadge">YAPE</div>
+        <div class="pago-qr-wrap">
+          <div id="qrCode" class="pago-qr"></div>
+        </div>
+        <p class="pago-monto">Monto: <b id="qrMonto">S/ 0</b></p>
+        <p class="pago-numero">Al número: <b>943 370 504</b></p>
+        <div class="pago-pasos">
+          <p><b>Cómo pagar:</b></p>
+          <ol>
+            <li>Abre la app de <span id="pagoApp">Yape</span></li>
+            <li>Escanea este código QR</li>
+            <li>Envía el monto exacto</li>
+            <li>Adjunta la captura de pantalla</li>
+          </ol>
+        </div>
+        <label class="pago-voucher-btn" for="rVoucher">Adjuntar comprobante</label>
+        <input type="file" id="rVoucher" accept="image/*" style="display:none" onchange="mostrarNombreArchivo(this)">
+        <p class="sub pago-voucher-nombre" id="voucherNombre">No seleccionado</p>
+      </div>
     </div>
     <div class="resumen">
       <span id="rDetalle">Seleccione fechas</span>

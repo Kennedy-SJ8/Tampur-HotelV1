@@ -198,8 +198,21 @@
   function actualizarMetodoPago(){
     const m=document.getElementById('rMetodo').value;
     const box=document.getElementById('qrBox');
-    if(m==='yape'||m==='plin'){ box.style.display='block'; generarQrYape(); }
-    else { box.style.display='none'; }
+    const badge=document.getElementById('pagoBadge');
+    const app=document.getElementById('pagoApp');
+    if(m==='yape'||m==='plin'){
+      box.style.display='block';
+      badge.textContent=m.toUpperCase();
+      badge.className='pago-badge '+m;
+      app.textContent=m==='yape'?'Yape':'Plin';
+      generarQrYape();
+    } else {
+      box.style.display='none';
+    }
+  }
+  function mostrarNombreArchivo(input){
+    const nombre=input.files[0]?input.files[0].name:'No seleccionado';
+    document.getElementById('voucherNombre').textContent=nombre;
   }
   document.getElementById('rMetodo').addEventListener('change', actualizarMetodoPago);
   /** Valida los campos del formulario de reserva antes de enviarlo. Devuelve el primer error, o null si todo está bien. */

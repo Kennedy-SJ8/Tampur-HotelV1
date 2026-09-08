@@ -154,6 +154,23 @@
   .alerta-exito{background:#e6f4ea;border:1px solid #b8dfc2;color:#1f6b3c;border-radius:14px;padding:20px;text-align:center}
   .alerta-exito .codigo{font-family:monospace;font-size:1.5rem;font-weight:700;letter-spacing:2px;color:var(--verde);margin:10px 0}
 
+  /* Pago Yape/Plin */
+  .pago-box{background:var(--crema);border:2px solid var(--terracota);border-radius:16px;padding:24px;text-align:center;margin-top:8px}
+  .pago-badge{display:inline-block;padding:6px 20px;border-radius:999px;font-weight:700;font-size:.85rem;letter-spacing:1px;margin-bottom:16px;color:#fff}
+  .pago-badge.yape{background:#7B2D8E}
+  .pago-badge.plin{background:#00BFA5}
+  .pago-qr-wrap{display:inline-block;background:#fff;padding:16px;border-radius:14px;margin-bottom:14px;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+  .pago-qr{line-height:0}
+  .pago-monto{font-size:1.05rem;color:var(--verde);margin-bottom:2px}
+  .pago-numero{font-size:.9rem;color:var(--gris);margin-bottom:14px}
+  .pago-pasos{text-align:left;background:#fff;border-radius:12px;padding:14px 18px;margin-bottom:14px}
+  .pago-pasos p{margin:0 0 6px;font-size:.9rem;color:var(--verde)}
+  .pago-pasos ol{margin:0;padding-left:20px}
+  .pago-pasos li{font-size:.85rem;color:var(--gris);margin-bottom:4px}
+  .pago-voucher-btn{display:inline-block;padding:10px 20px;background:var(--verde);color:#fff;border-radius:12px;font-size:.88rem;font-weight:600;cursor:pointer;transition:.2s}
+  .pago-voucher-btn:hover{background:var(--verde-2)}
+  .pago-voucher-nombre{margin-top:6px;font-size:.82rem;color:var(--gris)}
+
   .revelar{opacity:0;transform:translateY(26px);transition:.7s ease}
   .revelar.visible{opacity:1;transform:none}
 
