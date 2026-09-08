@@ -229,7 +229,7 @@
       <div class="campo-form"><label>DNI / Pasaporte</label><input type="text" id="rDni" placeholder="12345678" maxlength="12"><span class="campo-error" id="errDni"></span></div>
     </div>
     <div class="fila">
-      <div class="campo-form"><label>Correo (opcional)</label><input type="email" id="rCorreo" placeholder="correo@ejemplo.com" maxlength="100"><span class="campo-error" id="errCorreo"></span></div>
+      <div class="campo-form"><label>Correo electrónico</label><input type="email" id="rCorreo" placeholder="correo@ejemplo.com" maxlength="100"><span class="campo-error" id="errCorreo"></span></div>
       <div class="campo-form"><label>Teléfono (opcional)</label><input type="tel" id="rTelefono" placeholder="943 000 000" maxlength="15"><span class="campo-error" id="errTelefono"></span></div>
     </div>
     <div class="campo-form">
@@ -260,6 +260,7 @@
         <label class="pago-voucher-btn" for="rVoucher">Adjuntar comprobante</label>
         <input type="file" id="rVoucher" accept="image/*" style="display:none" onchange="mostrarNombreArchivo(this)">
         <p class="sub pago-voucher-nombre" id="voucherNombre">No seleccionado</p>
+        <span class="campo-error" id="errVoucher"></span>
       </div>
     </div>
     <div class="resumen">

@@ -55,8 +55,9 @@
     {code:'ARS',simbolo:'AR$',nombre:'Peso argentino'},
     {code:'CLP',simbolo:'CL$',nombre:'Peso chileno'}
   ];
+  const TASAS_FALLBACK={PEN:1,USD:0.27,EUR:0.25,GBP:0.21,BRL:1.35,MXN:4.70,ARS:270,CLP:260};
   let monedaActual='PEN';
-  let tasasMoneda={PEN:1};
+  let tasasMoneda={...TASAS_FALLBACK};
 
   /** Carga los tipos de cambio (base PEN) desde una API gratuita, con caché de 6 horas. */
   async function cargarTasas(){
@@ -65,23 +66,30 @@
       if(cache && cache.rates && (Date.now()-cache.t)<6*3600*1000){
         tasasMoneda=cache.rates;
       } else {
+        localStorage.removeItem('tampur_tasas');
         const res=await fetch('https://open.er-api.com/v6/latest/PEN');
         if(!res.ok) throw new Error('bad');
         const data=await res.json();
         if(data && data.result==='success' && data.rates){
-          tasasMoneda=data.rates;
-          localStorage.setItem('tampur_tasas',JSON.stringify({rates:data.rates,t:Date.now()}));
+          tasasMoneda={...TASAS_FALLBACK,...data.rates};
+          localStorage.setItem('tampur_tasas',JSON.stringify({rates:tasasMoneda,t:Date.now()}));
         }
       }
       pintarPrecios();
       actualizarPistaMoneda();
-    }catch(e){}
+    }catch(e){
+      tasasMoneda={...TASAS_FALLBACK};
+      pintarPrecios();
+      actualizarPistaMoneda();
+    }
   }
 
   /** Convierte un monto en soles a la moneda seleccionada y lo formatea. */
   function formatearPrecio(pen){
     const valor=pen*(tasasMoneda[monedaActual]||1);
-    const maxDec=valor>=1000?0:(valor>=100?0:2);
+    let maxDec=0;
+    if(valor<1) maxDec=2;
+    else if(valor<100) maxDec=1;
     const numero=valor.toLocaleString('es-PE',{minimumFractionDigits:0,maximumFractionDigits:maxDec});
     const m=MONEDAS.find(x=>x.code===monedaActual);
     return (m?m.simbolo+' ':'')+numero;
@@ -92,8 +100,9 @@
     if(!hint) return;
     if(monedaActual==='PEN'){ hint.textContent=''; return; }
     const m=MONEDAS.find(x=>x.code===monedaActual);
-    const porUnidad=1/(tasasMoneda[monedaActual]||1);
-    hint.textContent='1 '+(m?m.simbolo:'')+' ≈ S/ '+porUnidad.toFixed(2);
+    const tasa=tasasMoneda[monedaActual]||1;
+    const porUnidad=(1/tasa).toFixed(tasa>100?4:2);
+    hint.textContent='1 PEN ≈ '+(m?m.simbolo:'')+porUnidad;
   }
 
   function pintarPrecios(){
@@ -244,7 +253,7 @@
   }
   function valCorreo(v){
     v=v.trim();
-    if(!v){ setError('errCorreo','',true); return true; }
+    if(!v){ setError('errCorreo','Ingrese su correo electrónico.'); return false; }
     if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)){ setError('errCorreo','Correo no válido.'); return false; }
     setError('errCorreo','',true); return true;
   }
@@ -268,13 +277,23 @@
     else setError('errSalida','',true);
     return ok;
   }
+  function valVoucher(){
+    const metodo=document.getElementById('rMetodo').value;
+    const voucher=document.getElementById('rVoucher').files[0];
+    if(metodo==='yape'||metodo==='plin'){
+      if(!voucher){ setError('errVoucher','Adjunte el comprobante de pago.'); return false; }
+      setError('errVoucher','',true); return true;
+    }
+    setError('errVoucher','',true); return true;
+  }
   function validarFormularioReserva(){
     const n=valNombre(document.getElementById('rNombre').value);
     const d=valDni(document.getElementById('rDni').value);
     const c=valCorreo(document.getElementById('rCorreo').value);
     const t=valTelefono(document.getElementById('rTelefono').value);
     const f=valFechas();
-    return n&&d&&c&&t&&f;
+    const v=valVoucher();
+    return n&&d&&c&&t&&f&&v;
   }
 
   /* Validación en tiempo real */
