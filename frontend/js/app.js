@@ -52,8 +52,11 @@
   const TARIFAS={simple:60,matrimonial:80,queen:120,king:140};
   function cargarTarifas(){
     try{
-      const t=JSON.parse(localStorage.getItem('tampur_tarifas'));
-      if(t){
+      const raw=localStorage.getItem('tampur_tarifas');
+      if(raw){
+        const t=JSON.parse(raw);
+        // Limpiar claves viejas (doble ya no existe)
+        if(t.doble!=null){ delete t.doble; localStorage.setItem('tampur_tarifas',JSON.stringify(t)); }
         if(t.simple!=null) TARIFAS.simple=t.simple;
         if(t.matrimonial!=null) TARIFAS.matrimonial=t.matrimonial;
         if(t.queen!=null) TARIFAS.queen=t.queen;
