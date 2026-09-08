@@ -76,13 +76,8 @@
       const res=await fetch(API_RESERVAS+'/api/habitaciones');
       if(!res.ok) return;
       const rooms=await res.json();
-      const precios={};
-      rooms.forEach(r=>{ if(!precios[r.tipo]) precios[r.tipo]=r.precioNoche; });
-      if(precios['Simple']) TARIFAS.simple=precios['Simple'];
-      if(precios['Matrimonial']) TARIFAS.matrimonial=precios['Matrimonial'];
-      if(precios['Queen']) TARIFAS.queen=precios['Queen'];
-      if(precios['King']) TARIFAS.king=precios['King'];
-      pintarPrecios();
+      // No sobrescribir TARIFAS con precios de la BD (pueden estar desactualizados)
+      // Los precios están definidos en TARIFAS y el admin puede cambiarlos desde el panel
     }catch(e){}
   }
 
