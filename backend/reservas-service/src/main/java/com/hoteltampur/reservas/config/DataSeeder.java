@@ -30,14 +30,14 @@ public class DataSeeder implements CommandLineRunner {
             return;
         }
         List<HabitacionEntity> iniciales = List.of(
-                new HabitacionEntity("S1", "Simple", 90.0, "Libre"),
-                new HabitacionEntity("S2", "Simple", 90.0, "Libre"),
-                new HabitacionEntity("M1", "Matrimonial", 180.0, "Libre"),
-                new HabitacionEntity("M2", "Matrimonial", 180.0, "Libre"),
-                new HabitacionEntity("Q1", "Queen", 220.0, "Libre"),
-                new HabitacionEntity("Q2", "Queen", 220.0, "Libre"),
-                new HabitacionEntity("K1", "King", 280.0, "Libre"),
-                new HabitacionEntity("K2", "King", 280.0, "Libre")
+                new HabitacionEntity("S1", "Simple", 60.0, "Libre"),
+                new HabitacionEntity("S2", "Simple", 60.0, "Libre"),
+                new HabitacionEntity("M1", "Matrimonial", 80.0, "Libre"),
+                new HabitacionEntity("M2", "Matrimonial", 80.0, "Libre"),
+                new HabitacionEntity("Q1", "Queen", 120.0, "Libre"),
+                new HabitacionEntity("Q2", "Queen", 120.0, "Libre"),
+                new HabitacionEntity("K1", "King", 140.0, "Libre"),
+                new HabitacionEntity("K2", "King", 140.0, "Libre")
         );
         habitacionRepo.saveAll(iniciales);
         log.info("Habitaciones iniciales insertadas: {}", iniciales.size());

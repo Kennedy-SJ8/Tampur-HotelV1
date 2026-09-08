@@ -48,10 +48,10 @@ public class ReservasController {
     private static final Pattern PATRON_CORREO = Pattern.compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
 
     private final Map<String, Double> tarifas = Map.of(
-            "Simple", 90.0,
-            "Matrimonial", 180.0,
-            "Queen", 220.0,
-            "King", 280.0
+            "Simple", 60.0,
+            "Matrimonial", 80.0,
+            "Queen", 120.0,
+            "King", 140.0
     );
 
     private final HabitacionRepository habitacionRepo;

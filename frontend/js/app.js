@@ -23,7 +23,7 @@
   // Reserva
   let tarifaActual=90, habitacionActual='Habitación Simple';
   const modal=document.getElementById('modalReserva');
-  const TARIFAS={simple:90,matrimonial:180,queen:220,king:280};
+  const TARIFAS={simple:60,matrimonial:80,queen:120,king:140};
   function cargarTarifas(){
     try{ const t=JSON.parse(localStorage.getItem('tampur_tarifas')); if(t){ Object.assign(TARIFAS,t); } }catch(e){}
     pintarPrecios();
