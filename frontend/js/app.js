@@ -842,7 +842,7 @@
     {id:'Q1',tipo:'Queen',piso:2},{id:'Q2',tipo:'Queen',piso:2},
     {id:'K1',tipo:'King',piso:3},{id:'K2',tipo:'King',piso:3}
   ];
-  let calAnio, calMes, calCache=null, calCacheKey='';
+  let calAnio, calMes, calCache=null, calCacheKey='', calOpen=null;
   const MESES_CAL=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   const DIAS_CAL=['L','M','X','J','V','S','D'];
 
@@ -850,21 +850,21 @@
     const hoy=new Date();
     if(!calAnio){ calAnio=hoy.getFullYear(); calMes=hoy.getMonth()+1; }
     document.getElementById('dashTitulo').textContent=t('cal_titulo')||'Calendario de habitaciones';
-    let navHtml=`
+    document.getElementById('dashContenido').innerHTML=`
       <div class="cal-top">
         <button class="btn-cal-nav" onclick="calNav(-1)">◀</button>
         <span class="cal-mes-label" id="calMesLabel"></span>
         <button class="btn-cal-nav" onclick="calNav(1)">▶</button>
         <button class="btn-cal-hoy" onclick="calHoy()">Hoy</button>
+        <span class="cal-leyenda">
+          <span class="cal-leg-item"><span class="cal-dot cal-libre"></span>${t('cal_libre')||'Libre'}</span>
+          <span class="cal-leg-item"><span class="cal-dot cal-reservada"></span>${t('cal_reservada')||'Reservada'}</span>
+          <span class="cal-leg-item"><span class="cal-dot cal-mantenimiento"></span>${t('cal_mantenimiento')||'Mantenimiento'}</span>
+        </span>
       </div>
-      <div class="cal-leyenda">
-        <span class="cal-leg-item"><span class="cal-dot cal-libre"></span>${t('cal_libre')||'Libre'}</span>
-        <span class="cal-leg-item"><span class="cal-dot cal-reservada"></span>${t('cal_reservada')||'Reservada'}</span>
-        <span class="cal-leg-item"><span class="cal-dot cal-mantenimiento"></span>${t('cal_mantenimiento')||'Mantenimiento'}</span>
-      </div>`;
-
-    document.getElementById('dashContenido').innerHTML=navHtml+'<div id="calHabs" class="cal-habs"></div>';
-    cargarCalendario();
+      <div class="cal-badges" id="calBadges"></div>
+      <div class="cal-panel" id="calPanel" style="display:none"><div id="calPanelInner"></div></div>`;
+    cargarBadges();
   }
 
   function calNav(d){
@@ -872,95 +872,138 @@
     if(calMes>12){calMes=1;calAnio++;}
     if(calMes<1){calMes=12;calAnio--;}
     calCache=null;
-    cargarCalendario();
+    if(calOpen) abrirCalHab(calOpen);
+    else cargarBadges();
+    const ml=document.getElementById('calMesLabel');
+    if(ml) ml.textContent=MESES_CAL[calMes-1]+' '+calAnio;
   }
-  function calHoy(){ const h=new Date(); calAnio=h.getFullYear(); calMes=h.getMonth()+1; calCache=null; cargarCalendario(); }
+  function calHoy(){
+    const h=new Date(); calAnio=h.getFullYear(); calMes=h.getMonth()+1;
+    calCache=null;
+    if(calOpen) abrirCalHab(calOpen);
+    else cargarBadges();
+    const ml=document.getElementById('calMesLabel');
+    if(ml) ml.textContent=MESES_CAL[calMes-1]+' '+calAnio;
+  }
 
-  async function cargarCalendario(){
-    const mesLabel=document.getElementById('calMesLabel');
-    const cont=document.getElementById('calHabs');
+  async function cargarBadges(){
+    const cont=document.getElementById('calBadges');
     if(!cont) return;
-    if(mesLabel) mesLabel.textContent=MESES_CAL[calMes-1]+' '+calAnio;
+    const ml=document.getElementById('calMesLabel');
+    if(ml) ml.textContent=MESES_CAL[calMes-1]+' '+calAnio;
 
     const numDias=new Date(calAnio,calMes,0).getDate();
-    const hoy=new Date();
-
     // Fetch datos
     let datos;
     const key=calAnio+'-'+calMes;
     if(calCache && calCacheKey===key){ datos=calCache; }
     else {
-      cont.innerHTML='<div class="cal-loading">Cargando...</div>';
       try{
         const res=await fetch(API_RESERVAS+'/api/calendario?anio='+calAnio+'&mes='+calMes);
         if(!res.ok) throw new Error();
         const arr=await res.json();
-        datos={};
-        arr.forEach(d=>{ datos[d.habitacion+'_'+d.fecha]=d; });
+        datos={}; arr.forEach(d=>{ datos[d.habitacion+'_'+d.fecha]=d; });
       }catch(e){ datos={}; }
       calCache=datos; calCacheKey=key;
     }
 
-    // Pre-calcular dow
-    const dows=[];
-    for(let d=1;d<=numDias;d++) dows.push(new Date(calAnio,calMes-1,d).getDay());
-
-    // Render por habitación
     let html='';
     HAB_CALENDARIO.forEach(hab=>{
-      // Mini calendario
-      let calHtml='<div class="mini-cal-header">';
-      for(let i=0;i<7;i++) calHtml+=`<span class="mini-cal-dow">${DIAS_CAL[i]}</span>`;
-      calHtml+='</div><div class="mini-cal-dias">';
-
-      const primerDow=(dows[0]+6)%7; // 0=lunes
-      for(let p=0;p<primerDow;p++) calHtml+='<span class="mini-cal-vacio"></span>';
-
+      let ocu=0;
       for(let d=1;d<=numDias;d++){
-        const fecha=calAnio+'-'+String(calMes).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-        const clave=hab.id+'_'+fecha;
-        const dato=datos[clave];
-        const estado=dato?dato.estado:'';
-        const reserva=dato?dato.reserva:'';
-        const esHoy=d===hoy.getDate()&&calMes===hoy.getMonth()+1&&calAnio===hoy.getFullYear();
-        const cls=['mini-cal-dia'];
-        if(esHoy) cls.push('hoy');
-        if(estado==='reservada') cls.push('reservada');
-        else if(estado==='mantenimiento') cls.push('mantenimiento');
-        calHtml+=`<span class="${cls.join(' ')}" data-hab="${hab.id}" data-fecha="${fecha}" data-estado="${estado}" data-reserva="${reserva}" onclick="toggleMiniCal(this)">${d}</span>`;
+        const f=calAnio+'-'+String(calMes).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+        if(datos[hab.id+'_'+f]?.estado==='reservada') ocu++;
       }
-      calHtml+='</div>';
-
-      // Resumen de ocupación del mes
-      let ocu=0, lib=0, mant=0;
-      for(let d=1;d<=numDias;d++){
-        const fecha=calAnio+'-'+String(calMes).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-        const e=datos[hab.id+'_'+fecha]?.estado||'';
-        if(e==='reservada') ocu++;
-        else if(e==='mantenimiento') mant++;
-        else lib++;
-      }
-
-      html+=`
-        <div class="cal-hab-card">
-          <div class="cal-hab-header">
-            <span class="cal-hab-id">${hab.id}</span>
-            <span class="cal-hab-tipo">${hab.tipo}</span>
-            <span class="cal-hab-resumen">
-              <span class="res-libre">${lib} libre${lib!==1?'s':''}</span>
-              ${ocu?'<span class="res-ocupado">'+ocu+' reservado'+(ocu!==1?'s':'')+'</span>':''}
-              ${mant?'<span class="res-mant">'+mant+' mant.'+'</span>':''}
-            </span>
-          </div>
-          <div class="cal-hab-mini">${calHtml}</div>
-        </div>`;
+      const libre=numDias-ocu;
+      const estadoCl=ocu===0?'badge-libre':ocu>=numDias?'badge-full':'badge-partial';
+      html+=`<div class="cal-badge ${estadoCl}${calOpen===hab.id?' badge-activo':''}" onclick="abrirCalHab('${hab.id}')" data-hab="${hab.id}">
+        <span class="badge-id">${hab.id}</span>
+        <span class="badge-tipo">${hab.tipo}</span>
+        <span class="badge-ocu">${ocu}/${numDias}</span>
+      </div>`;
     });
-
     cont.innerHTML=html;
   }
 
+  async function abrirCalHab(habId){
+    const panel=document.getElementById('calPanel');
+    const inner=document.getElementById('calPanelInner');
+    if(!panel||!inner) return;
+
+    // Si ya está abierto, cerrar
+    if(calOpen===habId){
+      calOpen=null;
+      panel.style.display='none';
+      cargarBadges();
+      return;
+    }
+    calOpen=habId;
+    cargarBadges(); // actualizar active state
+
+    const hab=HAB_CALENDARIO.find(h=>h.id===habId);
+    const numDias=new Date(calAnio,calMes,0).getDate();
+    const hoy=new Date();
+
+    let datos;
+    const key=calAnio+'-'+calMes;
+    if(calCache && calCacheKey===key){ datos=calCache; }
+    else {
+      try{
+        const res=await fetch(API_RESERVAS+'/api/calendario?anio='+calAnio+'&mes='+calMes);
+        if(!res.ok) throw new Error();
+        const arr=await res.json();
+        datos={}; arr.forEach(d=>{ datos[d.habitacion+'_'+d.fecha]=d; });
+      }catch(e){ datos={}; }
+      calCache=datos; calCacheKey=key;
+    }
+
+    // Mini calendario
+    const dows=[];
+    for(let d=1;d<=numDias;d++) dows.push(new Date(calAnio,calMes-1,d).getDay());
+
+    let calHtml=`<div class="panel-hdr"><span class="panel-id">${hab.id}</span><span class="panel-tipo">${hab.tipo}</span><span class="panel-piso">Piso ${hab.piso}</span><button class="panel-close" onclick="cerrarCalPanel()">✕</button></div>`;
+    calHtml+='<div class="mini-cal-header">';
+    for(let i=0;i<7;i++) calHtml+=`<span class="mini-cal-dow">${DIAS_CAL[i]}</span>`;
+    calHtml+='</div><div class="mini-cal-dias">';
+
+    const primerDow=(dows[0]+6)%7;
+    for(let p=0;p<primerDow;p++) calHtml+='<span class="mini-cal-vacio"></span>';
+
+    let ocu=0, mant=0;
+    for(let d=1;d<=numDias;d++){
+      const fecha=calAnio+'-'+String(calMes).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+      const clave=hab.id+'_'+fecha;
+      const dato=datos[clave];
+      const estado=dato?dato.estado:'';
+      const reserva=dato?dato.reserva:'';
+      if(estado==='reservada') ocu++;
+      if(estado==='mantenimiento') mant++;
+      const esHoy=d===hoy.getDate()&&calMes===hoy.getMonth()+1&&calAnio===hoy.getFullYear();
+      const cls=['mini-cal-dia'];
+      if(esHoy) cls.push('hoy');
+      if(estado==='reservada') cls.push('reservada');
+      else if(estado==='mantenimiento') cls.push('mantenimiento');
+      calHtml+=`<span class="${cls.join(' ')}" data-hab="${hab.id}" data-fecha="${fecha}" data-estado="${estado}" data-reserva="${reserva}" onclick="toggleMiniCal(this)">${d}</span>`;
+    }
+    calHtml+='</div>';
+
+    const libre=numDias-ocu-mant;
+    calHtml+=`<div class="panel-stats"><span class="ps-libre">${libre} libre${libre!==1?'s':''}</span>${ocu?`<span class="ps-ocu">${ocu} reservado${ocu!==1?'s':''}</span>`:''}${mant?`<span class="ps-mant">${mant} mant.</span>`:''}</div>`;
+
+    inner.innerHTML=calHtml;
+    panel.style.display='block';
+    panel.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+
+  function cerrarCalPanel(){
+    calOpen=null;
+    const panel=document.getElementById('calPanel');
+    if(panel) panel.style.display='none';
+    cargarBadges();
+  }
+
   async function toggleMiniCal(el){
-    if(el.dataset.estado==='reservada') return; // no desbloquear reservas
+    if(el.dataset.estado==='reservada') return;
     const hab=el.dataset.hab;
     const fecha=el.dataset.fecha;
     try{
@@ -975,7 +1018,7 @@
         el.dataset.estado=r.estado;
       }
       calCache=null;
-      cargarCalendario();
+      cargarBadges();
     }catch(e){}
   }
 
