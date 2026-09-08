@@ -884,7 +884,7 @@
     // Cargar datos de disponibilidad
     let datos={};
     try{
-      const res=await fetch(API_RESERVAS+'/api/disponibilidad?anio='+calAnio+'&mes='+calMes);
+      const res=await fetch(API_RESERVAS+'/api/calendario?anio='+calAnio+'&mes='+calMes);
       if(res.ok){
         const arr=await res.json();
         arr.forEach(d=>{ datos[d.habitacion+'_'+d.fecha]=d.estado; });
@@ -920,7 +920,7 @@
     const hab=celda.dataset.hab;
     const fecha=celda.dataset.fecha;
     try{
-      const res=await fetch(API_RESERVAS+'/api/disponibilidad/toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({habitacion:hab,fecha:fecha})});
+      const res=await fetch(API_RESERVAS+'/api/calendario/toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({habitacion:hab,fecha:fecha})});
       if(!res.ok) throw new Error();
       const r=await res.json();
       if(r.accion==='liberada'){celda.className=celda.className.replace(/cal-reservada|cal-mantenimiento/g,'').trim();}
