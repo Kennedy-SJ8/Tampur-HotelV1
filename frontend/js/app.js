@@ -15,9 +15,35 @@
     const huespedes=document.getElementById('huespedes').value;
     document.getElementById('habitaciones').scrollIntoView({behavior:'smooth'});
     if(en&&sa){ document.getElementById('rEntrada').value=en; document.getElementById('rSalida').value=sa; }
-    // Pasar huéspedes al modal de reserva
     const selHuespedes=document.getElementById('rHuespedes');
     if(selHuespedes){ selHuespedes.value=huespedes; }
+  });
+
+  // Deshabilitar habitación Simple si hay 2 huéspedes
+  document.getElementById('huespedes').addEventListener('change',function(){
+    const max=parseInt(this.value)||1;
+    const cardSimple=document.querySelector('[onclick*="simple"]');
+    if(cardSimple){
+      if(max>=2){
+        cardSimple.style.opacity='.35';
+        cardSimple.style.pointerEvents='none';
+        cardSimple.style.position='relative';
+        let badge=cardSimple.querySelector('.badge-no-disponible');
+        if(!badge){
+          badge=document.createElement('span');
+          badge.className='badge-no-disponible';
+          badge.textContent=idiomaActual==='EN'?'Max 1 guest':'Máx 1 huésped';
+          badge.style.cssText='position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.75);color:#fff;padding:8px 16px;border-radius:8px;font-size:.85rem;font-weight:600;white-space:nowrap;z-index:2';
+          cardSimple.style.position='relative';
+          cardSimple.appendChild(badge);
+        }
+      } else {
+        cardSimple.style.opacity='1';
+        cardSimple.style.pointerEvents='auto';
+        const badge=cardSimple.querySelector('.badge-no-disponible');
+        if(badge) badge.remove();
+      }
+    }
   });
 
   // Reserva
