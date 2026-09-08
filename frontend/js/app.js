@@ -169,7 +169,7 @@
   let reservaEnProceso=false;
 
   function abrirReserva(nombre,key){
-    habitacionActual=nombre; tarifaActual=TARIFAS[key]||90;
+    habitacionActual=nombre; tarifaActual=TARIFAS[key]||60;
     idempotencyKey=nuevaIdempotencyKey();
     reservaEnProceso=false;
     document.getElementById('rTitulo').textContent=nombre;
@@ -178,6 +178,18 @@
     document.getElementById('rTotal').textContent='S/ 0';
     const conv0=document.getElementById('rTotalConv'); if(conv0) conv0.textContent='';
     totalActual=0;
+    // Ajustar huéspedes según tipo: Simple=1, resto=2
+    const maxH=key==='simple'?1:2;
+    const sel=document.getElementById('rHuespedes');
+    if(sel){
+      sel.innerHTML='';
+      for(let i=1;i<=maxH;i++){
+        const opt=document.createElement('option');
+        opt.value=i;
+        opt.textContent=i===1?(idiomaActual==='EN'?'1 guest':'1 huésped'):(i+' '+(idiomaActual==='EN'?'guests':'huéspedes'));
+        sel.appendChild(opt);
+      }
+    }
     modal.classList.add('abierto');
     calcular();
   }
