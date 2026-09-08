@@ -11,6 +11,7 @@ const traducciones = {
     hero_titulo: 'Descanso en las alturas de <em>San Mateo</em>',
     hero_lead: 'A 3,200 msnm, rodeado de montañas. Reserve directamente y pague la mejor tarifa, sin intermediarios ni cargos ocultos.',
     lbl_llegada: 'Llegada', lbl_salida: 'Salida', lbl_huespedes: 'Huéspedes',
+    huespedes_opciones: ['1 huésped','2 huéspedes','3 huéspedes','4 huéspedes','5+ huéspedes'],
     lbl_moneda: 'Mostrar precios en',
     btn_buscar: 'Buscar',
     // Franja
@@ -132,6 +133,7 @@ const traducciones = {
     hero_titulo: 'Rest in the heights of <em>San Mateo</em>',
     hero_lead: 'At 3,200 m.a.s.l., surrounded by mountains. Book directly and pay the best rate, no middlemen or hidden fees.',
     lbl_llegada: 'Check-in', lbl_salida: 'Check-out', lbl_huespedes: 'Guests',
+    huespedes_opciones: ['1 guest','2 guests','3 guests','4 guests','5+ guests'],
     lbl_moneda: 'Show prices in',
     btn_buscar: 'Search',
     // Franja
@@ -267,6 +269,15 @@ function traducirPagina() {
       el.placeholder = texto;
     } else {
       el.innerHTML = texto;
+    }
+  });
+  // Traducir opciones de selects
+  document.querySelectorAll('[data-i18n-options]').forEach(el => {
+    const key = el.getAttribute('data-i18n-options');
+    const opciones = t(key);
+    if (Array.isArray(opciones)) {
+      const options = el.querySelectorAll('option');
+      opciones.forEach((txt, i) => { if (options[i]) options[i].textContent = txt; });
     }
   });
 }
