@@ -272,9 +272,8 @@
 </div>
 
 <!-- ======================= PANEL ADMINISTRATIVO ======================= -->
-<div class="admin-overlay" id="adminLogin">
+<div class="admin-overlay" id="adminLogin" onclick="if(event.target===this)cerrarAdmin()">
   <div class="admin-caja">
-    <button class="cerrar" onclick="cerrarAdmin()">&times;</button>
     <img class="marca-mini" src="assets/img/logo-sin-fondo.png" alt="Hotel Támpur">
     <h3>Panel Administrativo</h3>
     <p class="sub">Ingrese sus credenciales para monitorear las reservas.</p>

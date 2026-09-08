@@ -431,6 +431,13 @@
     document.getElementById('adminLogin').classList.remove('abierto');
     document.getElementById('adminDash').classList.remove('abierto');
   }
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){
+      if(document.getElementById('adminDash').classList.contains('abierto')){ salirAdmin(); }
+      else if(document.getElementById('adminLogin').classList.contains('abierto')){ cerrarAdmin(); }
+      else if(modal.classList.contains('abierto')){ cerrarModal(); }
+    }
+  });
   function toggleAdminPw(){
     const inp=document.getElementById('aClave');
     const icoOpen=inp.parentElement.querySelector('.pw-ico-open');
