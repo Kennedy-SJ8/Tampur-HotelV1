@@ -249,4 +249,17 @@ public class ReservasController {
         reservaRepo.deleteById(codigo);
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/habitaciones/precios")
+    public ResponseEntity<?> actualizarPrecios(@RequestBody Map<String, Double> body) {
+        body.forEach((tipo, precio) -> {
+            if (precio != null && precio >= 0) {
+                tarifas.put(tipo, precio);
+                habitacionRepo.findAll().stream()
+                    .filter(h -> h.getTipo().equals(tipo))
+                    .forEach(h -> { h.setPrecioNoche(precio); habitacionRepo.save(h); });
+            }
+        });
+        return ResponseEntity.ok(tarifas);
+    }
 }
