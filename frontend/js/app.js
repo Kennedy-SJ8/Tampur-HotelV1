@@ -47,11 +47,19 @@
   });
 
   // Reserva
-  let tarifaActual=90, habitacionActual='Habitación Simple';
+  let tarifaActual=60, habitacionActual='Habitación Simple';
   const modal=document.getElementById('modalReserva');
   const TARIFAS={simple:60,matrimonial:80,queen:120,king:140};
   function cargarTarifas(){
-    try{ const t=JSON.parse(localStorage.getItem('tampur_tarifas')); if(t){ Object.assign(TARIFAS,t); } }catch(e){}
+    try{
+      const t=JSON.parse(localStorage.getItem('tampur_tarifas'));
+      if(t){
+        if(t.simple!=null) TARIFAS.simple=t.simple;
+        if(t.matrimonial!=null) TARIFAS.matrimonial=t.matrimonial;
+        if(t.queen!=null) TARIFAS.queen=t.queen;
+        if(t.king!=null) TARIFAS.king=t.king;
+      }
+    }catch(e){}
     pintarPrecios();
   }
 
@@ -68,9 +76,10 @@
       const precios={};
       rooms.forEach(r=>{ if(!precios[r.tipo]) precios[r.tipo]=r.precioNoche; });
       if(precios['Simple']) TARIFAS.simple=precios['Simple'];
-      if(precios['Doble']) TARIFAS.doble=precios['Doble'];
       if(precios['Matrimonial']) TARIFAS.matrimonial=precios['Matrimonial'];
-      cargarTarifas();
+      if(precios['Queen']) TARIFAS.queen=precios['Queen'];
+      if(precios['King']) TARIFAS.king=precios['King'];
+      pintarPrecios();
     }catch(e){}
   }
 
