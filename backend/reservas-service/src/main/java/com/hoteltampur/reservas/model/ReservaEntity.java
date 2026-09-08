@@ -3,13 +3,17 @@ package com.hoteltampur.reservas.model;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PostPersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import org.springframework.data.domain.Persistable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "reservas")
-public class ReservaEntity {
+public class ReservaEntity implements Persistable<String> {
 
     @Id
     private String codigo;
@@ -24,6 +28,9 @@ public class ReservaEntity {
     private double total;
     private String estado;
     private LocalDateTime creadoEn;
+
+    @Transient
+    private boolean nuevo = true;
 
     public ReservaEntity() {}
 
@@ -43,6 +50,16 @@ public class ReservaEntity {
         this.estado = estado;
         this.creadoEn = LocalDateTime.now();
     }
+
+    @Override
+    public String getId() { return codigo; }
+
+    @Override
+    public boolean isNew() { return nuevo; }
+
+    @PostLoad
+    @PostPersist
+    public void marcarComoPersistida() { this.nuevo = false; }
 
     public String getCodigo() { return codigo; }
     public void setCodigo(String codigo) { this.codigo = codigo; }

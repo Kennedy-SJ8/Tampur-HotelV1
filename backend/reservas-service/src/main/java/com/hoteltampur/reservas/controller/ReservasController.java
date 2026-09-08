@@ -116,7 +116,9 @@ public class ReservasController {
             ));
         }
 
+        log.info("Guardando reserva...");
         ReservaEntity reserva = registrarReserva(r);
+        log.info("Reserva guardada: {}", reserva.getCodigo());
 
         final Reserva record = reserva.toRecord();
         CompletableFuture.runAsync(() -> {
