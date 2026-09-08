@@ -49,8 +49,9 @@ public class ReservasController {
 
     private final Map<String, Double> tarifas = Map.of(
             "Simple", 90.0,
-            "Doble", 140.0,
-            "Matrimonial", 180.0
+            "Matrimonial", 180.0,
+            "Queen", 220.0,
+            "King", 280.0
     );
 
     private final HabitacionRepository habitacionRepo;

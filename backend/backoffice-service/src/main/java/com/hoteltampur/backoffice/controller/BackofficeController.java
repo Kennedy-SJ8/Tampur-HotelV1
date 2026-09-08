@@ -31,26 +31,26 @@ public class BackofficeController {
         new Habitacion("105", "Simple", 1, 105, "Libre", ""),
         new Habitacion("106", "Simple", 1, 106, "Libre", ""),
         new Habitacion("107", "Simple", 1, 107, "Libre", ""),
-        // Piso 2: Doble (201–206)
-        new Habitacion("201", "Doble", 2, 201, "Libre", ""),
-        new Habitacion("202", "Doble", 2, 202, "Libre", ""),
-        new Habitacion("203", "Doble", 2, 203, "Libre", ""),
-        new Habitacion("204", "Doble", 2, 204, "Libre", ""),
-        new Habitacion("205", "Doble", 2, 205, "Libre", ""),
-        new Habitacion("206", "Doble", 2, 206, "Libre", ""),
-        // Piso 2: Matrimonial (207–212)
-        new Habitacion("207", "Matrimonial", 2, 207, "Libre", ""),
-        new Habitacion("208", "Matrimonial", 2, 208, "Libre", ""),
-        new Habitacion("209", "Matrimonial", 2, 209, "Libre", ""),
-        new Habitacion("210", "Matrimonial", 2, 210, "Libre", ""),
-        new Habitacion("211", "Matrimonial", 2, 211, "Libre", ""),
-        new Habitacion("212", "Matrimonial", 2, 212, "Libre", ""),
-        // Piso 3: Matrimonial (301–305)
-        new Habitacion("301", "Matrimonial", 3, 301, "Libre", ""),
-        new Habitacion("302", "Matrimonial", 3, 302, "Libre", ""),
-        new Habitacion("303", "Matrimonial", 3, 303, "Libre", ""),
-        new Habitacion("304", "Matrimonial", 3, 304, "Libre", ""),
-        new Habitacion("305", "Matrimonial", 3, 305, "Libre", "")
+        // Piso 2: Matrimonial (201–206)
+        new Habitacion("201", "Matrimonial", 2, 201, "Libre", ""),
+        new Habitacion("202", "Matrimonial", 2, 202, "Libre", ""),
+        new Habitacion("203", "Matrimonial", 2, 203, "Libre", ""),
+        new Habitacion("204", "Matrimonial", 2, 204, "Libre", ""),
+        new Habitacion("205", "Matrimonial", 2, 205, "Libre", ""),
+        new Habitacion("206", "Matrimonial", 2, 206, "Libre", ""),
+        // Piso 2: Queen (207–212)
+        new Habitacion("207", "Queen", 2, 207, "Libre", ""),
+        new Habitacion("208", "Queen", 2, 208, "Libre", ""),
+        new Habitacion("209", "Queen", 2, 209, "Libre", ""),
+        new Habitacion("210", "Queen", 2, 210, "Libre", ""),
+        new Habitacion("211", "Queen", 2, 211, "Libre", ""),
+        new Habitacion("212", "Queen", 2, 212, "Libre", ""),
+        // Piso 3: King (301–305)
+        new Habitacion("301", "King", 3, 301, "Libre", ""),
+        new Habitacion("302", "King", 3, 302, "Libre", ""),
+        new Habitacion("303", "King", 3, 303, "Libre", ""),
+        new Habitacion("304", "King", 3, 304, "Libre", ""),
+        new Habitacion("305", "King", 3, 305, "Libre", "")
     ));
 
     // ─── OCUPACION (PLANO DE HABITACIONES) ──────────────────────────

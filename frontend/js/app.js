@@ -23,7 +23,7 @@
   // Reserva
   let tarifaActual=90, habitacionActual='Habitación Simple';
   const modal=document.getElementById('modalReserva');
-  const TARIFAS={simple:90,doble:140,matrimonial:180};
+  const TARIFAS={simple:90,matrimonial:180,queen:220,king:280};
   function cargarTarifas(){
     try{ const t=JSON.parse(localStorage.getItem('tampur_tarifas')); if(t){ Object.assign(TARIFAS,t); } }catch(e){}
     pintarPrecios();
@@ -111,7 +111,7 @@
 
   function pintarPrecios(){
     const b=document.querySelectorAll('.tarjeta .precio b');
-    const precios=[TARIFAS.simple,TARIFAS.doble,TARIFAS.matrimonial];
+    const precios=[TARIFAS.simple,TARIFAS.matrimonial,TARIFAS.queen,TARIFAS.king];
     b.forEach((el,i)=>{ if(precios[i]!=null) el.textContent=formatearPrecio(precios[i]); });
   }
 
@@ -659,7 +659,7 @@
     if(guardadas){
       try{ const arr=JSON.parse(guardadas); if(arr.length>=20) return arr; }catch(e){}
     }
-    return [{"id":"101","tipo":"Simple","piso":1,"numero":101,"estado":"Libre","limpieza":""},{"id":"102","tipo":"Simple","piso":1,"numero":102,"estado":"Libre","limpieza":""},{"id":"103","tipo":"Simple","piso":1,"numero":103,"estado":"Libre","limpieza":""},{"id":"104","tipo":"Simple","piso":1,"numero":104,"estado":"Libre","limpieza":""},{"id":"105","tipo":"Simple","piso":1,"numero":105,"estado":"Libre","limpieza":""},{"id":"106","tipo":"Simple","piso":1,"numero":106,"estado":"Libre","limpieza":""},{"id":"107","tipo":"Simple","piso":1,"numero":107,"estado":"Libre","limpieza":""},{"id":"201","tipo":"Doble","piso":2,"numero":201,"estado":"Libre","limpieza":""},{"id":"202","tipo":"Doble","piso":2,"numero":202,"estado":"Libre","limpieza":""},{"id":"203","tipo":"Doble","piso":2,"numero":203,"estado":"Libre","limpieza":""},{"id":"204","tipo":"Doble","piso":2,"numero":204,"estado":"Libre","limpieza":""},{"id":"205","tipo":"Doble","piso":2,"numero":205,"estado":"Libre","limpieza":""},{"id":"206","tipo":"Doble","piso":2,"numero":206,"estado":"Libre","limpieza":""},{"id":"207","tipo":"Matrimonial","piso":2,"numero":207,"estado":"Libre","limpieza":""},{"id":"208","tipo":"Matrimonial","piso":2,"numero":208,"estado":"Libre","limpieza":""},{"id":"209","tipo":"Matrimonial","piso":2,"numero":209,"estado":"Libre","limpieza":""},{"id":"210","tipo":"Matrimonial","piso":2,"numero":210,"estado":"Libre","limpieza":""},{"id":"211","tipo":"Matrimonial","piso":2,"numero":211,"estado":"Libre","limpieza":""},{"id":"212","tipo":"Matrimonial","piso":2,"numero":212,"estado":"Libre","limpieza":""},{"id":"301","tipo":"Matrimonial","piso":3,"numero":301,"estado":"Libre","limpieza":""},{"id":"302","tipo":"Matrimonial","piso":3,"numero":302,"estado":"Libre","limpieza":""},{"id":"303","tipo":"Matrimonial","piso":3,"numero":303,"estado":"Libre","limpieza":""},{"id":"304","tipo":"Matrimonial","piso":3,"numero":304,"estado":"Libre","limpieza":""},{"id":"305","tipo":"Matrimonial","piso":3,"numero":305,"estado":"Libre","limpieza":""}];
+    return [{"id":"101","tipo":"Simple","piso":1,"numero":101,"estado":"Libre","limpieza":""},{"id":"102","tipo":"Simple","piso":1,"numero":102,"estado":"Libre","limpieza":""},{"id":"103","tipo":"Simple","piso":1,"numero":103,"estado":"Libre","limpieza":""},{"id":"104","tipo":"Simple","piso":1,"numero":104,"estado":"Libre","limpieza":""},{"id":"105","tipo":"Simple","piso":1,"numero":105,"estado":"Libre","limpieza":""},{"id":"106","tipo":"Simple","piso":1,"numero":106,"estado":"Libre","limpieza":""},{"id":"107","tipo":"Simple","piso":1,"numero":107,"estado":"Libre","limpieza":""},{"id":"201","tipo":"Matrimonial","piso":2,"numero":201,"estado":"Libre","limpieza":""},{"id":"202","tipo":"Matrimonial","piso":2,"numero":202,"estado":"Libre","limpieza":""},{"id":"203","tipo":"Matrimonial","piso":2,"numero":203,"estado":"Libre","limpieza":""},{"id":"204","tipo":"Matrimonial","piso":2,"numero":204,"estado":"Libre","limpieza":""},{"id":"205","tipo":"Matrimonial","piso":2,"numero":205,"estado":"Libre","limpieza":""},{"id":"206","tipo":"Matrimonial","piso":2,"numero":206,"estado":"Libre","limpieza":""},{"id":"207","tipo":"Queen","piso":2,"numero":207,"estado":"Libre","limpieza":""},{"id":"208","tipo":"Queen","piso":2,"numero":208,"estado":"Libre","limpieza":""},{"id":"209","tipo":"Queen","piso":2,"numero":209,"estado":"Libre","limpieza":""},{"id":"210","tipo":"Queen","piso":2,"numero":210,"estado":"Libre","limpieza":""},{"id":"211","tipo":"Queen","piso":2,"numero":211,"estado":"Libre","limpieza":""},{"id":"212","tipo":"Queen","piso":2,"numero":212,"estado":"Libre","limpieza":""},{"id":"301","tipo":"King","piso":3,"numero":301,"estado":"Libre","limpieza":""},{"id":"302","tipo":"King","piso":3,"numero":302,"estado":"Libre","limpieza":""},{"id":"303","tipo":"King","piso":3,"numero":303,"estado":"Libre","limpieza":""},{"id":"304","tipo":"King","piso":3,"numero":304,"estado":"Libre","limpieza":""},{"id":"305","tipo":"King","piso":3,"numero":305,"estado":"Libre","limpieza":""}];
   }
   function setHabitaciones(h){ localStorage.setItem('tampur_habitaciones',JSON.stringify(h)); }
   async function renderHabitaciones(){
@@ -768,17 +768,19 @@
       <div class="formulario" style="max-width:440px">
         <p style="color:var(--gris);font-size:.9rem;margin-bottom:16px">Configure el precio por noche para cada tipo de habitación.</p>
         <div class="campo-form"><label>Habitación Simple (S/ por noche)</label><input type="number" id="tSimple" value="${t.simple}" min="0" step="1"></div>
-        <div class="campo-form"><label>Habitación Doble (S/ por noche)</label><input type="number" id="tDoble" value="${t.doble}" min="0" step="1"></div>
         <div class="campo-form"><label>Habitación Matrimonial (S/ por noche)</label><input type="number" id="tMatrimonial" value="${t.matrimonial}" min="0" step="1"></div>
+        <div class="campo-form"><label>Habitación Queen (S/ por noche)</label><input type="number" id="tQueen" value="${t.queen}" min="0" step="1"></div>
+        <div class="campo-form"><label>Habitación King (S/ por noche)</label><input type="number" id="tKing" value="${t.king}" min="0" step="1"></div>
         <button class="btn btn-primario" onclick="guardarTarifas()">Guardar tarifas</button>
       </div>`;
   }
   function guardarTarifas(){
     const s=+document.getElementById('tSimple').value;
-    const d=+document.getElementById('tDoble').value;
     const m=+document.getElementById('tMatrimonial').value;
-    if(isNaN(s)||isNaN(d)||isNaN(m)||s<0||d<0||m<0){ alert('Ingrese valores numéricos válidos (mayores o iguales a 0).'); return; }
-    const t={simple:s,doble:d,matrimonial:m};
+    const q=+document.getElementById('tQueen').value;
+    const k=+document.getElementById('tKing').value;
+    if(isNaN(s)||isNaN(m)||isNaN(q)||isNaN(k)||s<0||m<0||q<0||k<0){ alert('Ingrese valores numéricos válidos (mayores o iguales a 0).'); return; }
+    const t={simple:s,matrimonial:m,queen:q,king:k};
     localStorage.setItem('tampur_tarifas',JSON.stringify(t));
     Object.assign(TARIFAS,t);
     cargarTarifas();
