@@ -1,12 +1,15 @@
 package com.hoteltampur.reservas.controller;
 
 import com.hoteltampur.reservas.model.DisponibilidadEntity;
+import com.hoteltampur.reservas.model.ReservaEntity;
 import com.hoteltampur.reservas.repository.DisponibilidadRepository;
+import com.hoteltampur.reservas.repository.ReservaRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -16,12 +19,14 @@ import java.util.stream.Collectors;
 public class DisponibilidadController {
 
     private final DisponibilidadRepository repo;
+    private final ReservaRepository reservaRepo;
 
-    public DisponibilidadController(DisponibilidadRepository repo) {
+    public DisponibilidadController(DisponibilidadRepository repo, ReservaRepository reservaRepo) {
         this.repo = repo;
+        this.reservaRepo = reservaRepo;
     }
 
-    /** Obtener disponibilidad de un mes completo. */
+    /** Obtener disponibilidad del mes: combina tabla disponibilidad + reservas activas. */
     @GetMapping
     public List<Map<String, Object>> obtener(@RequestParam(required = false) Integer anio,
                                               @RequestParam(required = false) Integer mes) {
@@ -31,17 +36,70 @@ public class DisponibilidadController {
         LocalDate inicio = ym.atDay(1);
         LocalDate fin = ym.atEndOfMonth();
 
-        return repo.findByFechaBetween(inicio, fin).stream()
-                .map(d -> {
-                    Map<String, Object> m = new HashMap<>();
-                    m.put("id", d.getId());
-                    m.put("habitacion", d.getNumeroHabitacion());
-                    m.put("fecha", d.getFecha().toString());
-                    m.put("estado", d.getEstado());
-                    m.put("reserva", d.getCodigoReserva());
-                    return m;
-                })
-                .collect(Collectors.toList());
+        // Mapa de datos de la tabla disponibilidad
+        Map<String, Map<String, Object>> mapa = new LinkedHashMap<>();
+        repo.findByFechaBetween(inicio, fin).forEach(d -> {
+            String clave = d.getNumeroHabitacion() + "_" + d.getFecha().toString();
+            Map<String, Object> m = new HashMap<>();
+            m.put("habitacion", d.getNumeroHabitacion());
+            m.put("fecha", d.getFecha().toString());
+            m.put("estado", d.getEstado());
+            m.put("reserva", d.getCodigoReserva());
+            mapa.put(clave, m);
+        });
+
+        // Agregar reservas activas (Pendiente o Confirmada) que NO estén ya en disponibilidad
+        reservaRepo.findAll().stream()
+            .filter(r -> !"Cancelada".equals(r.getEstado()))
+            .filter(r -> r.getFechaEntrada() != null && r.getFechaSalida() != null)
+            .filter(r -> !r.getFechaEntrada().isAfter(fin) && !r.getFechaSalida().isBefore(inicio))
+            .forEach(r -> {
+                LocalDate entrada = r.getFechaEntrada().isBefore(inicio) ? inicio : r.getFechaEntrada();
+                LocalDate salida = r.getFechaSalida().isAfter(fin.plusDays(1)) ? fin.plusDays(1) : r.getFechaSalida();
+                String numero = r.getNumeroHabitacion();
+                if (numero == null || numero.isBlank()) {
+                    // Asignar número por tipo si no tiene
+                    numero = asignarNumeroPorTipo(r.getTipoHabitacion(), r.getCodigo());
+                }
+                if (numero == null || numero.isBlank()) return;
+                LocalDate f = entrada;
+                while (f.isBefore(salida)) {
+                    String clave = numero + "_" + f.toString();
+                    if (!mapa.containsKey(clave)) {
+                        Map<String, Object> m = new HashMap<>();
+                        m.put("habitacion", numero);
+                        m.put("fecha", f.toString());
+                        m.put("estado", "reservada");
+                        m.put("reserva", r.getCodigo());
+                        mapa.put(clave, m);
+                    }
+                    f = f.plusDays(1);
+                }
+            });
+
+        return new ArrayList<>(mapa.values());
+    }
+
+    /** Asigna un número de habitación disponible por tipo. */
+    private String asignarNumeroPorTipo(String tipo, String codigoReserva) {
+        if (tipo == null) return null;
+        Map<String, String[]> rangos = Map.of(
+            "Simple", new String[]{"S1","S2"},
+            "Matrimonial", new String[]{"M1","M2"},
+            "Queen", new String[]{"Q1","Q2"},
+            "King", new String[]{"K1","K2"}
+        );
+        String[] nums = rangos.get(tipo);
+        if (nums == null) return null;
+        // Intentar el primero, si está ocupado el segundo
+        for (String n : nums) {
+            long ocupadasEnRango = reservaRepo.buscarDuplicada(codigoReserva.split("-")[0], tipo,
+                    LocalDate.now().minusYears(1), LocalDate.now().plusYears(1)).stream()
+                    .filter(r -> n.equals(r.getNumeroHabitacion()))
+                    .count();
+            if (ocupadasEnRango == 0) return n;
+        }
+        return nums[0]; // fallback
     }
 
     /** Marcar fechas como reservada (automático al crear reserva). */
@@ -83,11 +141,9 @@ public class DisponibilidadController {
         Optional<DisponibilidadEntity> existing = repo.findById(id);
 
         if (existing.isPresent()) {
-            // Si ya existe, eliminar (desbloquear)
             repo.deleteById(id);
             return ResponseEntity.ok(Map.of("accion", "liberada", "habitacion", habitacion, "fecha", fecha));
         } else {
-            // Crear bloqueo manual
             LocalDate f = LocalDate.parse(fecha);
             repo.save(new DisponibilidadEntity(id, habitacion, f, estado, null));
             return ResponseEntity.ok(Map.of("accion", "bloqueada", "habitacion", habitacion, "fecha", fecha, "estado", estado));

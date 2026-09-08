@@ -654,6 +654,7 @@
     const accion=estado==='Confirmada'?'confirmar':'cancelar';
     if(!confirm('¿Desea '+accion+' la reserva '+codigo+'?')) return;
     try{ await fetch(API_RESERVAS+'/api/reservas/'+codigo+'/estado',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({estado:estado})}); }catch(e){}
+    calCache=null;
     renderReservas();
   }
   async function asignarHabitacion(codigo){
@@ -669,6 +670,7 @@
   async function eliminarReservaBackend(codigo){
     if(!confirm('¿Eliminar permanentemente la reserva '+codigo+'? Esta acción no se puede deshacer.')) return;
     try{ await fetch(API_RESERVAS+'/api/reservas/'+codigo,{method:'DELETE'}); }catch(e){}
+    calCache=null;
     renderReservas();
   }
   function renderReservasLocal(){
