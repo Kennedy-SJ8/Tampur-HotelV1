@@ -423,6 +423,17 @@
   // ===== ADMIN =====
   function tokenAdmin(){ return sessionStorage.getItem('tampur_admin_token'); }
   function headersAdmin(){ const t=tokenAdmin(); const h={'Content-Type':'application/json'}; if(t){ h.Authorization='Bearer '+t; } return h; }
+  async function fetchAdmin(url,opts={}){
+    const res=await fetch(url,{...opts,headers:headersAdmin()});
+    if(res.status===401){
+      sessionStorage.removeItem('tampur_admin_token');
+      cerrarAdmin();
+      document.getElementById('adminLogin').classList.add('abierto');
+      showAdminError('Sesión expirada. Ingrese de nuevo.');
+      throw new Error('401');
+    }
+    return res;
+  }
   function abrirAdmin(){
     if(tokenAdmin()){ entrarDash(); }
     else { document.getElementById('adminLogin').classList.add('abierto'); }
@@ -592,7 +603,7 @@
     document.getElementById('dashTitulo').textContent='Plano de habitaciones';
     const cont=document.getElementById('dashContenido');
     try{
-      const res=await fetch(API_BACKOFFICE+'/api/ocupacion',{headers:headersAdmin()});
+      const res=await fetchAdmin(API_BACKOFFICE+'/api/ocupacion');
       if(!res.ok) throw new Error('offline');
       const habs=await res.json();
       pintarPlano(habs, true);
@@ -641,7 +652,7 @@
   async function cambiarEstadoHabBackend(id, estado){
     const orden=['Libre','Ocupada','Limpieza','Mantenimiento'];
     const sig=orden[(orden.indexOf(estado)+1)%orden.length];
-    try{ await fetch(API_BACKOFFICE+'/api/ocupacion/'+id+'/estado',{method:'PATCH',headers:headersAdmin(),body:JSON.stringify({estado:sig})}); }catch(e){}
+    try{ await fetchAdmin(API_BACKOFFICE+'/api/ocupacion/'+id+'/estado',{method:'PATCH',body:JSON.stringify({estado:sig})}); }catch(e){}
     renderHabitaciones();
   }
   function cambiarEstadoHabLocal(id, estado){
@@ -756,7 +767,7 @@
   async function renderLimpieza(){
     document.getElementById('dashTitulo').textContent='Limpieza del día';
     try{
-      const res=await fetch(API_BACKOFFICE+'/api/limpieza',{headers:headersAdmin()});
+      const res=await fetchAdmin(API_BACKOFFICE+'/api/limpieza');
       if(!res.ok) throw new Error('offline');
       const habitaciones=await res.json(); // [{numero,piso,limpiada}]
       const confirmadas=await obtenerReservasConfirmadas();
@@ -869,8 +880,8 @@
   async function toggleLimpieza(numero, limpiada, desdeServidor){
     if(desdeServidor){
       try{
-        await fetch(API_BACKOFFICE+'/api/limpieza/'+numero+'/estado',{
-          method:'PATCH', headers:headersAdmin(),
+        await fetchAdmin(API_BACKOFFICE+'/api/limpieza/'+numero+'/estado',{
+          method:'PATCH',
           body:JSON.stringify({limpiada})
         });
       }catch(e){ /* si falla, igual refrescamos: pasará a modo local */ }
