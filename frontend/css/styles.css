@@ -525,7 +525,7 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);padding-top:22px;text-a
 .cal-leg-item{display:flex;align-items:center;gap:4px}
 .cal-dot{width:14px;height:14px;border-radius:4px;display:inline-block;position:relative;overflow:hidden}
 .cal-dot::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 2px,rgba(255,255,255,.15) 2px,rgba(255,255,255,.15) 4px)}
-.cal-libre{background:linear-gradient(135deg,#e8e5e0,#f5f3f0)}
+.cal-libre{background:linear-gradient(135deg,#a5d6a7,#66bb6a)}
 .cal-reservada{background:linear-gradient(135deg,#b7873e,#d4a24e)}
 .cal-mantenimiento{background:linear-gradient(135deg,#dc2626,#ef4444)}
 .cal-loading{padding:30px;text-align:center;color:var(--gris);font-style:italic}
@@ -572,15 +572,16 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);padding-top:22px;text-a
 .mini-cal-dia:hover{transform:scale(1.12);z-index:2}
 .mini-cal-dia:active{transform:scale(.9)}
 .mini-cal-dia.hoy{outline:2px solid var(--copper);outline-offset:1px;font-weight:700}
-/* Libre */
-.mini-cal-dia:not(.reservada):not(.mantenimiento):hover{background:var(--arena);box-shadow:0 2px 8px rgba(0,0,0,.08)}
-/* Reservada */
+/* Libre — verde gradiente */
+.mini-cal-dia:not(.reservada):not(.mantenimiento){background:linear-gradient(135deg,#e8f5e9,#c8e6c9);color:#2e7d32}
+.mini-cal-dia:not(.reservada):not(.mantenimiento):hover{background:linear-gradient(135deg,#c8e6c9,#a5d6a7);box-shadow:0 2px 8px rgba(46,125,50,.2);transform:scale(1.12)}
+.mini-cal-dia:not(.reservada):not(.mantenimiento)::after{content:'✓';position:absolute;bottom:1px;right:2px;font-size:.4rem;color:#2e7d32;opacity:.4}
+/* Reservada — dorado gradiente */
 .mini-cal-dia.reservada{background:linear-gradient(135deg,#b7873e,#d4a24e);color:#fff;cursor:default;font-weight:700;box-shadow:inset 0 1px 2px rgba(0,0,0,.15)}
 .mini-cal-dia.reservada::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 3px,rgba(255,255,255,.08) 3px,rgba(255,255,255,.08) 6px);pointer-events:none}
-.mini-cal-dia.reservada::after{content:'✓';position:absolute;top:1px;right:2px;font-size:.45rem;opacity:.6}
+.mini-cal-dia.reservada::after{content:'✓';position:absolute;bottom:1px;right:2px;font-size:.4rem;opacity:.6}
 .mini-cal-dia.reservada:hover{transform:none}
-/* Mantenimiento */
+/* Mantenimiento — rojo gradiente + X */
 .mini-cal-dia.mantenimiento{background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;font-weight:700;box-shadow:inset 0 1px 2px rgba(0,0,0,.15)}
-.mini-cal-dia.mantenimiento::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(-45deg,transparent,transparent 3px,rgba(255,255,255,.1) 3px,rgba(255,255,255,.1) 6px);pointer-events:none}
-.mini-cal-dia.mantenimiento::after{content:'⚠';position:absolute;top:1px;right:2px;font-size:.45rem;opacity:.7}
+.mini-cal-dia.mantenimiento::before{content:'✕';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:900;color:rgba(255,255,255,.3);pointer-events:none;transform:rotate(0deg)}
 .mini-cal-dia.mantenimiento:hover{transform:none}
