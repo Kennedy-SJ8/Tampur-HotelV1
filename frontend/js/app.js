@@ -602,12 +602,16 @@
     const porTipo={};
     habs.forEach(h=>{ (porTipo[h.tipo]=porTipo[h.tipo]||[]).push(h); });
     const contar=e=>habs.filter(h=>h.estado===e).length;
+    const pendLimpieza=habs.filter(h=>h.limpieza==='pendiente').length;
+    const limpiadas=habs.filter(h=>h.limpieza==='limpiada').length;
     const bloques=ordenTipo.map(t=>{
       const filas=(porTipo[t]||[]).map(h=>{
         const accion=desdeServidor
           ? `cambiarEstadoHabBackend('${h.id}','${h.estado}')`
           : `cambiarEstadoHabLocal('${h.id}','${h.estado}')`;
-        return `<div class="room room-${h.estado}"><div class="room-top"><span class="room-id">${h.id}</span><span class="room-tipo">${h.tipo}</span></div><button class="estado-plano ${h.estado}" onclick="${accion}">${h.estado}</button></div>`;
+        const limpIcon=h.limpieza==='limpiada'?'<span class="room-limpieza limp-ok" title="Limpiada hoy">✓</span>'
+          :h.limpieza==='pendiente'?'<span class="room-limpieza limp-pend" title="Pendiente de limpieza">🧹</span>':'';
+        return `<div class="room room-${h.estado}"><div class="room-top"><span class="room-id">${h.id}</span><span class="room-tipo">${h.tipo}</span>${limpIcon}</div><button class="estado-plano ${h.estado}" onclick="${accion}">${h.estado}</button></div>`;
       }).join('');
       return filas?`<div class="plano-grupo"><h3>${t}</h3><div class="plano">${filas}</div></div>`:'';
     }).join('');
@@ -617,14 +621,18 @@
         <span class="chip chip-Ocupada">Ocupada</span>
         <span class="chip chip-Limpieza">Limpieza</span>
         <span class="chip chip-Mantenimiento">Mantenimiento</span>
+        <span class="chip chip-limp-ok">✓ Limpiada</span>
+        <span class="chip chip-limp-pend">🧹 Pendiente</span>
       </div>
       <div class="tarjetas-kpi">
         <div class="kpi"><div class="num">${habs.length}</div><div class="lbl">Habitaciones</div></div>
         <div class="kpi"><div class="num">${contar('Libre')}</div><div class="lbl">Libres</div></div>
         <div class="kpi"><div class="num">${contar('Ocupada')+contar('Limpieza')+contar('Mantenimiento')}</div><div class="lbl">No disponibles</div></div>
+        <div class="kpi"><div class="num">${pendLimpieza}</div><div class="lbl">Limpieza pend.</div></div>
+        <div class="kpi"><div class="num">${limpiadas}</div><div class="lbl">Ya limpiadas</div></div>
       </div>
       ${bloques}
-      <p style="color:#888;margin-top:16px;font-size:.85rem">${desdeServidor?'Haga clic sobre un estado para cambiarlo (desde el servidor).':'Modo local: backend no conectado.'}</p>`;
+      <p style="color:#888;margin-top:16px;font-size:.85rem">${desdeServidor?'Haga clic sobre un estado para cambiarlo.':'Modo local: backend no conectado.'}</p>`;
   }
   async function cambiarEstadoHabBackend(id, estado){
     const orden=['Libre','Ocupada','Limpieza','Mantenimiento'];
@@ -766,7 +774,7 @@
       if(!res.ok) return [];
       const rs=await res.json();
       return rs.filter(r=>r.estado==='Confirmada')
-        .map(r=>({tipoHabitacion:r.tipoHabitacion,nombre:r.nombre,fechaEntrada:r.fechaEntrada,fechaSalida:r.fechaSalida}));
+        .map(r=>({tipoHabitacion:r.tipoHabitacion,numeroHabitacion:r.numeroHabitacion,nombre:r.nombre,fechaEntrada:r.fechaEntrada,fechaSalida:r.fechaSalida}));
     }catch(e){ return []; }
   }
 
@@ -784,11 +792,11 @@
     const confirmadasOrdenadas=[...(confirmadas||[])].sort((a,b)=>(a.fechaEntrada||'').localeCompare(b.fechaEntrada||''));
     const ocupacionesHtml=confirmadasOrdenadas.length?`
       <div class="limp-ocupaciones no-imprimir">
-        <h3>🛎️ Ocupaciones próximas · reservas confirmadas</h3>
+        <h3>Ocupaciones próximas · reservas confirmadas</h3>
         <div class="ocupaciones-grid">
           ${confirmadasOrdenadas.map(r=>`
             <div class="ocupacion">
-              <div class="ocup-top"><span class="ocup-tipo">Habitación ${r.tipoHabitacion}</span></div>
+              <div class="ocup-top"><span class="ocup-tipo">Habitación ${r.tipoHabitacion}</span>${r.numeroHabitacion?` <span class="ocup-hab-num">#${r.numeroHabitacion}</span>`:''}</div>
               <div class="ocup-huesped">${r.nombre}</div>
               <div class="ocup-fecha">
                 <span class="ico-fecha"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 9h18"/></svg></span>
@@ -809,24 +817,29 @@
       return;
     }
 
-    const totalLimpiadas=habitaciones.filter(h=>h.limpiada).length;
+    const totalLimpiadas=habitaciones.filter(h=>h.limpieza==='limpiada').length;
     const porPiso={};
     habitaciones.forEach(h=>{ (porPiso[h.piso]=porPiso[h.piso]||[]).push(h); });
 
     const bloquesPiso=Object.keys(porPiso).sort().map(piso=>{
-      const filas=porPiso[piso].sort((a,b)=>a.numero-b.numero).map(h=>`
-        <label class="limp-item ${h.limpiada?'limpiada':''}">
-          <input type="checkbox" ${h.limpiada?'checked':''} onchange="toggleLimpieza(${h.numero}, this.checked, ${desdeServidor})">
+      const filas=porPiso[piso].sort((a,b)=>a.numero-b.numero).map(h=>{
+        const esLimpiada=h.limpieza==='limpiada';
+        return `
+        <label class="limp-item ${esLimpiada?'limpiada':''}">
+          <input type="checkbox" ${esLimpiada?'checked':''} onchange="toggleLimpieza(${h.numero}, this.checked, ${desdeServidor})">
           <span class="limp-num">${h.numero}</span>
-          <span class="limp-estado">${h.limpiada?'Limpiada':'Pendiente'}</span>
-        </label>`).join('');
+          <span class="limp-tipo">${h.tipo}</span>
+          <span class="limp-estado-occ">${h.estado}</span>
+          <span class="limp-estado">${esLimpiada?'Limpiada':'Pendiente'}</span>
+        </label>`;
+      }).join('');
       return `<div class="limp-piso"><h3>Piso ${piso}</h3><div class="limp-grid">${filas}</div></div>`;
     }).join('');
 
     cont.innerHTML=`
       <div class="limp-cabecera no-imprimir">
         <div class="tarjetas-kpi" style="margin-bottom:18px">
-          <div class="kpi"><div class="num">${habitaciones.length}</div><div class="lbl">Habitaciones para limpiar hoy</div></div>
+          <div class="kpi"><div class="num">${habitaciones.length}</div><div class="lbl">Para limpiar hoy</div></div>
           <div class="kpi"><div class="num">${totalLimpiadas}</div><div class="lbl">Ya limpiadas</div></div>
           <div class="kpi"><div class="num">${habitaciones.length-totalLimpiadas}</div><div class="lbl">Pendientes</div></div>
         </div>
@@ -835,14 +848,14 @@
           <span class="chip chip-Libre">Limpiada</span>
         </div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-          <button class="btn btn-primario" onclick="imprimirListaLimpieza()">🖨️ Imprimir lista para la encargada</button>
-          ${desdeServidor?'':'<span style="color:#c0392b;font-size:.85rem">⚠ Backend no conectado: guardando en modo local.</span>'}
+          <button class="btn btn-primario" onclick="imprimirListaLimpieza()">Imprimir lista para la encargada</button>
+          ${desdeServidor?'':'<span style="color:#c0392b;font-size:.85rem">Backend no conectado: guardando en modo local.</span>'}
         </div>
       </div>
       ${ocupacionesHtml}
       <div id="listaLimpiezaImprimible">
         <div class="limp-solo-impresion">
-          <h2>Hotel Támpur · Lista de limpieza</h2>
+          <h2>Hotel Tampur · Lista de limpieza</h2>
           <p>${hoy}</p>
         </div>
         ${bloquesPiso}

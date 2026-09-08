@@ -286,6 +286,20 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);padding-top:22px;text-a
 .room .estado-plano.Limpieza{background:#fff3cd;color:#8a6d1a}
 .room .estado-plano.Mantenimiento{background:#dde3ee;color:#44506a}
 
+/* Indicador de limpieza en tarjetas del plano */
+.room-limpieza{font-size:.85rem;margin-left:auto}
+.limp-ok{color:#155724}
+.limp-pend{filter:grayscale(0.3)}
+
+/* Chips de limpieza en leyenda */
+.chip-limp-ok{background:#d1e7dd;color:#155724}
+.chip-limp-pend{background:#fff3cd;color:#8a6d1a}
+
+/* Limpieza: tipo y estado en cada fila */
+.limp-tipo{font-size:.75rem;color:var(--cobre);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.limp-estado-occ{font-size:.72rem;padding:2px 8px;border-radius:999px;font-weight:600;margin-left:4px}
+.limp-estado-occ:empty{display:none}
+
 /* KPIs (grid responsive) */
 .tarjetas-kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:18px;margin-bottom:22px}
 .kpi{display:flex;flex-direction:column;background:#fff;border-radius:14px;padding:20px 22px;box-shadow:var(--sombra);border-left:4px solid var(--cobre)}
@@ -355,6 +369,7 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);padding-top:22px;text-a
 .ocupacion{background:#fff;border-radius:12px;border-left:5px solid var(--cobre);padding:14px 16px;box-shadow:var(--sombra)}
 .ocupacion .ocup-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .ocup-tipo{font-weight:700;color:var(--grafito);font-size:.95rem}
+.ocup-hab-num{font-size:.8rem;color:var(--cobre);font-weight:600}
 .ocup-huesped{font-size:.8rem;color:var(--gris);margin-bottom:10px}
 .ocup-fecha{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--tinta);padding:4px 0}
 .ocup-fecha .ico-fecha{flex:none;width:20px;height:20px;display:grid;place-items:center;color:var(--cobre)}

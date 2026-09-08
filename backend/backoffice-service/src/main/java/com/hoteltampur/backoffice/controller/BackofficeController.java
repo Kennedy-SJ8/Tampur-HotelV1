@@ -1,161 +1,159 @@
 package com.hoteltampur.backoffice.controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PATCH, RequestMethod.DELETE, RequestMethod.OPTIONS}, allowedHeaders = "*")
 public class BackofficeController {
 
-    public record HabitacionEstado(String id, String tipo, String estado) {
-    }
+    // ─── MODELO UNIFICADO DE HABITACIONES ───────────────────────────
 
-    private final List<HabitacionEstado> ocupacion = new ArrayList<>(List.of(
-            new HabitacionEstado("S1", "Simple", "Libre"),
-            new HabitacionEstado("S2", "Simple", "Limpieza"),
-            new HabitacionEstado("D1", "Doble", "Libre"),
-            new HabitacionEstado("D2", "Doble", "Ocupada"),
-            new HabitacionEstado("M1", "Matrimonial", "Libre"),
-            new HabitacionEstado("M2", "Matrimonial", "Mantenimiento")
+    /** Estados de limpieza: "" = no está en la lista de hoy, "pendiente" = necesita limpieza, "limpiada" = ya limpiada. */
+    public record Habitacion(String id, String tipo, int piso, int numero, String estado, String limpieza) {}
+
+    private final List<Habitacion> habitaciones = new ArrayList<>(List.of(
+        // Piso 1: Simple (101–107)
+        new Habitacion("101", "Simple", 1, 101, "Libre", ""),
+        new Habitacion("102", "Simple", 1, 102, "Libre", ""),
+        new Habitacion("103", "Simple", 1, 103, "Libre", ""),
+        new Habitacion("104", "Simple", 1, 104, "Libre", ""),
+        new Habitacion("105", "Simple", 1, 105, "Libre", ""),
+        new Habitacion("106", "Simple", 1, 106, "Libre", ""),
+        new Habitacion("107", "Simple", 1, 107, "Libre", ""),
+        // Piso 2: Doble (201–206)
+        new Habitacion("201", "Doble", 2, 201, "Libre", ""),
+        new Habitacion("202", "Doble", 2, 202, "Libre", ""),
+        new Habitacion("203", "Doble", 2, 203, "Libre", ""),
+        new Habitacion("204", "Doble", 2, 204, "Libre", ""),
+        new Habitacion("205", "Doble", 2, 205, "Libre", ""),
+        new Habitacion("206", "Doble", 2, 206, "Libre", ""),
+        // Piso 2: Matrimonial (207–212)
+        new Habitacion("207", "Matrimonial", 2, 207, "Libre", ""),
+        new Habitacion("208", "Matrimonial", 2, 208, "Libre", ""),
+        new Habitacion("209", "Matrimonial", 2, 209, "Libre", ""),
+        new Habitacion("210", "Matrimonial", 2, 210, "Libre", ""),
+        new Habitacion("211", "Matrimonial", 2, 211, "Libre", ""),
+        new Habitacion("212", "Matrimonial", 2, 212, "Libre", ""),
+        // Piso 3: Matrimonial (301–305)
+        new Habitacion("301", "Matrimonial", 3, 301, "Libre", ""),
+        new Habitacion("302", "Matrimonial", 3, 302, "Libre", ""),
+        new Habitacion("303", "Matrimonial", 3, 303, "Libre", ""),
+        new Habitacion("304", "Matrimonial", 3, 304, "Libre", ""),
+        new Habitacion("305", "Matrimonial", 3, 305, "Libre", "")
     ));
 
+    // ─── OCUPACION (PLANO DE HABITACIONES) ──────────────────────────
+
     @GetMapping("/ocupacion")
-    public List<HabitacionEstado> ocupacion() {
-        return ocupacion;
+    public List<Habitacion> ocupacion() {
+        return enrichConLimpieza(habitaciones);
     }
 
     @PatchMapping("/ocupacion/{id}/estado")
-    public HabitacionEstado actualizarEstado(@PathVariable String id,
-                                             @RequestBody Map<String, String> body) {
-        for (int i = 0; i < ocupacion.size(); i++) {
-            HabitacionEstado h = ocupacion.get(i);
+    public Habitacion actualizarEstado(@PathVariable String id,
+                                       @RequestBody Map<String, String> body) {
+        for (int i = 0; i < habitaciones.size(); i++) {
+            Habitacion h = habitaciones.get(i);
             if (h.id().equals(id)) {
                 String nuevo = body.getOrDefault("estado", h.estado());
-                HabitacionEstado actualizado = new HabitacionEstado(h.id(), h.tipo(), nuevo);
-                ocupacion.set(i, actualizado);
+                Habitacion actualizado = new Habitacion(h.id(), h.tipo(), h.piso(), h.numero(), nuevo, h.limpieza());
+                habitaciones.set(i, actualizado);
                 return actualizado;
             }
         }
         throw new IllegalArgumentException("Habitación no encontrada: " + id);
     }
 
+    // ─── LIMPIEZA DEL DÍA ──────────────────────────────────────────
+
+    private static final double PROBABILIDAD_LIMPIEZA = 0.35;
+    private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ISO_LOCAL_DATE;
+    private final Map<String, java.util.Set<Integer>> limpiadasPorFecha = new ConcurrentHashMap<>();
+
+    @GetMapping("/limpieza")
+    public List<Habitacion> limpiezaDeHoy() {
+        java.util.Set<Integer> seleccionadas = numerosLimpiasHoy();
+        String claveFecha = LocalDate.now().format(FORMATO_FECHA);
+        java.util.Set<Integer> marcadas = limpiadasPorFecha.getOrDefault(claveFecha, java.util.Set.of());
+        return habitaciones.stream()
+            .filter(h -> seleccionadas.contains(h.numero()))
+            .map(h -> new Habitacion(h.id(), h.tipo(), h.piso(), h.numero(), h.estado(),
+                                     marcadas.contains(h.numero()) ? "limpiada" : "pendiente"))
+            .sorted(Comparator.comparingInt(Habitacion::numero))
+            .toList();
+    }
+
+    @PatchMapping("/limpieza/{numero}/estado")
+    public ResponseEntity<?> actualizarLimpieza(@PathVariable int numero,
+                                                 @RequestBody Map<String, Object> body) {
+        boolean existe = habitaciones.stream().anyMatch(h -> h.numero() == numero);
+        if (!existe) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Habitación no encontrada: " + numero));
+        }
+        boolean limpiada = Boolean.TRUE.equals(body.get("limpiada"));
+        String fecha = LocalDate.now().format(FORMATO_FECHA);
+        java.util.Set<Integer> marcadas = limpiadasPorFecha.computeIfAbsent(fecha, f -> ConcurrentHashMap.newKeySet());
+        if (limpiada) { marcadas.add(numero); } else { marcadas.remove(numero); }
+        Habitacion h = habitaciones.stream().filter(x -> x.numero() == numero).findFirst().orElseThrow();
+        return ResponseEntity.ok(new Habitacion(h.id(), h.tipo(), h.piso(), h.numero(), h.estado(), limpiada ? "limpiada" : "pendiente"));
+    }
+
+    // ─── HELPERS ────────────────────────────────────────────────────
+
+    /** Números de habitación que entran en la lista de limpieza hoy (determinístico por día). */
+    private java.util.Set<Integer> numerosLimpiasHoy() {
+        Random azar = new Random(LocalDate.now().toEpochDay());
+        java.util.Set<Integer> seleccionadas = new HashSet<>();
+        for (Habitacion h : habitaciones) {
+            if (azar.nextDouble() < PROBABILIDAD_LIMPIEZA) {
+                seleccionadas.add(h.numero());
+            }
+        }
+        return seleccionadas;
+    }
+
+    /** Agrega el estado de limpieza de hoy a cada habitación (para el plano). */
+    private List<Habitacion> enrichConLimpieza(List<Habitacion> lista) {
+        java.util.Set<Integer> seleccionadas = numerosLimpiasHoy();
+        String claveFecha = LocalDate.now().format(FORMATO_FECHA);
+        java.util.Set<Integer> marcadas = limpiadasPorFecha.getOrDefault(claveFecha, java.util.Set.of());
+        return lista.stream()
+            .map(h -> {
+                String limpieza = "";
+                if (seleccionadas.contains(h.numero())) {
+                    limpieza = marcadas.contains(h.numero()) ? "limpiada" : "pendiente";
+                }
+                return new Habitacion(h.id(), h.tipo(), h.piso(), h.numero(), h.estado(), limpieza);
+            })
+            .toList();
+    }
+
+    // ─── REPORTES ───────────────────────────────────────────────────
+
     @GetMapping("/reportes/ingresos")
     public Map<String, Object> ingresosDiarios() {
         return Map.of(
-                "fecha", "2026-09-01",
-                "ingresosTotales", 720.0,
-                "reservasConfirmadas", 4,
-                "reservasPendientes", 2,
-                "metodoPrincipal", "efectivo"
+            "fecha", "2026-09-01",
+            "ingresosTotales", 720.0,
+            "reservasConfirmadas", 4,
+            "reservasPendientes", 2,
+            "metodoPrincipal", "efectivo"
         );
     }
 
     @GetMapping("/reservas")
     public List<Map<String, Object>> bitacoraReservas() {
         return List.of(
-                Map.of("codigo", "TMP-AB12CD", "huesped", "Carlos Pérez", "habitacion", "Doble",
-                        "fechas", "2026-09-10 → 2026-09-12", "total", 280.0, "estado", "Confirmada"),
-                Map.of("codigo", "TMP-EF34GH", "huesped", "María López", "habitacion", "Matrimonial",
-                        "fechas", "2026-09-15 → 2026-09-17", "total", 360.0, "estado", "Pendiente")
+            Map.of("codigo", "TMP-AB12CD", "huesped", "Carlos Pérez", "habitacion", "Doble",
+                    "fechas", "2026-09-10 → 2026-09-12", "total", 280.0, "estado", "Confirmada"),
+            Map.of("codigo", "TMP-EF34GH", "huesped", "María López", "habitacion", "Matrimonial",
+                    "fechas", "2026-09-15 → 2026-09-17", "total", 360.0, "estado", "Pendiente")
         );
-    }
-
-    // ===================== LIMPIEZA DEL DÍA =====================
-
-    /** Estructura del hotel: piso -> [primera habitación, última habitación]. */
-    private static final Map<Integer, int[]> PISOS = Map.of(
-            1, new int[]{101, 107},
-            2, new int[]{201, 212},
-            3, new int[]{301, 305}
-    );
-
-    private static final double PROBABILIDAD_LIMPIEZA = 0.35;
-    private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ISO_LOCAL_DATE;
-
-    public record HabitacionLimpieza(int numero, int piso, boolean limpiada) {
-    }
-
-    /**
-     * Habitaciones marcadas como "limpiada" por fecha (yyyy-MM-dd -> número de habitación).
-     * Al cambiar el día, el mapa de ese día simplemente no existe todavía y arranca vacío:
-     * no hace falta ningún job de limpieza de memoria.
-     */
-    private final Map<String, java.util.Set<Integer>> limpiadasPorFecha = new ConcurrentHashMap<>();
-
-    /**
-     * Devuelve las habitaciones que necesitan limpieza hoy.
-     * <p>
-     * La selección es aleatoria pero <b>determinística</b>: se usa la fecha del día como
-     * semilla, así que la lista es idéntica durante todo el día (no cambia si se recarga
-     * la página), pero distinta al día siguiente. Es una simulación mientras no exista un
-     * sistema real de housekeeping conectado a check-ins/check-outs.
-     */
-    @GetMapping("/limpieza")
-    public List<HabitacionLimpieza> limpiezaDeHoy() {
-        return generarPendientesDelDia(LocalDate.now());
-    }
-
-    /** Marca (o desmarca) una habitación como limpiada para el día de hoy. */
-    @PatchMapping("/limpieza/{numero}/estado")
-    public ResponseEntity<?> actualizarLimpieza(@PathVariable int numero,
-                                                 @RequestBody Map<String, Object> body) {
-        List<HabitacionLimpieza> deHoy = generarPendientesDelDia(LocalDate.now());
-        boolean existe = deHoy.stream().anyMatch(h -> h.numero() == numero);
-        if (!existe) {
-            return ResponseEntity.badRequest().body(Map.of(
-                    "error", "La habitación " + numero + " no está en la lista de limpieza de hoy."
-            ));
-        }
-
-        boolean limpiada = Boolean.TRUE.equals(body.get("limpiada"));
-        String fecha = LocalDate.now().format(FORMATO_FECHA);
-        java.util.Set<Integer> marcadas = limpiadasPorFecha.computeIfAbsent(fecha, f -> ConcurrentHashMap.newKeySet());
-        if (limpiada) {
-            marcadas.add(numero);
-        } else {
-            marcadas.remove(numero);
-        }
-
-        int piso = pisoDeHabitacion(numero);
-        return ResponseEntity.ok(new HabitacionLimpieza(numero, piso, limpiada));
-    }
-
-    private List<HabitacionLimpieza> generarPendientesDelDia(LocalDate fecha) {
-        String claveFecha = fecha.format(FORMATO_FECHA);
-        java.util.Set<Integer> marcadas = limpiadasPorFecha.getOrDefault(claveFecha, java.util.Set.of());
-
-        // Semilla estable por día: mismo resultado toda la jornada, distinto cada día.
-        Random azar = new Random(fecha.toEpochDay());
-
-        List<HabitacionLimpieza> pendientes = new ArrayList<>();
-        for (Map.Entry<Integer, int[]> piso : PISOS.entrySet()) {
-            int[] rango = piso.getValue();
-            for (int numero = rango[0]; numero <= rango[1]; numero++) {
-                if (azar.nextDouble() < PROBABILIDAD_LIMPIEZA) {
-                    pendientes.add(new HabitacionLimpieza(numero, piso.getKey(), marcadas.contains(numero)));
-                }
-            }
-        }
-        pendientes.sort((a, b) -> Integer.compare(a.numero(), b.numero()));
-        return pendientes;
-    }
-
-    private int pisoDeHabitacion(int numero) {
-        return numero / 100;
     }
 }
