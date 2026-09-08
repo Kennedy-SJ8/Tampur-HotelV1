@@ -330,6 +330,32 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);padding-top:22px;text-a
 .kpi{display:flex;flex-direction:column;background:#fff;border-radius:14px;padding:20px 22px;box-shadow:var(--sombra);border-left:4px solid var(--cobre)}
 .kpi .num{font-family:'Fraunces',serif;font-size:2rem;color:var(--grafito);line-height:1.1}
 .kpi .lbl{font-size:.85rem;color:var(--gris)}
+.kpi-alert{border-left-color:#f0ad4e}
+.kpi-progreso{border-left-color:#2e8b57}
+
+/* Filtros y búsqueda */
+.filtro-bar{display:flex;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.filtro-input{flex:1;min-width:200px;padding:10px 16px;border:1.5px solid var(--niebla-2);border-radius:12px;font-family:inherit;font-size:.9rem;outline:none;transition:.25s;background:#fff}
+.filtro-input:focus{border-color:var(--cobre);box-shadow:0 0 0 3px rgba(255,178,94,.16)}
+.filtro-select{padding:10px 16px;border:1.5px solid var(--niebla-2);border-radius:12px;font-family:inherit;font-size:.9rem;background:#fff;cursor:pointer;outline:none}
+
+/* Badges de pago */
+.badge-pago{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.72rem;font-weight:700;letter-spacing:.5px}
+.badge-pago.yape{background:#f3e8ff;color:#7B2D8E}
+.badge-pago.plin{background:#e0f7fa;color:#00897B}
+.badge-pago.efectivo{background:var(--niebla-2);color:var(--gris)}
+
+/* Badges check-in/checkout hoy */
+.badge-hoy{display:inline-block;padding:2px 8px;border-radius:999px;font-size:.68rem;font-weight:700;margin-left:6px;vertical-align:middle}
+.badge-hoy.checkin{background:#fff3cd;color:#8a6d1a}
+.badge-hoy.checkout{background:#f8d7da;color:#721c24}
+
+/* Filas resaltadas */
+.fila-checkin{border-left:3px solid #f0ad4e}
+.fila-checkout{border-left:3px solid #d9534f}
+
+/* Input habitación */
+.input-hab{width:64px;padding:6px;border:1.5px solid var(--niebla-2);border-radius:8px;font-family:inherit;font-size:.85rem;text-align:center}
 
 /* ================================================================
    LIMPIEZA DEL DÍA
@@ -349,6 +375,42 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);padding-top:22px;text-a
 .limp-item.limpiada{background:#eef7f0;border-color:#bfe2c8;border-left-color:#2e8b57}
 .limp-item.limpiada .limp-num{text-decoration:line-through;color:var(--gris)}
 .limp-item.limpiada .limp-estado{background:#d1e7dd;color:#155724}
+
+/* Tarjetas de limpieza mejoradas */
+.limp-card{background:#fff;border:1.5px solid var(--niebla-2);border-radius:12px;padding:14px;transition:.2s;box-shadow:var(--sombra)}
+.limp-card:hover{border-color:var(--cobre)}
+.limp-card.limpiada{background:#eef7f0;border-color:#bfe2c8}
+.limp-card-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.limp-card-mid{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:.82rem}
+.limp-card-bottom{display:flex;align-items:center;justify-content:space-between}
+.limp-prio{font-size:1rem}
+.limp-check{width:18px;height:18px;accent-color:var(--cobre)}
+.limp-tiempo{color:var(--gris);font-size:.78rem}
+.flujo-completada{color:#2e8b57;font-weight:700;font-size:1.1rem}
+
+/* Prioridad en tarjetas */
+.prio-1{border-left:4px solid #d9534f}
+.prio-2{border-left:4px solid #f0ad4e}
+.prio-3{border-left:4px solid var(--niebla-2)}
+
+/* Botones de flujo */
+.btn-iniciar{background:#007bff;color:#fff}
+.btn-completar{background:#28a745;color:#fff}
+
+/* Chips de prioridad */
+.chip-prio1{background:#f8d7da;color:#721c24}
+.chip-prio2{background:#fff3cd;color:#8a6d1a}
+.chip-prio3{background:var(--niebla-2);color:var(--gris)}
+
+/* Barras de progreso */
+.progreso-total{margin-bottom:14px}
+.progreso-bar{height:8px;background:var(--niebla-2);border-radius:999px;overflow:hidden;width:100%}
+.progreso-fill{height:100%;background:var(--cobre-grad);border-radius:999px;transition:width .4s ease}
+.progreso-pisos{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.progreso-piso{display:flex;align-items:center;gap:10px;font-size:.85rem}
+.progreso-piso .progreso-bar{flex:1}
+.progreso-label{width:70px;font-weight:600;color:var(--grafito)}
+.progreso-num{width:40px;text-align:right;color:var(--gris);font-size:.8rem}
 
 /* Piso */
 .limp-piso{margin-bottom:26px}

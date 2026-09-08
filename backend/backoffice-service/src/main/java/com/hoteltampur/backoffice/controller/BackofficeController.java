@@ -3,6 +3,7 @@ package com.hoteltampur.backoffice.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,6 +17,10 @@ public class BackofficeController {
 
     /** Estados de limpieza: "" = no está en la lista de hoy, "pendiente" = necesita limpieza, "limpiada" = ya limpiada. */
     public record Habitacion(String id, String tipo, int piso, int numero, String estado, String limpieza) {}
+
+    /** Item de limpieza con prioridad, timestamps y flujo. */
+    public record LimpiezaItem(String id, String tipo, int piso, int numero, String estado, String limpieza,
+                               int prioridad, String horaInicio, String horaFin, String estadoFlujo) {}
 
     private final List<Habitacion> habitaciones = new ArrayList<>(List.of(
         // Piso 1: Simple (101–107)
@@ -75,17 +80,29 @@ public class BackofficeController {
     private static final double PROBABILIDAD_LIMPIEZA = 0.35;
     private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ISO_LOCAL_DATE;
     private final Map<String, java.util.Set<Integer>> limpiadasPorFecha = new ConcurrentHashMap<>();
+    private final Map<String, String> horaInicioPorFecha = new ConcurrentHashMap<>();
+    private final Map<String, String> horaFinPorFecha = new ConcurrentHashMap<>();
+    private final Map<String, String> estadoFlujoPorFecha = new ConcurrentHashMap<>();
 
     @GetMapping("/limpieza")
-    public List<Habitacion> limpiezaDeHoy() {
+    public List<LimpiezaItem> limpiezaDeHoy() {
         java.util.Set<Integer> seleccionadas = numerosLimpiasHoy();
-        String claveFecha = LocalDate.now().format(FORMATO_FECHA);
+        LocalDate hoy = LocalDate.now();
+        String claveFecha = hoy.format(FORMATO_FECHA);
         java.util.Set<Integer> marcadas = limpiadasPorFecha.getOrDefault(claveFecha, java.util.Set.of());
         return habitaciones.stream()
             .filter(h -> seleccionadas.contains(h.numero()))
-            .map(h -> new Habitacion(h.id(), h.tipo(), h.piso(), h.numero(), h.estado(),
-                                     marcadas.contains(h.numero()) ? "limpiada" : "pendiente"))
-            .sorted(Comparator.comparingInt(Habitacion::numero))
+            .map(h -> {
+                boolean limpiada = marcadas.contains(h.numero());
+                int prioridad = calcularPrioridad(h.numero(), hoy);
+                String clave = claveFecha + "_" + h.numero();
+                String inicio = horaInicioPorFecha.getOrDefault(clave, "");
+                String fin = horaFinPorFecha.getOrDefault(clave, "");
+                String flujo = limpiada ? "completada" : estadoFlujoPorFecha.getOrDefault(clave, "pendiente");
+                return new LimpiezaItem(h.id(), h.tipo(), h.piso(), h.numero(), h.estado(),
+                                       limpiada ? "limpiada" : "pendiente", prioridad, inicio, fin, flujo);
+            })
+            .sorted(Comparator.comparingInt(LimpiezaItem::prioridad).thenComparingInt(LimpiezaItem::numero))
             .toList();
     }
 
@@ -97,11 +114,32 @@ public class BackofficeController {
             return ResponseEntity.badRequest().body(Map.of("error", "Habitación no encontrada: " + numero));
         }
         boolean limpiada = Boolean.TRUE.equals(body.get("limpiada"));
-        String fecha = LocalDate.now().format(FORMATO_FECHA);
+        String nuevoFlujo = body.getOrDefault("estadoFlujo", "").toString();
+        LocalDate hoy = LocalDate.now();
+        String fecha = hoy.format(FORMATO_FECHA);
+        String clave = fecha + "_" + numero;
+
         java.util.Set<Integer> marcadas = limpiadasPorFecha.computeIfAbsent(fecha, f -> ConcurrentHashMap.newKeySet());
         if (limpiada) { marcadas.add(numero); } else { marcadas.remove(numero); }
+
+        if ("en_curso".equals(nuevoFlujo) && !horaInicioPorFecha.containsKey(clave)) {
+            horaInicioPorFecha.put(clave, LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")));
+        }
+        if ("completada".equals(nuevoFlujo) || limpiada) {
+            horaFinPorFecha.put(clave, LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")));
+            nuevoFlujo = "completada";
+        }
+        if (!nuevoFlujo.isEmpty()) {
+            estadoFlujoPorFecha.put(clave, nuevoFlujo);
+        }
+
         Habitacion h = habitaciones.stream().filter(x -> x.numero() == numero).findFirst().orElseThrow();
-        return ResponseEntity.ok(new Habitacion(h.id(), h.tipo(), h.piso(), h.numero(), h.estado(), limpiada ? "limpiada" : "pendiente"));
+        int prioridad = calcularPrioridad(numero, hoy);
+        String flujo = estadoFlujoPorFecha.getOrDefault(clave, "pendiente");
+        String inicio = horaInicioPorFecha.getOrDefault(clave, "");
+        String fin = horaFinPorFecha.getOrDefault(clave, "");
+        return ResponseEntity.ok(new LimpiezaItem(h.id(), h.tipo(), h.piso(), h.numero(), h.estado(),
+                                                  limpiada ? "limpiada" : "pendiente", prioridad, inicio, fin, flujo));
     }
 
     // ─── HELPERS ────────────────────────────────────────────────────
@@ -116,6 +154,14 @@ public class BackofficeController {
             }
         }
         return seleccionadas;
+    }
+
+    /** Calcula prioridad: 1=checkout hoy (urgente), 2=checkin hoy, 3=normal. */
+    private int calcularPrioridad(int numero, LocalDate hoy) {
+        // Simulación: prioridad basada en número de habitación (par=urgente, impar=normal)
+        // En producción se conectaría a reservas-service para verificar checkin/checkout reales
+        if (numero % 2 == 0) return 1; // checkout hoy (urgente)
+        return 3; // normal
     }
 
     /** Agrega el estado de limpieza de hoy a cada habitación (para el plano). */

@@ -346,6 +346,7 @@
           tipoHabitacion:habitacionActual.replace('Habitación ',''),
           nombre, dni, correo, telefono:tel,
           fechaEntrada:en, fechaSalida:sa,
+          metodoPago:metodo,
           idempotencyKey
         }),
         signal:ctrl.signal
@@ -515,29 +516,80 @@
       if(!res.ok) throw new Error('offline');
       const rs=await res.json();
       if(rs.length===0){ cont.innerHTML='<p style="color:#888">No hay reservas aún. Las reservas que se hagan desde la web aparecerán aquí automáticamente.</p>'; return; }
-      const filas=rs.map(r=>`
-        <tr>
-          <td><b>${r.codigo}</b></td>
+
+      // KPIs
+      const conf=rs.filter(r=>r.estado==='Confirmada');
+      const pend=rs.filter(r=>r.estado==='Pendiente');
+      const canc=rs.filter(r=>r.estado==='Cancelada');
+      const ingConf=conf.reduce((s,r)=>s+r.total,0);
+      const checkinHoy=rs.filter(r=>r.checkinHoy).length;
+      const checkoutHoy=rs.filter(r=>r.checkoutHoy).length;
+
+      const kpis=`
+        <div class="tarjetas-kpi">
+          <div class="kpi"><div class="num">${rs.length}</div><div class="lbl">Total</div></div>
+          <div class="kpi"><div class="num">${conf.length}</div><div class="lbl">Confirmadas</div></div>
+          <div class="kpi"><div class="num">${pend.length}</div><div class="lbl">Pendientes</div></div>
+          <div class="kpi"><div class="num">${canc.length}</div><div class="lbl">Canceladas</div></div>
+          <div class="kpi"><div class="num">S/ ${ingConf}</div><div class="lbl">Ingresos confirmados</div></div>
+          ${checkinHoy?`<div class="kpi kpi-alert"><div class="num">${checkinHoy}</div><div class="lbl">Check-in hoy</div></div>`:''}
+          ${checkoutHoy?`<div class="kpi kpi-alert"><div class="num">${checkoutHoy}</div><div class="lbl">Check-out hoy</div></div>`:''}
+        </div>`;
+
+      // Filtros
+      const filtros=`
+        <div class="filtro-bar">
+          <input type="text" id="filtroReservas" placeholder="Buscar por nombre o DNI..." oninput="filtrarReservas()" class="filtro-input">
+          <select id="filtroEstado" onchange="filtrarReservas()" class="filtro-select">
+            <option value="">Todos</option>
+            <option value="Pendiente">Pendientes</option>
+            <option value="Confirmada">Confirmadas</option>
+            <option value="Cancelada">Canceladas</option>
+          </select>
+        </div>`;
+
+      const filas=rs.map(r=>{
+        const pagoIcon=r.metodoPago==='yape'?'<span class="badge-pago yape">Yape</span>'
+          :r.metodoPago==='plin'?'<span class="badge-pago plin">Plin</span>'
+          :'<span class="badge-pago efectivo">Efectivo</span>';
+        const hoyBadge=r.checkinHoy?'<span class="badge-hoy checkin">Check-in hoy</span>'
+          :r.checkoutHoy?'<span class="badge-hoy checkout">Check-out hoy</span>':'';
+        return `
+        <tr class="${r.checkinHoy?'fila-checkin':r.checkoutHoy?'fila-checkout':''}">
+          <td><b>${r.codigo}</b>${hoyBadge}</td>
           <td>${r.nombre}<br><small style="color:#999">DNI: ${r.dni}</small></td>
           <td>${r.tipoHabitacion}</td>
           <td style="white-space:nowrap">
-            <input id="hab_${r.codigo}" value="${r.numeroHabitacion||''}" placeholder="N°" style="width:64px;padding:6px;border:1.5px solid var(--niebla-2);border-radius:8px;font-family:inherit;font-size:.85rem;text-align:center">
-            <button class="btn-sm btn-confirmar" style="margin-left:4px" onclick="asignarHabitacion('${r.codigo}')">OK</button>
+            <input id="hab_${r.codigo}" value="${r.numeroHabitacion||''}" placeholder="N°" class="input-hab">
+            <button class="btn-sm btn-confirmar" onclick="asignarHabitacion('${r.codigo}')">OK</button>
           </td>
           <td>${r.fechaEntrada} → ${r.fechaSalida}</td>
           <td>${r.noches}</td>
           <td>S/ ${r.total}</td>
+          <td>${pagoIcon}</td>
           <td><span class="estado ${r.estado}">${r.estado}</span></td>
           <td style="white-space:nowrap">
             ${r.estado!=='Confirmada'?`<button class="btn-sm btn-confirmar" onclick="accionReservaBackend('${r.codigo}','Confirmada')">Confirmar</button> `:''}
             ${r.estado!=='Cancelada'?`<button class="btn-sm btn-cancelar" onclick="accionReservaBackend('${r.codigo}','Cancelada')">Cancelar</button> `:''}
             <button class="btn-sm btn-eliminar" onclick="eliminarReservaBackend('${r.codigo}')">Eliminar</button>
           </td>
-        </tr>`).join('');
-      cont.innerHTML=`<div class="tabla-wrap"><table class="tabla"><thead><tr><th>Código</th><th>Huésped</th><th>Tipo</th><th>N° Hab.</th><th>Fechas</th><th>Noches</th><th>Total</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>${filas}</tbody></table></div>`;
+        </tr>`}).join('');
+
+      cont.innerHTML=kpis+filtros+`<div class="tabla-wrap"><table class="tabla" id="tablaReservas"><thead><tr><th>Código</th><th>Huésped</th><th>Tipo</th><th>N° Hab.</th><th>Fechas</th><th>Noches</th><th>Total</th><th>Pago</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>${filas}</tbody></table></div>`;
     }catch(e){
       renderReservasLocal();
     }
+  }
+  function filtrarReservas(){
+    const busqueda=(document.getElementById('filtroReservas')?.value||'').toLowerCase();
+    const estado=document.getElementById('filtroEstado')?.value||'';
+    const filas=document.querySelectorAll('#tablaReservas tbody tr');
+    filas.forEach(fila=>{
+      const texto=fila.textContent.toLowerCase();
+      const matchBusqueda=!busqueda||texto.includes(busqueda);
+      const matchEstado=!estado||fila.querySelector('.estado')?.textContent===estado;
+      fila.style.display=(matchBusqueda&&matchEstado)?'':'none';
+    });
   }
   async function accionReservaBackend(codigo, estado){
     const accion=estado==='Confirmada'?'confirmar':'cancelar';
@@ -613,14 +665,19 @@
   }
   function pintarPlano(habs, desdeServidor){
     const cont=document.getElementById('dashContenido');
-    const ordenTipo=['Simple','Doble','Matrimonial'];
-    const porTipo={};
-    habs.forEach(h=>{ (porTipo[h.tipo]=porTipo[h.tipo]||[]).push(h); });
     const contar=e=>habs.filter(h=>h.estado===e).length;
     const pendLimpieza=habs.filter(h=>h.limpieza==='pendiente').length;
     const limpiadas=habs.filter(h=>h.limpieza==='limpiada').length;
-    const bloques=ordenTipo.map(t=>{
-      const filas=(porTipo[t]||[]).map(h=>{
+    const ocupadas=contar('Ocupada');
+    const pctOcup=Math.round((ocupadas/habs.length)*100);
+
+    // Agrupar por piso
+    const porPiso={};
+    habs.forEach(h=>{ (porPiso[h.piso]=porPiso[h.piso]||[]).push(h); });
+
+    const bloques=Object.keys(porPiso).sort().map(piso=>{
+      const tipoPiso=porPiso[piso][0]?.tipo||'';
+      const filas=porPiso[piso].sort((a,b)=>a.numero-b.numero).map(h=>{
         const accion=desdeServidor
           ? `cambiarEstadoHabBackend('${h.id}','${h.estado}')`
           : `cambiarEstadoHabLocal('${h.id}','${h.estado}')`;
@@ -628,8 +685,9 @@
           :h.limpieza==='pendiente'?'<span class="room-limpieza limp-pend" title="Pendiente de limpieza">🧹</span>':'';
         return `<div class="room room-${h.estado}"><div class="room-top"><span class="room-id">${h.id}</span><span class="room-tipo">${h.tipo}</span>${limpIcon}</div><button class="estado-plano ${h.estado}" onclick="${accion}">${h.estado}</button></div>`;
       }).join('');
-      return filas?`<div class="plano-grupo"><h3>${t}</h3><div class="plano">${filas}</div></div>`:'';
+      return `<div class="plano-grupo"><h3>Piso ${piso} · ${tipoPiso}</h3><div class="plano">${filas}</div></div>`;
     }).join('');
+
     cont.innerHTML=`
       <div class="plano-leyenda">
         <span class="chip chip-Libre">Libre</span>
@@ -640,11 +698,11 @@
         <span class="chip chip-limp-pend">🧹 Pendiente</span>
       </div>
       <div class="tarjetas-kpi">
-        <div class="kpi"><div class="num">${habs.length}</div><div class="lbl">Habitaciones</div></div>
+        <div class="kpi"><div class="num">${ocupadas}/${habs.length}</div><div class="lbl">Ocupación (${pctOcup}%)</div></div>
         <div class="kpi"><div class="num">${contar('Libre')}</div><div class="lbl">Libres</div></div>
-        <div class="kpi"><div class="num">${contar('Ocupada')+contar('Limpieza')+contar('Mantenimiento')}</div><div class="lbl">No disponibles</div></div>
+        <div class="kpi"><div class="num">${contar('Limpieza')}</div><div class="lbl">En limpieza</div></div>
+        <div class="kpi"><div class="num">${contar('Mantenimiento')}</div><div class="lbl">Mantenimiento</div></div>
         <div class="kpi"><div class="num">${pendLimpieza}</div><div class="lbl">Limpieza pend.</div></div>
-        <div class="kpi"><div class="num">${limpiadas}</div><div class="lbl">Ya limpiadas</div></div>
       </div>
       ${bloques}
       <p style="color:#888;margin-top:16px;font-size:.85rem">${desdeServidor?'Haga clic sobre un estado para cambiarlo.':'Modo local: backend no conectado.'}</p>`;
@@ -833,20 +891,46 @@
     }
 
     const totalLimpiadas=habitaciones.filter(h=>h.limpieza==='limpiada').length;
+    const total=habitaciones.length;
+    const pct=Math.round((totalLimpiadas/total)*100);
     const porPiso={};
     habitaciones.forEach(h=>{ (porPiso[h.piso]=porPiso[h.piso]||[]).push(h); });
+
+    // Progreso por piso
+    const progresoPiso=Object.keys(porPiso).sort().map(piso=>{
+      const limpiadasPiso=porPiso[piso].filter(h=>h.limpieza==='limpiada').length;
+      const totalPiso=porPiso[piso].length;
+      const pctPiso=Math.round((limpiadasPiso/totalPiso)*100);
+      return `<div class="progreso-piso"><span class="progreso-label">Piso ${piso}</span><div class="progreso-bar"><div class="progreso-fill" style="width:${pctPiso}%"></div></div><span class="progreso-num">${limpiadasPiso}/${totalPiso}</span></div>`;
+    }).join('');
 
     const bloquesPiso=Object.keys(porPiso).sort().map(piso=>{
       const filas=porPiso[piso].sort((a,b)=>a.numero-b.numero).map(h=>{
         const esLimpiada=h.limpieza==='limpiada';
+        const prio=h.prioridad===1?'🔴':h.prioridad===2?'🟡':'⚪';
+        const prioLabel=h.prioridad===1?'Urgente':h.prioridad===2?'Importante':'Normal';
+        const flujo=h.estadoFlujo||'pendiente';
+        const btnFlujo=flujo==='pendiente'?'<button class="btn-sm btn-iniciar" onclick="iniciarLimpieza('+h.numero+','+desdeServidor+')">Iniciar</button>'
+          :flujo==='en_curso'?'<button class="btn-sm btn-completar" onclick="completarLimpieza('+h.numero+','+desdeServidor+')">Completar</button>'
+          :'<span class="flujo-completada">✓</span>';
+        const tiempo=h.horaInicio?`<span class="limp-tiempo">${h.horaInicio}${h.horaFin?' → '+h.horaFin:''}</span>`:'';
         return `
-        <label class="limp-item ${esLimpiada?'limpiada':''}">
-          <input type="checkbox" ${esLimpiada?'checked':''} onchange="toggleLimpieza(${h.numero}, this.checked, ${desdeServidor})">
-          <span class="limp-num">${h.numero}</span>
-          <span class="limp-tipo">${h.tipo}</span>
-          <span class="limp-estado-occ">${h.estado}</span>
-          <span class="limp-estado">${esLimpiada?'Limpiada':'Pendiente'}</span>
-        </label>`;
+        <div class="limp-card ${esLimpiada?'limpiada':''} prio-${h.prioridad||3}">
+          <div class="limp-card-top">
+            <span class="limp-prio" title="${prioLabel}">${prio}</span>
+            <span class="limp-num">${h.numero}</span>
+            <span class="limp-tipo">${h.tipo}</span>
+            <span class="limp-estado-occ">${h.estado}</span>
+          </div>
+          <div class="limp-card-mid">
+            <span class="limp-estado">${esLimpiada?'Limpiada':prioLabel}</span>
+            ${tiempo}
+          </div>
+          <div class="limp-card-bottom">
+            ${btnFlujo}
+            <input type="checkbox" ${esLimpiada?'checked':''} onchange="toggleLimpieza(${h.numero}, this.checked, ${desdeServidor})" class="limp-check">
+          </div>
+        </div>`;
       }).join('');
       return `<div class="limp-piso"><h3>Piso ${piso}</h3><div class="limp-grid">${filas}</div></div>`;
     }).join('');
@@ -854,13 +938,19 @@
     cont.innerHTML=`
       <div class="limp-cabecera no-imprimir">
         <div class="tarjetas-kpi" style="margin-bottom:18px">
-          <div class="kpi"><div class="num">${habitaciones.length}</div><div class="lbl">Para limpiar hoy</div></div>
+          <div class="kpi"><div class="num">${total}</div><div class="lbl">Para limpiar hoy</div></div>
           <div class="kpi"><div class="num">${totalLimpiadas}</div><div class="lbl">Ya limpiadas</div></div>
-          <div class="kpi"><div class="num">${habitaciones.length-totalLimpiadas}</div><div class="lbl">Pendientes</div></div>
+          <div class="kpi"><div class="num">${total-totalLimpiadas}</div><div class="lbl">Pendientes</div></div>
+          <div class="kpi kpi-progreso"><div class="num">${pct}%</div><div class="lbl">Progreso total</div></div>
         </div>
-        <div class="plano-leyenda" style="margin-bottom:14px">
-          <span class="chip chip-Limpieza">Pendiente</span>
-          <span class="chip chip-Libre">Limpiada</span>
+        <div class="progreso-total">
+          <div class="progreso-bar"><div class="progreso-fill" style="width:${pct}%"></div></div>
+        </div>
+        <div class="progreso-pisos">${progresoPiso}</div>
+        <div class="plano-leyenda" style="margin:14px 0">
+          <span class="chip chip-prio1">🔴 Urgente</span>
+          <span class="chip chip-prio2">🟡 Importante</span>
+          <span class="chip chip-prio3">⚪ Normal</span>
         </div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
           <button class="btn btn-primario" onclick="imprimirListaLimpieza()">Imprimir lista para la encargada</button>
@@ -875,6 +965,27 @@
         </div>
         ${bloquesPiso}
       </div>`;
+  }
+
+  async function iniciarLimpieza(numero, desdeServidor){
+    if(!desdeServidor) return;
+    try{
+      await fetchAdmin(API_BACKOFFICE+'/api/limpieza/'+numero+'/estado',{
+        method:'PATCH',
+        body:JSON.stringify({estadoFlujo:'en_curso'})
+      });
+    }catch(e){}
+    renderLimpieza();
+  }
+  async function completarLimpieza(numero, desdeServidor){
+    if(!desdeServidor) return;
+    try{
+      await fetchAdmin(API_BACKOFFICE+'/api/limpieza/'+numero+'/estado',{
+        method:'PATCH',
+        body:JSON.stringify({limpiada:true,estadoFlujo:'completada'})
+      });
+    }catch(e){}
+    renderLimpieza();
   }
 
   async function toggleLimpieza(numero, limpiada, desdeServidor){
