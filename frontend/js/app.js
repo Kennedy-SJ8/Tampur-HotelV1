@@ -596,7 +596,7 @@
       // Filtros
       const filtros=`
         <div class="filtro-bar">
-          <input type="text" id="filtroReservas" placeholder="${t('mon_buscar')}" oninput="filtrarReservas()" class="filtro-input">
+          <input type="text" id="filtroReservas" placeholder="${t('mon_buscar')}" oninput="filtrarReservasDebounce()" class="filtro-input">
           <select id="filtroEstado" onchange="filtrarReservas()" class="filtro-select">
             <option value="">${t('mon_filtro_estado')}</option>
             <option value="Pendiente">${t('mon_filtro_pend')}</option>
@@ -648,6 +648,8 @@
       fila.style.display=(matchBusqueda&&matchEstado)?'':'none';
     });
   }
+  let _debounceFiltro;
+  function filtrarReservasDebounce(){ clearTimeout(_debounceFiltro); _debounceFiltro=setTimeout(filtrarReservas,200); }
   async function accionReservaBackend(codigo, estado){
     const accion=estado==='Confirmada'?'confirmar':'cancelar';
     if(!confirm('¿Desea '+accion+' la reserva '+codigo+'?')) return;
@@ -840,92 +842,166 @@
     {id:'Q1',tipo:'Queen',piso:2},{id:'Q2',tipo:'Queen',piso:2},
     {id:'K1',tipo:'King',piso:3},{id:'K2',tipo:'King',piso:3}
   ];
-  let calAnio, calMes;
+  let calAnio, calMes, calCache=null, calCacheKey='';
+  let calSelRange=null; // {start,end} for batch selection
+  const MESES_CAL=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const DIAS_CAL=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
 
   function renderCalendario(){
     const hoy=new Date();
     if(!calAnio){ calAnio=hoy.getFullYear(); calMes=hoy.getMonth()+1; }
-    document.getElementById('dashTitulo').textContent=t('cal_titulo')==='Calendario de habitaciones'?'Calendario de habitaciones':t('cal_titulo');
+    document.getElementById('dashTitulo').textContent=t('cal_titulo')||'Calendario de habitaciones';
     document.getElementById('dashContenido').innerHTML=`
       <div class="cal-controls">
         <button class="btn-cal-nav" onclick="calNav(-1)">◀</button>
         <span class="cal-mes-label" id="calMesLabel"></span>
         <button class="btn-cal-nav" onclick="calNav(1)">▶</button>
+        <button class="btn-cal-hoy" onclick="calHoy()">Hoy</button>
         <span class="cal-leyenda">
           <span class="cal-leg-item"><span class="cal-dot cal-libre"></span>${t('cal_libre')||'Libre'}</span>
           <span class="cal-leg-item"><span class="cal-dot cal-reservada"></span>${t('cal_reservada')||'Reservada'}</span>
           <span class="cal-leg-item"><span class="cal-dot cal-mantenimiento"></span>${t('cal_mantenimiento')||'Mantenimiento'}</span>
         </span>
       </div>
-      <div class="cal-grid-wrap"><div id="calGrid" class="cal-grid"></div></div>`;
+      <div class="cal-occupancy" id="calOccupancy"></div>
+      <div class="cal-grid-wrap"><div id="calGrid" class="cal-grid"></div></div>
+      <div class="cal-tooltip" id="calTooltip"></div>`;
     cargarCalendario();
   }
 
-  function calNav(direccion){
-    calMes+=direccion;
+  function calNav(d){
+    calMes+=d;
     if(calMes>12){calMes=1;calAnio++;}
     if(calMes<1){calMes=12;calAnio--;}
+    calCache=null; // invalidar caché al cambiar mes
+    cargarCalendario();
+  }
+
+  function calHoy(){
+    const h=new Date();
+    calAnio=h.getFullYear(); calMes=h.getMonth()+1;
+    calCache=null;
     cargarCalendario();
   }
 
   async function cargarCalendario(){
-    const meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
     const mesLabel=document.getElementById('calMesLabel');
-    if(mesLabel) mesLabel.textContent=meses[calMes-1]+' '+calAnio;
-
     const grid=document.getElementById('calGrid');
     if(!grid) return;
+    if(mesLabel) mesLabel.textContent=MESES_CAL[calMes-1]+' '+calAnio;
 
-    const primerDia=new Date(calAnio,calMes-1,1);
-    const ultimoDia=new Date(calAnio,calMes,0);
-    const numDias=ultimoDia.getDate();
-    const diasSemana=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+    const numDias=new Date(calAnio,calMes,0).getDate();
+    const hoy=new Date();
 
-    // Cargar datos de disponibilidad
-    let datos={};
-    try{
-      const res=await fetch(API_RESERVAS+'/api/calendario?anio='+calAnio+'&mes='+calMes);
-      if(res.ok){
+    // Caché: solo fetch si cambió el mes
+    const key=calAnio+'-'+calMes;
+    let datos;
+    if(calCache && calCacheKey===key){
+      datos=calCache;
+    } else {
+      grid.innerHTML='<div class="cal-loading">Cargando...</div>';
+      try{
+        const res=await fetch(API_RESERVAS+'/api/calendario?anio='+calAnio+'&mes='+calMes);
+        if(!res.ok) throw new Error();
         const arr=await res.json();
-        arr.forEach(d=>{ datos[d.habitacion+'_'+d.fecha]=d.estado; });
-      }
-    }catch(e){}
+        datos={};
+        arr.forEach(d=>{ datos[d.habitacion+'_'+d.fecha]=d; });
+      }catch(e){ datos={}; }
+      calCache=datos; calCacheKey=key;
+    }
 
+    // Pre-calcular dow una sola vez
+    const dows=[];
+    for(let d=1;d<=numDias;d++) dows.push(new Date(calAnio,calMes-1,d).getDay());
+
+    // Header
     let html='<div class="cal-header"><div class="cal-celda cal-celda-hab"></div>';
     for(let d=1;d<=numDias;d++){
-      const dow=new Date(calAnio,calMes-1,d).getDay();
-      const esDomingo=dow===0;
-      html+=`<div class="cal-celda cal-celda-dia${esDomingo?' cal-domingo':''}">${d}<small>${diasSemana[(dow+6)%7]}</small></div>`;
+      const esHoy=d===hoy.getDate()&&calMes===hoy.getMonth()+1&&calAnio===hoy.getFullYear();
+      const esDomingo=dows[d-1]===0;
+      html+=`<div class="cal-celda cal-celda-dia${esHoy?' cal-hoy':''}${esDomingo?' cal-domingo':''}">${d}<small>${DIAS_CAL[(dows[d-1]+6)%7]}</small></div>`;
     }
     html+='</div>';
 
+    // Filas por habitación
+    const ocupoPorDia=new Array(numDias).fill(0);
     HAB_CALENDARIO.forEach(hab=>{
       html+=`<div class="cal-row"><div class="cal-celda cal-celda-hab">${hab.id}<small>${hab.tipo}</small></div>`;
       for(let d=1;d<=numDias;d++){
-        const fecha=`${calAnio}-${String(calMes).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const fecha=calAnio+'-'+String(calMes).padStart(2,'0')+'-'+String(d).padStart(2,'0');
         const clave=hab.id+'_'+fecha;
-        const estado=datos[clave]||'';
+        const dato=datos[clave];
+        const estado=dato?dato.estado:'';
+        const reserva=dato?dato.reserva:null;
+        if(estado==='reservada') ocupoPorDia[d-1]++;
         const clase=estado==='reservada'?'cal-reservada':estado==='mantenimiento'?'cal-mantenimiento':'';
-        const hoy=new Date();
         const esHoy=d===hoy.getDate()&&calMes===hoy.getMonth()+1&&calAnio===hoy.getFullYear();
-        html+=`<div class="cal-celda${clase?' '+clase:''}${esHoy?' cal-hoy':''}" data-hab="${hab.id}" data-fecha="${fecha}" onclick="toggleCalelda(this)" title="${hab.id} - ${fecha}${estado?' ('+estado+')':''}"></div>`;
+        const title=`${hab.id} · ${hab.tipo}\n${fecha}${reserva?'\nReserva: '+reserva:''}`;
+        html+=`<div class="cal-celda${clase?' '+clase:''}${esHoy?' cal-hoy':''}" data-hab="${hab.id}" data-fecha="${fecha}" data-estado="${estado}" data-reserva="${reserva||''}" onclick="toggleCeldaCal(this)" onmouseenter="calShowTip(event,this)" onmouseleave="calHideTip()"></div>`;
       }
       html+='</div>';
     });
 
     grid.innerHTML=html;
+    // Actualizar barra de ocupación
+    const occDiv=document.getElementById('calOccupancy');
+    if(occDiv){
+      let occHtml='<div class="cal-occ-bar">';
+      for(let d=1;d<=numDias;d++){
+        const pct=Math.round((ocupoPorDia[d-1]/HAB_CALENDARIO.length)*100);
+        const cls=pct>=100?'occ-full':pct>=50?'occ-mid':'occ-low';
+        occHtml+=`<div class="occ-seg ${cls}" style="height:${Math.max(pct,2)}%" title="Día ${d}: ${ocupoPorDia[d-1]}/${HAB_CALENDARIO.length}"></div>`;
+      }
+      occHtml+='</div>';
+      occDiv.innerHTML=occHtml;
+    }
   }
 
-  async function toggleCalelda(celda){
+  async function toggleCeldaCal(celda){
+    if(celda.dataset.estado==='reservada'){
+      // No desbloquear reservas desde el calendario
+      return;
+    }
     const hab=celda.dataset.hab;
     const fecha=celda.dataset.fecha;
     try{
       const res=await fetch(API_RESERVAS+'/api/calendario/toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({habitacion:hab,fecha:fecha})});
       if(!res.ok) throw new Error();
       const r=await res.json();
-      if(r.accion==='liberada'){celda.className=celda.className.replace(/cal-reservada|cal-mantenimiento/g,'').trim();}
-      else{celda.classList.add(r.estado==='mantenimiento'?'cal-mantenimiento':'cal-reservada');}
-    }catch(e){ alert('Error al actualizar disponibilidad'); }
+      if(r.accion==='liberada'){
+        celda.className=celda.className.replace(/cal-reservada|cal-mantenimiento/g,'').trim();
+        celda.dataset.estado='';
+      }else{
+        celda.className+=' '+(r.estado==='mantenimiento'?'cal-mantenimiento':'cal-reservada');
+        celda.dataset.estado=r.estado;
+      }
+      calCache=null; // invalidar caché
+    }catch(e){}
+  }
+
+  function calShowTip(e,el){
+    const tip=document.getElementById('calTooltip');
+    if(!tip) return;
+    const hab=el.dataset.hab;
+    const fecha=el.dataset.fecha;
+    const estado=el.dataset.estado;
+    const reserva=el.dataset.reserva;
+    const tipo=HAB_CALENDARIO.find(h=>h.id===hab);
+    let html=`<b>${hab}</b> · ${tipo?tipo.tipo:''}<br>${fecha}`;
+    if(estado==='reservada'&&reserva) html+=`<br><span class="tip-reserva">Reserva: ${reserva}</span>`;
+    else if(estado==='mantenimiento') html+=`<br><span class="tip-mant">Mantenimiento</span>`;
+    else html+=`<br><span class="tip-libre">Libre</span>`;
+    tip.innerHTML=html;
+    tip.style.display='block';
+    const rect=el.getBoundingClientRect();
+    const wrap=el.closest('.cal-grid-wrap').getBoundingClientRect();
+    tip.style.left=Math.max(0,rect.left-wrap.left-60)+'px';
+    tip.style.top=(rect.bottom-wrap.top+4)+'px';
+  }
+
+  function calHideTip(){
+    const tip=document.getElementById('calTooltip');
+    if(tip) tip.style.display='none';
   }
 
   cargarTarifas();
