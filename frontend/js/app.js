@@ -215,15 +215,86 @@
     document.getElementById('voucherNombre').textContent=nombre;
   }
   document.getElementById('rMetodo').addEventListener('change', actualizarMetodoPago);
-  /** Valida los campos del formulario de reserva antes de enviarlo. Devuelve el primer error, o null si todo está bien. */
-  function validarFormularioReserva({nombre,dni,correo,en,sa}){
-    if(!nombre) return 'Ingrese su nombre completo.';
-    if(!dni || dni.length<6) return 'Ingrese un DNI o pasaporte válido.';
-    if(correo && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(correo)) return 'El correo ingresado no es válido.';
-    if(!en || !sa) return 'Seleccione fecha de llegada y de salida.';
-    if(new Date(sa) <= new Date(en)) return 'La fecha de salida debe ser posterior a la de llegada.';
-    return null;
+
+  /* ── Validación de campos ── */
+  function setError(id,msg,ok){
+    const el=document.getElementById(id);
+    const inp=el?el.previousElementSibling:null;
+    if(el) el.textContent=msg||'';
+    if(inp){
+      inp.classList.remove('input-ok','input-err');
+      if(msg && !ok) inp.classList.add('input-err');
+      else if(!msg && ok!==undefined) inp.classList.add('input-ok');
+    }
   }
+  function valNombre(v){
+    v=v.trim();
+    if(!v){ setError('errNombre','Ingrese su nombre completo.'); return false; }
+    if(v.length<3){ setError('errNombre','Mínimo 3 caracteres.'); return false; }
+    if(!/^[a-záéíóúñü\s]+$/i.test(v)){ setError('errNombre','Solo letras y espacios.'); return false; }
+    setError('errNombre','',true); return true;
+  }
+  function valDni(v){
+    v=v.trim();
+    if(!v){ setError('errDni','Ingrese DNI o pasaporte.'); return false; }
+    const dniOk=/^\d{8}$/.test(v);
+    const pasOk=/^[A-Za-z0-9]{6,12}$/.test(v);
+    if(!dniOk && !pasOk){ setError('errDni','DNI: 8 dígitos. Pasaporte: 6-12 alfanuméricos.'); return false; }
+    setError('errDni','',true); return true;
+  }
+  function valCorreo(v){
+    v=v.trim();
+    if(!v){ setError('errCorreo','',true); return true; }
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)){ setError('errCorreo','Correo no válido.'); return false; }
+    setError('errCorreo','',true); return true;
+  }
+  function valTelefono(v){
+    v=v.trim();
+    if(!v){ setError('errTelefono','',true); return true; }
+    const limpio=v.replace(/[\s\-]/g,'');
+    if(!/^(\+?51)?9\d{8}$/.test(limpio) && !/^[78]\d{7}$/.test(limpio)){ setError('errTelefono','Ej: 943 000 000 o 01 234 5678.'); return false; }
+    setError('errTelefono','',true); return true;
+  }
+  function valFechas(){
+    const en=document.getElementById('rEntrada').value;
+    const sa=document.getElementById('rSalida').value;
+    const hoy=new Date(); hoy.setHours(0,0,0,0);
+    let ok=true;
+    if(!en){ setError('errEntrada','Seleccione fecha de llegada.'); ok=false; }
+    else if(new Date(en)<hoy){ setError('errEntrada','La fecha no puede ser en el pasado.'); ok=false; }
+    else setError('errEntrada','',true);
+    if(!sa){ setError('errSalida','Seleccione fecha de salida.'); ok=false; }
+    else if(en && new Date(sa)<=new Date(en)){ setError('errSalida','Debe ser posterior a la llegada.'); ok=false; }
+    else setError('errSalida','',true);
+    return ok;
+  }
+  function validarFormularioReserva(){
+    const n=valNombre(document.getElementById('rNombre').value);
+    const d=valDni(document.getElementById('rDni').value);
+    const c=valCorreo(document.getElementById('rCorreo').value);
+    const t=valTelefono(document.getElementById('rTelefono').value);
+    const f=valFechas();
+    return n&&d&&c&&t&&f;
+  }
+
+  /* Validación en tiempo real */
+  ['rNombre','rDni','rCorreo','rTelefono','rEntrada','rSalida'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    el.addEventListener('blur',()=>{
+      if(id==='rNombre') valNombre(el.value);
+      else if(id==='rDni') valDni(el.value);
+      else if(id==='rCorreo') valCorreo(el.value);
+      else if(id==='rTelefono') valTelefono(el.value);
+      else if(id==='rEntrada'||id==='rSalida') valFechas();
+    });
+    el.addEventListener('input',()=>{
+      if(id==='rNombre' && el.classList.contains('input-err')) valNombre(el.value);
+      else if(id==='rDni' && el.classList.contains('input-err')) valDni(el.value);
+      else if(id==='rCorreo' && el.classList.contains('input-err')) valCorreo(el.value);
+      else if(id==='rTelefono' && el.classList.contains('input-err')) valTelefono(el.value);
+    });
+  });
 
   async function confirmarReserva(){
     // Guard: si ya hay una reserva en curso (por ejemplo, el usuario hizo doble clic),
@@ -239,8 +310,7 @@
     const voucherUrl=voucherFile?voucherFile.name:null;
     const en=document.getElementById('rEntrada').value, sa=document.getElementById('rSalida').value;
 
-    const errorValidacion=validarFormularioReserva({nombre,dni,correo,en,sa});
-    if(errorValidacion){ alert(errorValidacion); return; }
+    if(!validarFormularioReserva()) return;
 
     const btn=document.getElementById('btnConfirmarReserva');
     reservaEnProceso=true;

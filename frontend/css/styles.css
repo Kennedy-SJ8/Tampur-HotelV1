@@ -127,6 +127,9 @@
   .campo-form label{display:block;font-size:.8rem;font-weight:600;color:var(--verde);margin-bottom:6px}
   .campo-form input,.campo-form textarea,.campo-form select{width:100%;border:1.5px solid #e3ded2;border-radius:12px;padding:12px 14px;font-family:inherit;font-size:.95rem;outline:none;transition:.25s;background:var(--crema)}
   .campo-form input:focus,.campo-form textarea:focus,.campo-form select:focus{border-color:var(--terracota);background:#fff}
+  .campo-form input.input-ok{border-color:#27ae60;background:#f0faf3}
+  .campo-form input.input-err{border-color:#e74c3c;background:#fdf5f5}
+  .campo-error{display:block;font-size:.78rem;color:#e74c3c;min-height:18px;margin-top:4px;line-height:1.3}
 
   footer{background:#14251f;color:rgba(255,255,255,.75);padding:56px 0 26px;font-size:.9rem}
   footer .grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:34px;margin-bottom:34px}
