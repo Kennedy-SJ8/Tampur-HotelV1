@@ -527,7 +527,7 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);padding-top:22px;text-a
 .cal-dot::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 2px,rgba(255,255,255,.15) 2px,rgba(255,255,255,.15) 4px)}
 .cal-libre{background:linear-gradient(135deg,#a5d6a7,#66bb6a)}
 .cal-reservada{background:linear-gradient(135deg,#b7873e,#d4a24e)}
-.cal-mantenimiento{background:linear-gradient(135deg,#dc2626,#ef4444)}
+.cal-mantenimiento{background:linear-gradient(135deg,#475569,#64748b)}
 .cal-loading{padding:30px;text-align:center;color:var(--gris);font-style:italic}
 
 /* Admin iconos SVG */
@@ -561,7 +561,7 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);padding-top:22px;text-a
 .panel-stats{display:flex;gap:12px;margin-top:12px;padding-top:10px;border-top:1px solid var(--borde);font-size:.8rem}
 .ps-libre{color:#6b7280}
 .ps-ocu{color:var(--copper);font-weight:600}
-.ps-mant{color:#e74c3c;font-weight:600}
+.ps-mant{color:#475569;font-weight:600}
 
 /* Mini calendario dentro del panel */
 .mini-cal-header{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px}
@@ -581,7 +581,7 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);padding-top:22px;text-a
 .mini-cal-dia.reservada::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 3px,rgba(255,255,255,.08) 3px,rgba(255,255,255,.08) 6px);pointer-events:none}
 .mini-cal-dia.reservada::after{content:'✓';position:absolute;bottom:1px;right:2px;font-size:.4rem;opacity:.6}
 .mini-cal-dia.reservada:hover{transform:none}
-/* Mantenimiento — rojo gradiente + X */
-.mini-cal-dia.mantenimiento{background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;font-weight:700;box-shadow:inset 0 1px 2px rgba(0,0,0,.15)}
-.mini-cal-dia.mantenimiento::before{content:'✕';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:900;color:rgba(255,255,255,.3);pointer-events:none;transform:rotate(0deg)}
+/* Mantenimiento — gris oscuro gradiente + X */
+.mini-cal-dia.mantenimiento{background:linear-gradient(135deg,#475569,#64748b);color:#fff;font-weight:700;box-shadow:inset 0 1px 2px rgba(0,0,0,.15)}
+.mini-cal-dia.mantenimiento::before{content:'✕';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:900;color:rgba(255,255,255,.25);pointer-events:none}
 .mini-cal-dia.mantenimiento:hover{transform:none}
