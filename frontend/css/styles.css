@@ -8,13 +8,13 @@
 /* ======================== VARIABLES ======================== */
 :root{
   /* Paleta principal */
-  --grafito:#161a22;
-  --grafito-2:#232936;
-  --tinta:#1b1f27;
+  --grafito:#000000;
+  --grafito-2:#18181b;
+  --tinta:#fafafa;
   --gris:#6a7180;
-  --niebla:#f4f5f8;
-  --niebla-2:#e7eaf0;
-  --blanco:#ffffff;
+  --niebla:#09090b;
+  --niebla-2:#27272a;
+  --blanco:#18181b;
 
   /* Acentos cobre (brillo metálico) */
   --cobre:#d9772e;
@@ -27,7 +27,7 @@
   --cian-2:#8bf2ff;
 
   /* Utilidades */
-  --sombra:0 20px 50px -20px rgba(13,16,23,.5);
+  --sombra:0 25px 50px -12px rgba(0,0,0,0.5);
   --radio:18px;
   --topo:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='800' viewBox='0 0 800 800'%3E%3Cg fill='none' stroke='%2322d3ee' stroke-width='1' stroke-opacity='0.5'%3E%3Cellipse cx='400' cy='410' rx='70' ry='50'/%3E%3Cellipse cx='400' cy='410' rx='130' ry='95' transform='rotate(16 400 410)'/%3E%3Cellipse cx='400' cy='410' rx='190' ry='140' transform='rotate(-12 400 410)'/%3E%3Cellipse cx='400' cy='410' rx='250' ry='185' transform='rotate(8 400 410)'/%3E%3Cellipse cx='400' cy='410' rx='310' ry='230' transform='rotate(-18 400 410)'/%3E%3Cellipse cx='400' cy='410' rx='370' ry='275' transform='rotate(13 400 410)'/%3E%3Cellipse cx='400' cy='410' rx='430' ry='320' transform='rotate(-7 400 410)'/%3E%3Cellipse cx='400' cy='410' rx='490' ry='365' transform='rotate(20 400 410)'/%3E%3C/g%3E%3C/svg%3E");
 }
@@ -97,7 +97,7 @@ nav .btn-idioma:hover{background:rgba(255,255,255,.15);border-color:var(--cobre)
 @keyframes heroSubir{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:none}}
 
 /* ======================== BUSCADOR ======================== */
-.buscador{background:rgba(22,26,34,.55);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.16);border-radius:22px;padding:18px;display:grid;grid-template-columns:1.1fr 1.1fr .8fr auto;gap:12px;max-width:820px;box-shadow:var(--sombra)}
+.buscador{background:rgba(22,26,34,.55);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.16);border-radius:22px;padding:18px;display:grid;grid-template-columns:1.1fr 1.1fr .8fr auto;gap:12px;max-width:820px;box-shadow:var(--sombra);border:1px solid rgba(255,255,255,0.1)}
 .campo{display:flex;flex-direction:column;gap:6px}
 .campo label{font-size:.72rem;letter-spacing:1.5px;text-transform:uppercase;opacity:.75}
 .campo input,.campo select{background:rgba(255,255,255,.96);border:none;border-radius:12px;padding:12px 14px;font-family:inherit;font-size:.95rem;color:var(--tinta);outline:none}
@@ -118,7 +118,7 @@ section.bloque{padding:96px 0}
 
 /* ======================== TARJETAS HABITACIONES ======================== */
 .tarjetas{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
-.tarjeta{background:#fff;border-radius:var(--radio);overflow:hidden;box-shadow:var(--sombra);display:flex;flex-direction:column;transition:.35s;border:1px solid rgba(22,26,34,.05)}
+.tarjeta{background:#fff;border-radius:var(--radio);overflow:hidden;box-shadow:var(--sombra);border:1px solid rgba(255,255,255,0.1);display:flex;flex-direction:column;transition:.35s;border:1px solid rgba(22,26,34,.05)}
 .tarjeta:hover{transform:translateY(-8px);box-shadow:0 28px 60px -20px rgba(13,16,23,.5),0 0 0 1px rgba(255,178,94,.35)}
 .tarjeta .foto{position:relative;height:210px;overflow:hidden}
 .tarjeta .foto img{width:100%;height:100%;object-fit:cover;transition:.6s}
@@ -156,7 +156,7 @@ section.bloque{padding:96px 0}
 
 /* ======================== CONTACTO ======================== */
 .contacto-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:stretch}
-.mapa{border-radius:var(--radio);overflow:hidden;box-shadow:var(--sombra);min-height:420px;border:1px solid rgba(22,26,34,.06)}
+.mapa{border-radius:var(--radio);overflow:hidden;box-shadow:var(--sombra);border:1px solid rgba(255,255,255,0.1);min-height:420px;border:1px solid rgba(22,26,34,.06)}
 .mapa iframe{width:100%;height:100%;border:0;min-height:420px;filter:grayscale(.2) contrast(1.05)}
 .datos{display:flex;flex-direction:column;gap:18px}
 .dato{display:flex;gap:14px;align-items:flex-start}
@@ -165,7 +165,7 @@ section.bloque{padding:96px 0}
 .dato p{color:var(--gris);font-size:.9rem}
 
 /* ======================== FORMULARIOS ======================== */
-.formulario{background:#fff;border-radius:var(--radio);box-shadow:var(--sombra);padding:28px;border:1px solid rgba(22,26,34,.05)}
+.formulario{background:#fff;border-radius:var(--radio);box-shadow:var(--sombra);border:1px solid rgba(255,255,255,0.1);padding:28px;border:1px solid rgba(22,26,34,.05)}
 .formulario h3{font-family:'Fraunces',serif;color:var(--grafito);font-size:1.5rem;margin-bottom:18px}
 .fila{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .campo-form{margin-bottom:14px}
@@ -275,7 +275,7 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);padding-top:22px;text-a
 .admin-shell main h2{font-family:'Fraunces',serif;color:var(--grafito);font-size:1.9rem;margin-bottom:22px}
 
 /* ======================== TABLA RESERVAS ======================== */
-.tabla-wrap{overflow-x:auto;border-radius:14px;box-shadow:var(--sombra);background:#fff;-webkit-overflow-scrolling:touch;border:1px solid rgba(22,26,34,.05)}
+.tabla-wrap{overflow-x:auto;border-radius:14px;box-shadow:var(--sombra);border:1px solid rgba(255,255,255,0.1);background:#fff;-webkit-overflow-scrolling:touch;border:1px solid rgba(22,26,34,.05)}
 .tabla{width:100%;border-collapse:collapse;min-width:720px}
 .tabla th,.tabla td{padding:13px 16px;text-align:left;font-size:.88rem;border-bottom:1px solid var(--niebla-2)}
 .tabla thead th{background:var(--grafito);color:#fff;font-weight:600;font-size:.78rem;letter-spacing:.6px;text-transform:uppercase}
@@ -304,7 +304,7 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);padding-top:22px;text-a
 .plano-grupo h3{font-family:'Fraunces',serif;color:var(--grafito);font-size:1.1rem;margin:4px 0 12px}
 .plano{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px}
 
-.room{display:flex;flex-direction:column;background:#fff;border-radius:14px;overflow:hidden;box-shadow:var(--sombra);text-align:center;border-top:5px solid #b8c0cc;transition:.2s}
+.room{display:flex;flex-direction:column;background:#fff;border-radius:14px;overflow:hidden;box-shadow:var(--sombra);border:1px solid rgba(255,255,255,0.1);text-align:center;border-top:5px solid #b8c0cc;transition:.2s}
 .room:hover{transform:translateY(-3px)}
 .room-top{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 8px}
 .room-id{font-family:'Fraunces',serif;font-size:1.35rem;color:var(--grafito)}
@@ -330,7 +330,7 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);padding-top:22px;text-a
 
 /* ======================== KPIs ======================== */
 .tarjetas-kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:18px;margin-bottom:22px}
-.kpi{display:flex;flex-direction:column;background:#fff;border-radius:14px;padding:20px 22px;box-shadow:var(--sombra);border-left:4px solid var(--cobre)}
+.kpi{display:flex;flex-direction:column;background:#fff;border-radius:14px;padding:20px 22px;box-shadow:var(--sombra);border:1px solid rgba(255,255,255,0.1);border-left:4px solid var(--cobre)}
 .kpi .num{font-family:'Fraunces',serif;font-size:2rem;color:var(--grafito);line-height:1.1}
 .kpi .lbl{font-size:.85rem;color:var(--gris)}
 .kpi-alert{border-left-color:#f0ad4e}
@@ -365,7 +365,7 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);padding-top:22px;text-a
    ================================================================ */
 
 /* Fila de habitación */
-.limp-item{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--niebla-2);border-left:5px solid #f0ad4e;border-radius:12px;padding:12px 14px;cursor:pointer;transition:.2s;box-shadow:var(--sombra)}
+.limp-item{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--niebla-2);border-left:5px solid #f0ad4e;border-radius:12px;padding:12px 14px;cursor:pointer;transition:.2s;box-shadow:var(--sombra);border:1px solid rgba(255,255,255,0.1)}
 .limp-item:hover{border-color:var(--cobre)}
 .limp-item input{width:18px;height:18px;accent-color:var(--cobre);flex:none}
 .limp-num{font-family:'Fraunces',serif;font-size:1.15rem;color:var(--grafito);flex:1}
@@ -380,7 +380,7 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);padding-top:22px;text-a
 .limp-item.limpiada .limp-estado{background:#d1e7dd;color:#155724}
 
 /* Tarjetas de limpieza mejoradas */
-.limp-card{background:#fff;border:1.5px solid var(--niebla-2);border-radius:12px;padding:14px;transition:.2s;box-shadow:var(--sombra)}
+.limp-card{background:#fff;border:1.5px solid var(--niebla-2);border-radius:12px;padding:14px;transition:.2s;box-shadow:var(--sombra);border:1px solid rgba(255,255,255,0.1)}
 .limp-card:hover{border-color:var(--cobre)}
 .limp-card.limpiada{background:#eef7f0;border-color:#bfe2c8}
 .limp-card-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
@@ -424,7 +424,7 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);padding-top:22px;text-a
 .limp-ocupaciones{margin-bottom:28px}
 .limp-ocupaciones h3{font-family:'Fraunces',serif;color:var(--grafito);font-size:1.2rem;margin-bottom:12px}
 .ocupaciones-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
-.ocupacion{background:#fff;border-radius:12px;border-left:5px solid var(--cobre);padding:14px 16px;box-shadow:var(--sombra)}
+.ocupacion{background:#fff;border-radius:12px;border-left:5px solid var(--cobre);padding:14px 16px;box-shadow:var(--sombra);border:1px solid rgba(255,255,255,0.1)}
 .ocupacion .ocup-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .ocup-tipo{font-weight:700;color:var(--grafito);font-size:.95rem}
 .ocup-hab-num{font-size:.8rem;color:var(--cobre);font-weight:600}
@@ -583,3 +583,179 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);padding-top:22px;text-a
 .mini-cal-dia.mantenimiento{background:linear-gradient(135deg,#475569,#64748b);color:#fff;font-weight:700;box-shadow:inset 0 1px 2px rgba(0,0,0,.15)}
 .mini-cal-dia.mantenimiento::before{content:'✕';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:rgba(255,255,255,.25);pointer-events:none}
 .mini-cal-dia.mantenimiento:hover{transform:none}
+
+/* ================================================================
+   21st.dev / Modern High-End Glow Up OVERRIDES
+   ================================================================ */
+
+/* Deep dark theme base */
+:root {
+  --bg-base: #000000;
+  --bg-surface: #0a0a0a;
+  --bg-card: #111111;
+  --border-subtle: rgba(255, 255, 255, 0.1);
+  --border-hover: rgba(255, 255, 255, 0.2);
+  --text-main: #ededed;
+  --text-muted: #a1a1aa;
+  --accent-glow: rgba(217, 119, 46, 0.5);
+  --cobre: #f0943f;
+}
+
+body {
+  background-color: var(--bg-base);
+  color: var(--text-main);
+  background-image: radial-gradient(circle at 50% 0%, rgba(217,119,46,0.08) 0%, transparent 50%);
+}
+
+/* Glassmorphism Header */
+.barra {
+  background: rgba(10, 10, 10, 0.6) !important;
+  backdrop-filter: blur(16px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.barra .logo span b { color: #fff; }
+.barra .logo span small { color: var(--text-muted); }
+#nav a { color: var(--text-muted) !important; transition: color 0.3s ease; }
+#nav a:hover { color: #fff !important; }
+
+/* Modern Bento-style Cards (Habitaciones / Amenidades) */
+.room-card, .amenidad, .caja {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 24px !important;
+  box-shadow: 0 4px 24px -1px rgba(0,0,0,0.5) !important;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.3s ease !important;
+  overflow: hidden;
+  position: relative;
+}
+
+.room-card::before, .amenidad::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.room-card:hover, .amenidad:hover {
+  transform: translateY(-5px) scale(1.02) !important;
+  border-color: var(--border-hover) !important;
+  box-shadow: 0 20px 40px -10px rgba(217,119,46,0.15) !important;
+}
+
+/* Beautiful Hero */
+.hero {
+  position: relative;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.hero .velo {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, var(--bg-base) 100%) !important;
+}
+.hero h1 {
+  background: linear-gradient(to right, #fff, #a1a1aa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 10px rgba(0,0,0,0.5));
+}
+.hero .etiqueta {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border-subtle);
+  border-radius: 99px;
+  padding: 6px 16px;
+  color: #fff;
+  box-shadow: 0 0 20px rgba(217,119,46,0.2);
+}
+
+/* Form Buscador (Search Form - Bento Pill style) */
+.buscador {
+  background: rgba(17, 17, 17, 0.8) !important;
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 20px !important;
+  padding: 12px !important;
+  box-shadow: 0 20px 40px -10px rgba(0,0,0,0.8) !important;
+  display: flex !important;
+  gap: 8px !important;
+  align-items: center !important;
+}
+
+.buscador .campo {
+  background: rgba(255,255,255,0.03);
+  border-radius: 14px;
+  padding: 10px 16px;
+  border: 1px solid transparent;
+  transition: border-color 0.3s;
+}
+.buscador .campo:hover {
+  border-color: var(--border-subtle);
+  background: rgba(255,255,255,0.05);
+}
+
+.buscador input, .buscador select {
+  background: transparent !important;
+  color: #fff !important;
+  border: none !important;
+}
+.buscador label {
+  color: var(--text-muted) !important;
+  font-size: 0.75rem !important;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Beautiful Primary Buttons */
+.btn-primario {
+  background: linear-gradient(135deg, #f0943f 0%, #d9772e 100%) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 99px !important;
+  box-shadow: 0 0 20px rgba(217, 119, 46, 0.4), inset 0 1px 0 rgba(255,255,255,0.3) !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  transition: all 0.3s ease !important;
+}
+.btn-primario:hover {
+  box-shadow: 0 0 30px rgba(217, 119, 46, 0.6), inset 0 1px 0 rgba(255,255,255,0.3) !important;
+  transform: scale(1.05);
+}
+
+/* Sections & Typography overrides */
+section {
+  position: relative;
+  z-index: 1;
+}
+.seccion-titulo {
+  color: #fff !important;
+}
+.room-content {
+  background: transparent !important;
+  color: var(--text-main) !important;
+}
+.room-content h3 { color: #fff !important; }
+.precio { color: var(--cobre) !important; }
+.amenidad h3 { color: #fff !important; }
+
+/* Modals */
+.modal-contenido, .caja {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-subtle) !important;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,1) !important;
+}
+input, select, textarea {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-subtle) !important;
+  color: #fff !important;
+  border-radius: 12px !important;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--cobre) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(217, 119, 46, 0.2) !important;
+}
+
+/* Scrollbar sleek */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
