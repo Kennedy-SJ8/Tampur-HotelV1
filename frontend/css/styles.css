@@ -1014,3 +1014,93 @@ h2 {
     padding: 24px !important;
   }
 }
+
+/* ================================================================
+   LUXURY BOUTIQUE HOTEL ELEGANCE (COLOR REFINEMENT)
+   ================================================================ */
+
+:root {
+  /* Fondo base: Charcoal cálido muy profundo en lugar de negro puro */
+  --bg-base: #0c0a09 !important; 
+  /* Superficies (nav, barras): Ligeramente más claro, tono piedra oscuro */
+  --bg-surface: #161412 !important; 
+  /* Tarjetas: Un tono gris cálido muy oscuro */
+  --bg-card: #1c1917 !important; 
+
+  /* Bordes: Toque sutil de cobre translúcido para elegancia */
+  --border-subtle: rgba(217, 119, 46, 0.15) !important;
+  --border-hover: rgba(217, 119, 46, 0.4) !important;
+
+  /* Textos: Blanco hueso/marfil (más suave a la vista y elegante) */
+  --text-main: #fdf8f6 !important;
+  /* Textos secundarios: Gris piedra cálido */
+  --text-muted: #a8a29e !important;
+}
+
+body {
+  background-color: var(--bg-base) !important;
+  color: var(--text-main) !important;
+  background-image: radial-gradient(circle at 50% 0%, rgba(217,119,46,0.05) 0%, transparent 60%) !important;
+}
+
+/* Badges y Chips de Estado (Tonos Joya Elegantes) */
+
+/* Confirmada / Limpiada -> Esmeralda Profundo */
+.estado.Confirmada, .limp-card.limpiada, .chip-limp-ok, .limp-item.limpiada .limp-estado {
+  background: rgba(16, 185, 129, 0.1) !important;
+  color: #34d399 !important;
+  border: 1px solid rgba(16, 185, 129, 0.2) !important;
+}
+
+/* Pendiente / En Curso -> Ámbar / Oro Muted */
+.estado.Pendiente, .chip-limp-pend, .limp-estado, .badge-hoy.checkin {
+  background: rgba(245, 158, 11, 0.1) !important;
+  color: #fbbf24 !important;
+  border: 1px solid rgba(245, 158, 11, 0.2) !important;
+}
+
+/* Cancelada / Mantenimiento -> Rubí / Vino */
+.estado.Cancelada, .chip-Mantenimiento {
+  background: rgba(225, 29, 72, 0.1) !important;
+  color: #fb7185 !important;
+  border: 1px solid rgba(225, 29, 72, 0.2) !important;
+}
+
+/* Refinamiento de Botones (Más sutiles y metálicos) */
+.btn-primario {
+  background: linear-gradient(135deg, #d9772e 0%, #9a4c14 100%) !important;
+  box-shadow: 0 4px 15px -3px rgba(217, 119, 46, 0.3), inset 0 1px 1px rgba(255,255,255,0.15) !important;
+  border: 1px solid rgba(217, 119, 46, 0.8) !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+}
+.btn-primario:hover {
+  background: linear-gradient(135deg, #e4863d 0%, #b35918 100%) !important;
+  box-shadow: 0 8px 25px -5px rgba(217, 119, 46, 0.5), inset 0 1px 1px rgba(255,255,255,0.2) !important;
+}
+
+/* Refinamiento de Botones de Tabla (Rojo/Verde/Gris Muted) */
+.btn-sm.btn-cancelar {
+  background: rgba(225, 29, 72, 0.1) !important;
+  color: #fb7185 !important;
+  border-color: rgba(225, 29, 72, 0.3) !important;
+}
+.btn-sm.btn-cancelar:hover { background: rgba(225, 29, 72, 0.2) !important; }
+
+.btn-sm.btn-confirmar {
+  background: rgba(16, 185, 129, 0.1) !important;
+  color: #34d399 !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+.btn-sm.btn-confirmar:hover { background: rgba(16, 185, 129, 0.2) !important; }
+
+.btn-sm.btn-eliminar {
+  background: rgba(255, 255, 255, 0.03) !important;
+  color: var(--text-muted) !important;
+  border-color: var(--border-subtle) !important;
+}
+.btn-sm.btn-eliminar:hover { background: rgba(255, 255, 255, 0.08) !important; color: #fff !important; }
+
+/* Tipografía general: rebajar el contraste para mayor suavidad (menos "gamer", más "hotel") */
+h1, h2, h3, .serif, .tarjeta h3, .formulario h3, .room h3, .kpi .lbl, .limp-card h3, .ocupacion h4 {
+  color: #f5f5f4 !important; /* Stone-100 */
+}
