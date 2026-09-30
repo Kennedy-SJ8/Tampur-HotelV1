@@ -759,3 +759,60 @@ input:focus, select:focus, textarea:focus {
 ::-webkit-scrollbar-track { background: var(--bg-base); }
 ::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
+
+/* Fix missed white backgrounds */
+.tarjeta, .formulario, .room, .kpi, .limp-card, .ocupacion, .limp-item, .tabla-wrap, .admin-caja, .pago-qr-wrap, .pago-pasos {
+  background: var(--bg-card) !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--border-subtle) !important;
+}
+
+.tarjeta .precio {
+  background: rgba(10, 10, 10, 0.8) !important;
+  color: var(--text-main) !important;
+}
+
+.tarjeta:hover {
+  transform: translateY(-5px) scale(1.02) !important;
+  border-color: var(--border-hover) !important;
+  box-shadow: 0 20px 40px -10px rgba(217,119,46,0.15) !important;
+}
+
+/* Fix text colors inside cards */
+.tarjeta h3, .formulario h3, .room h3, .kpi .lbl, .limp-card h3, .ocupacion h4 {
+  color: #fff !important;
+}
+.tarjeta ul, .tarjeta li, .tarjeta p, .formulario p {
+  color: var(--text-muted) !important;
+}
+
+/* Fix form inputs that had white background on focus */
+.filtro-input, .filtro-select, .selector-moneda select, .campo-form input, .campo-form textarea, .campo-form select {
+  background: var(--bg-surface) !important;
+  color: #fff !important;
+  border-color: var(--border-subtle) !important;
+}
+.filtro-input:focus, .filtro-select:focus, .selector-moneda select:focus, .campo-form input:focus, .campo-form textarea:focus, .campo-form select:focus {
+  background: var(--bg-card) !important;
+  border-color: var(--cobre) !important;
+  box-shadow: 0 0 0 3px rgba(217, 119, 46, 0.2) !important;
+}
+
+/* Table fixes */
+.tabla thead th {
+  background: var(--bg-surface) !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+}
+.tabla tbody tr {
+  border-bottom: 1px solid var(--border-subtle) !important;
+}
+.tabla tbody td {
+  color: var(--text-main) !important;
+}
+
+/* Fix chip/badges that were yellow */
+.estado.Pendiente, .chip-Limpieza, .chip-limp-pend, .badge-hoy.checkin, .limp-estado, .chip-prio2 {
+  background: rgba(217, 119, 46, 0.15) !important;
+  color: var(--cobre) !important;
+  border: 1px solid rgba(217, 119, 46, 0.3) !important;
+}
