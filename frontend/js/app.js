@@ -67,9 +67,10 @@
   }
 
   // ===== Conexión con los microservicios =====
-  const API_RESERVAS=(window.HOTEL_CONFIG&&window.HOTEL_CONFIG.reservas)||'http://localhost:8081';
-  const API_PAGOS=(window.HOTEL_CONFIG&&window.HOTEL_CONFIG.pagos)||'http://localhost:8082';
-  const API_BACKOFFICE=(window.HOTEL_CONFIG&&window.HOTEL_CONFIG.backoffice)||'http://localhost:8083';
+  const API_BASE_URL = 'https://PON_AQUI_TU_URL_DE_RENDER.onrender.com';
+const API_RESERVAS = API_BASE_URL;
+const API_PAGOS = API_BASE_URL;
+const API_BACKOFFICE = API_BASE_URL;
 
   async function cargarDisponibilidad(){
     try{
