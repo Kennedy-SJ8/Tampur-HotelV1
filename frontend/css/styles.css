@@ -840,3 +840,66 @@ input:focus, select:focus, textarea:focus {
   /* Al pasar el mouse, recupera un poco de contraste y brillo */
   filter: invert(95%) hue-rotate(180deg) brightness(95%) contrast(95%) sepia(10%) !important;
 }
+
+/* Fix Navbar / Header spanning full width */
+header {
+  background: rgba(10, 10, 10, 0.7) !important;
+  backdrop-filter: blur(16px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+  width: 100%;
+}
+.barra {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-bottom: none !important;
+}
+
+/* Improve Typography Contrast and Elegance */
+body {
+  color: #f8fafc !important; /* brighter white for text */
+}
+
+h1, h2, h3, .serif, .tarjeta h3, .formulario h3, .room h3, .kpi .lbl, .limp-card h3, .ocupacion h4 {
+  color: #ffffff !important;
+  font-family: 'Fraunces', serif !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.02em !important;
+}
+
+/* Modern elegant subtle glows for headings */
+h1 {
+  text-shadow: 0 0 40px rgba(255,255,255,0.15) !important;
+}
+h2 {
+  text-shadow: 0 0 30px rgba(255,255,255,0.1) !important;
+}
+
+/* Slightly brighter muted text */
+.tarjeta ul, .tarjeta li, .tarjeta p, .formulario p {
+  color: #cbd5e1 !important;
+  font-weight: 300 !important;
+}
+
+/* Make primary buttons more elegant */
+.btn-primario {
+  background: linear-gradient(135deg, #d9772e 0%, #b85c1c 100%) !important;
+  color: #ffffff !important;
+  font-weight: 500 !important;
+  box-shadow: 0 10px 20px -5px rgba(217, 119, 46, 0.4), inset 0 1px 1px rgba(255,255,255,0.2) !important;
+}
+.btn-primario:hover {
+  box-shadow: 0 15px 25px -5px rgba(217, 119, 46, 0.6), inset 0 1px 1px rgba(255,255,255,0.3) !important;
+}
+
+/* Make nav links stand out more */
+#nav a {
+  color: #e2e8f0 !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.02em !important;
+}
+#nav a:hover {
+  color: #ffffff !important;
+  text-shadow: 0 0 10px rgba(255,255,255,0.3) !important;
+}
