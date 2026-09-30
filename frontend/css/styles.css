@@ -279,7 +279,7 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);padding-top:22px;text-a
 .tabla{width:100%;border-collapse:collapse;min-width:720px}
 .tabla th,.tabla td{padding:13px 16px;text-align:left;font-size:.88rem;border-bottom:1px solid var(--niebla-2)}
 .tabla thead th{background:var(--grafito);color:#fff;font-weight:600;font-size:.78rem;letter-spacing:.6px;text-transform:uppercase}
-.tabla tbody tr:nth-child(even){background:#fafbfd}
+.tabla tbody tr:nth-child(even){background:rgba(255, 255, 255, 0.03)}
 .tabla tbody tr:hover{background:rgba(255,178,94,.06)}
 .tabla tbody tr:last-child td{border-bottom:none}
 
