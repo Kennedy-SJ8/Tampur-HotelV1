@@ -816,3 +816,27 @@ input:focus, select:focus, textarea:focus {
   color: var(--cobre) !important;
   border: 1px solid rgba(217, 119, 46, 0.3) !important;
 }
+
+/* Elegant Dark Mode Map (Google Maps iFrame Filter) */
+.mapa {
+  background: var(--bg-card) !important;
+  border-radius: 24px !important;
+  overflow: hidden !important;
+  border: 1px solid var(--border-subtle) !important;
+  box-shadow: var(--sombra) !important;
+}
+
+.mapa iframe {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 400px;
+  border: none !important;
+  /* El truco mágico para hacer que Google Maps se vuelva un mapa oscuro premium */
+  filter: invert(95%) hue-rotate(180deg) brightness(80%) contrast(90%) sepia(20%) !important;
+  transition: filter 0.4s ease;
+}
+
+.mapa iframe:hover {
+  /* Al pasar el mouse, recupera un poco de contraste y brillo */
+  filter: invert(95%) hue-rotate(180deg) brightness(95%) contrast(95%) sepia(10%) !important;
+}
