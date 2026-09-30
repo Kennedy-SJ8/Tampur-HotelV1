@@ -5,10 +5,10 @@ services:
     dockerfilePath: Dockerfile.monolito
     envVars:
       - key: SUPABASE_DB_URL
-        value: "pendiente"
+        value: "jdbc:postgresql://db.ogzyecgnznbhqfvwizbo.supabase.co:5432/postgres"
       - key: SUPABASE_DB_USER
-        value: "pendiente"
+        value: "postgres"
       - key: SUPABASE_DB_PASSWORD
-        value: "pendiente"
+        sync: false
       - key: SENDGRID_API_KEY
-        value: "pendiente"
+        sync: false
