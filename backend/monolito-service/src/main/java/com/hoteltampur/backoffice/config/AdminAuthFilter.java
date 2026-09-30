@@ -28,7 +28,15 @@ public class AdminAuthFilter extends OncePerRequestFilter {
             return;
         }
         String path = request.getRequestURI();
-        if (path.startsWith("/api/") && !path.startsWith("/api/admin/")) {
+        
+        // Rutas publicas de la web (reservas, habitaciones, pagos, etc)
+        boolean isPublic = path.startsWith("/api/habitaciones") || 
+                           path.startsWith("/api/reservas") || 
+                           path.startsWith("/api/calendario") || 
+                           path.startsWith("/api/pagos") || 
+                           path.startsWith("/api/admin/login");
+
+        if (path.startsWith("/api/") && !isPublic) {
             String header = request.getHeader("Authorization");
             String token = null;
             if (header != null && header.startsWith("Bearer ")) {
