@@ -200,7 +200,7 @@ public class BackofficeController {
         );
     }
 
-    @GetMapping("/reservas")
+    @GetMapping("/bitacora/reservas")
     public List<Map<String, Object>> bitacoraReservas() {
         return List.of(
             Map.of("codigo", "TMP-AB12CD", "huesped", "Carlos Pérez", "habitacion", "Doble",
