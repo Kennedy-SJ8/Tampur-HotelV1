@@ -1,6 +1,5 @@
 package com.hoteltampur.backoffice.controller;
 
-import com.hoteltampur.reservas.model.Habitacion;
 import com.hoteltampur.reservas.model.HabitacionEntity;
 import com.hoteltampur.reservas.model.ReservaEntity;
 import com.hoteltampur.reservas.repository.HabitacionRepository;
@@ -28,28 +27,38 @@ public class BackofficeController {
         this.reservaRepository = reservaRepository;
     }
 
+    public record HabitacionDTO(String id, String tipo, int piso, int numero, String estado, String limpieza) {}
+
     public record LimpiezaItem(String id, String tipo, int piso, int numero, String estadoOcupacion,
                                String estadoLimpieza, int prioridad, String horaInicio, String horaFin, String estadoFlujo) {}
+
+    private int getNumero(HabitacionEntity h) {
+        try { return Integer.parseInt(h.getId()); } catch (Exception e) { return 0; }
+    }
+    
+    private int getPiso(HabitacionEntity h) {
+        int num = getNumero(h);
+        return num > 0 ? num / 100 : 0;
+    }
 
     // ─── MAPA INTERACTIVO (OCUPACIÓN) ────────────────────────────────
 
     @GetMapping("/ocupacion")
-    public List<Habitacion> estadoHotel() {
-        List<Habitacion> habitaciones = habitacionRepository.findAll().stream()
-                .map(HabitacionEntity::toRecord)
-                .collect(Collectors.toList());
+    public List<HabitacionDTO> estadoHotel() {
+        List<HabitacionEntity> habitaciones = habitacionRepository.findAll();
         return enrichConLimpieza(habitaciones);
     }
 
     @PatchMapping("/ocupacion/{id}/estado")
-    public Habitacion actualizarEstado(@PathVariable String id,
+    public HabitacionDTO actualizarEstado(@PathVariable String id,
                                        @RequestBody Map<String, String> body) {
         HabitacionEntity entity = habitacionRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Habitación no encontrada: " + id));
         String nuevo = body.getOrDefault("estado", entity.getEstado());
         entity.setEstado(nuevo);
         habitacionRepository.save(entity);
-        return entity.toRecord();
+        
+        return new HabitacionDTO(entity.getId(), entity.getTipo(), getPiso(entity), getNumero(entity), entity.getEstado(), "");
     }
 
     // ─── LIMPIEZA DEL DÍA ──────────────────────────────────────────
@@ -69,15 +78,16 @@ public class BackofficeController {
         java.util.Set<Integer> marcadas = limpiadasPorFecha.getOrDefault(claveFecha, java.util.Set.of());
         
         return habs.stream()
-            .filter(h -> seleccionadas.contains(h.getNumero()))
+            .filter(h -> seleccionadas.contains(getNumero(h)))
             .map(h -> {
-                boolean limpiada = marcadas.contains(h.getNumero());
-                int prioridad = calcularPrioridad(h.getNumero(), hoy);
-                String clave = claveFecha + "_" + h.getNumero();
+                int num = getNumero(h);
+                boolean limpiada = marcadas.contains(num);
+                int prioridad = calcularPrioridad(num, hoy);
+                String clave = claveFecha + "_" + num;
                 String inicio = horaInicioPorFecha.getOrDefault(clave, "");
                 String fin = horaFinPorFecha.getOrDefault(clave, "");
                 String flujo = limpiada ? "completada" : estadoFlujoPorFecha.getOrDefault(clave, "pendiente");
-                return new LimpiezaItem(h.getId(), h.getTipo(), h.getPiso(), h.getNumero(), h.getEstado(),
+                return new LimpiezaItem(h.getId(), h.getTipo(), getPiso(h), num, h.getEstado(),
                                        limpiada ? "limpiada" : "pendiente", prioridad, inicio, fin, flujo);
             })
             .sorted(Comparator.comparingInt(LimpiezaItem::prioridad).thenComparingInt(LimpiezaItem::numero))
@@ -88,7 +98,7 @@ public class BackofficeController {
     public ResponseEntity<?> actualizarLimpieza(@PathVariable int numero,
                                                  @RequestBody Map<String, Object> body) {
         HabitacionEntity entity = habitacionRepository.findAll().stream()
-                .filter(h -> h.getNumero() == numero).findFirst().orElse(null);
+                .filter(h -> getNumero(h) == numero).findFirst().orElse(null);
         if (entity == null) {
             return ResponseEntity.badRequest().body(Map.of("error", "Habitación no encontrada: " + numero));
         }
@@ -116,7 +126,7 @@ public class BackofficeController {
         String flujo = estadoFlujoPorFecha.getOrDefault(clave, "pendiente");
         String inicio = horaInicioPorFecha.getOrDefault(clave, "");
         String fin = horaFinPorFecha.getOrDefault(clave, "");
-        return ResponseEntity.ok(new LimpiezaItem(entity.getId(), entity.getTipo(), entity.getPiso(), entity.getNumero(), entity.getEstado(),
+        return ResponseEntity.ok(new LimpiezaItem(entity.getId(), entity.getTipo(), getPiso(entity), getNumero(entity), entity.getEstado(),
                                                   limpiada ? "limpiada" : "pendiente", prioridad, inicio, fin, flujo));
     }
 
@@ -125,14 +135,14 @@ public class BackofficeController {
         java.util.Set<Integer> seleccionadas = new HashSet<>();
         for (HabitacionEntity h : habitaciones) {
             if (azar.nextDouble() < PROBABILIDAD_LIMPIEZA) {
-                seleccionadas.add(h.getNumero());
+                seleccionadas.add(getNumero(h));
             }
         }
         List<HabitacionEntity> ordenadas = new ArrayList<>(habitaciones);
         Collections.shuffle(ordenadas, azar);
         for (HabitacionEntity h : ordenadas) {
             if (seleccionadas.size() >= 8) break;
-            seleccionadas.add(h.getNumero());
+            seleccionadas.add(getNumero(h));
         }
         return seleccionadas;
     }
@@ -142,18 +152,18 @@ public class BackofficeController {
         return 3;
     }
 
-    private List<Habitacion> enrichConLimpieza(List<Habitacion> lista) {
-        List<HabitacionEntity> habs = habitacionRepository.findAll();
-        java.util.Set<Integer> seleccionadas = numerosLimpiasHoy(habs);
+    private List<HabitacionDTO> enrichConLimpieza(List<HabitacionEntity> lista) {
+        java.util.Set<Integer> seleccionadas = numerosLimpiasHoy(lista);
         String claveFecha = LocalDate.now().format(FORMATO_FECHA);
         java.util.Set<Integer> marcadas = limpiadasPorFecha.getOrDefault(claveFecha, java.util.Set.of());
         return lista.stream()
             .map(h -> {
+                int num = getNumero(h);
                 String limpieza = "";
-                if (seleccionadas.contains(h.numero())) {
-                    limpieza = marcadas.contains(h.numero()) ? "limpiada" : "pendiente";
+                if (seleccionadas.contains(num)) {
+                    limpieza = marcadas.contains(num) ? "limpiada" : "pendiente";
                 }
-                return new Habitacion(h.id(), h.tipo(), h.piso(), h.numero(), h.estado(), limpieza);
+                return new HabitacionDTO(h.getId(), h.getTipo(), getPiso(h), num, h.getEstado(), limpieza);
             })
             .toList();
     }
