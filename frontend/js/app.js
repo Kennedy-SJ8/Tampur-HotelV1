@@ -67,7 +67,7 @@
   }
 
   // ===== Conexión con los microservicios =====
-  const API_BASE_URL = 'https://PON_AQUI_TU_URL_DE_RENDER.onrender.com';
+  const API_BASE_URL = 'https://tampur-monolito.onrender.com';
 const API_RESERVAS = API_BASE_URL;
 const API_PAGOS = API_BASE_URL;
 const API_BACKOFFICE = API_BASE_URL;
