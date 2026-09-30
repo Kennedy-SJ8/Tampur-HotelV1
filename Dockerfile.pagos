@@ -1,0 +1,28 @@
+# Etapa de construcción (Build)
+FROM maven:3.9.6-eclipse-temurin-21 AS build
+WORKDIR /app
+
+# Copiamos el pom raíz
+COPY pom.xml .
+
+# Copiamos los poms y código fuente de los microservicios
+COPY backend/ ./backend/
+
+# Compilamos especificando solo el módulo de pagos y sus dependencias (-am)
+RUN mvn clean package -DskipTests -pl backend/pagos-service -am
+
+# Etapa de ejecución (Run)
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+
+# Copiamos el JAR generado en la etapa anterior
+COPY --from=build /app/backend/pagos-service/target/*.jar app.jar
+
+# Render espera el puerto 10000 por defecto en Docker
+EXPOSE 10000
+ENV SERVER_PORT=10000
+
+# Variables de entorno adicionales para optimizar el arranque en frío (se pueden sobrescribir en render.yaml)
+ENV JAVA_TOOL_OPTIONS="-Xmx300m -Xss512k -XX:TieredStopAtLevel=1 -noverify"
+
+ENTRYPOINT ["java", "-jar", "app.jar"]

@@ -1,0 +1,52 @@
+services:
+  # ----------------------------------------------------
+  # Microservicio de Reservas
+  # ----------------------------------------------------
+  - type: web
+    name: tampur-reservas-service
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile.reservas
+    envVars:
+      # Las credenciales están configuradas con 'sync: false' por seguridad.
+      # Render te pedirá que ingreses estos valores manualmente en su panel (Dashboard).
+      - key: SUPABASE_DB_URL
+        sync: false
+      - key: SUPABASE_DB_USER
+        sync: false
+      - key: SUPABASE_DB_PASSWORD
+        sync: false
+
+  # ----------------------------------------------------
+  # Microservicio de Pagos
+  # ----------------------------------------------------
+  - type: web
+    name: tampur-pagos-service
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile.pagos
+    envVars:
+      - key: SUPABASE_DB_URL
+        sync: false
+      - key: SUPABASE_DB_USER
+        sync: false
+      - key: SUPABASE_DB_PASSWORD
+        sync: false
+      - key: SENDGRID_API_KEY
+        sync: false
+
+  # ----------------------------------------------------
+  # Microservicio de Backoffice
+  # ----------------------------------------------------
+  - type: web
+    name: tampur-backoffice-service
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile.backoffice
+    envVars:
+      - key: SUPABASE_DB_URL
+        sync: false
+      - key: SUPABASE_DB_USER
+        sync: false
+      - key: SUPABASE_DB_PASSWORD
+        sync: false
