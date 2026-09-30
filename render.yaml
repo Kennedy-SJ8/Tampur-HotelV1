@@ -1,22 +1,8 @@
 services:
   - type: web
-    name: tampur-reservas-service
+    name: tampur-monolito
     env: docker
-    plan: free
-    dockerfilePath: Dockerfile.reservas
-    envVars:
-      - key: SUPABASE_DB_URL
-        value: "pendiente"
-      - key: SUPABASE_DB_USER
-        value: "pendiente"
-      - key: SUPABASE_DB_PASSWORD
-        value: "pendiente"
-
-  - type: web
-    name: tampur-pagos-service
-    env: docker
-    plan: free
-    dockerfilePath: Dockerfile.pagos
+    dockerfilePath: Dockerfile.monolito
     envVars:
       - key: SUPABASE_DB_URL
         value: "pendiente"
@@ -25,17 +11,4 @@ services:
       - key: SUPABASE_DB_PASSWORD
         value: "pendiente"
       - key: SENDGRID_API_KEY
-        value: "pendiente"
-
-  - type: web
-    name: tampur-backoffice-service
-    env: docker
-    plan: free
-    dockerfilePath: Dockerfile.backoffice
-    envVars:
-      - key: SUPABASE_DB_URL
-        value: "pendiente"
-      - key: SUPABASE_DB_USER
-        value: "pendiente"
-      - key: SUPABASE_DB_PASSWORD
         value: "pendiente"

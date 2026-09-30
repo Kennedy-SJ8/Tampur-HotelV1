@@ -11,8 +11,8 @@
     <name>Hotel Tampur - Backend (microservicios)</name>
 
     <modules>
-        <module>backend/reservas-service</module>
-        <module>backend/pagos-service</module>
-        <module>backend/backoffice-service</module>
+        
+        
+        <module>backend/monolito-service</module>
     </modules>
 </project>
