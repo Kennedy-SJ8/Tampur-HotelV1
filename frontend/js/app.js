@@ -152,13 +152,16 @@ const API_BACKOFFICE = API_BASE_URL;
     const m=MONEDAS.find(x=>x.code===monedaActual);
     const tasa=tasasMoneda[monedaActual]||1;
     const porUnidad=(1/tasa).toFixed(tasa>100?4:2);
-    hint.textContent='1 PEN ≈ '+(m?m.simbolo:'')+porUnidad;
+    hint.textContent='1 ' + (m?m.code:'') + ' ≈ S/ ' + porUnidad;
   }
 
   function pintarPrecios(){
     const b=document.querySelectorAll('.tarjeta .precio b');
     const precios=[TARIFAS.simple,TARIFAS.matrimonial,TARIFAS.queen,TARIFAS.king];
-    b.forEach((el,i)=>{ if(precios[i]!=null) el.textContent=formatearPrecio(precios[i]); });
+    b.forEach((el,i)=>{ 
+      const precio = precios[i % precios.length];
+      if(precio != null) el.textContent=formatearPrecio(precio); 
+    });
   }
 
   function refrescarTotal(){
