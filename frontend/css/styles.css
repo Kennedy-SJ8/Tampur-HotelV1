@@ -1106,7 +1106,86 @@ h1, h2, h3, .serif, .tarjeta h3, .formulario h3, .room h3, .kpi .lbl, .limp-card
   color: #f5f5f4 !important; /* Stone-100 */
 }
 
-/* Swiper Customizations */
-.swiper-pagination-bullet { background: #fff; opacity: 0.5; }
-.swiper-pagination-bullet-active { background: var(--cobre); opacity: 1; }
-.swiper-button-next::after, .swiper-button-prev::after { text-shadow: 0 0 10px rgba(0,0,0,0.5); font-size: 24px; font-weight: bold; }
+
+/* ======================== CARRUSEL HABITACIONES ======================== */
+.habitaciones-swiper {
+  padding: 20px 10px 70px !important; /* Espacio para sombras y botones */
+  margin: -20px -10px -70px; /* Compensa el padding para no dañar el layout exterior */
+}
+
+.habitaciones-swiper .swiper-wrapper {
+  align-items: stretch; /* Altura uniforme para todas las tarjetas */
+}
+
+.habitaciones-swiper .tarjeta.swiper-slide {
+  width: 320px;
+  max-width: 85vw;
+  height: auto; /* Para que crezca con el flex del wrapper */
+  display: flex;
+  flex-direction: column;
+  opacity: 1 !important; /* Evitar conflictos con reveal si Swiper lo oculta */
+}
+
+/* Flechas personalizadas */
+.habitaciones-swiper .swiper-button-next, 
+.habitaciones-swiper .swiper-button-prev {
+  background: rgba(17, 17, 17, 0.7);
+  backdrop-filter: blur(8px);
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 178, 94, 0.3);
+  color: var(--cobre) !important;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  top: 45%;
+}
+
+.habitaciones-swiper .swiper-button-next:hover, 
+.habitaciones-swiper .swiper-button-prev:hover {
+  background: var(--cobre);
+  color: #fff !important;
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(255, 178, 94, 0.5);
+}
+
+.habitaciones-swiper .swiper-button-next::after, 
+.habitaciones-swiper .swiper-button-prev::after {
+  font-size: 22px;
+  font-weight: 800;
+  text-shadow: none;
+}
+
+/* Paginación moderna */
+.habitaciones-swiper .swiper-pagination {
+  bottom: 10px !important;
+}
+
+.habitaciones-swiper .swiper-pagination-bullet {
+  width: 8px;
+  height: 8px;
+  background: #fff;
+  opacity: 0.3;
+  transition: all 0.4s ease;
+  margin: 0 6px !important;
+}
+
+.habitaciones-swiper .swiper-pagination-bullet-active {
+  width: 28px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--cobre-2), var(--cobre));
+  opacity: 1;
+  box-shadow: 0 0 12px rgba(217, 119, 46, 0.6);
+}
+
+/* Ajustes responsivos */
+@media(max-width: 600px) {
+  .habitaciones-swiper .swiper-button-next, 
+  .habitaciones-swiper .swiper-button-prev {
+    display: none; /* Ocultar flechas en móvil, usar solo touch */
+  }
+  .habitaciones-swiper {
+    padding-bottom: 50px !important;
+    margin-bottom: -50px;
+  }
+}
