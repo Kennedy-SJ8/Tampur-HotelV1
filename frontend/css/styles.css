@@ -90,16 +90,16 @@ nav .btn-idioma:hover{background:rgba(255,255,255,.15);border-color:var(--cobre)
 .hero h1 em{font-style:normal;color:var(--cobre-2);text-shadow:0 0 30px rgba(52, 211, 153,.5)}
 .hero p.lead{max-width:52ch;font-size:1.12rem;font-weight:300;opacity:.9;margin-bottom:34px}
 
-.hero .etiqueta,.hero h1,.hero p.lead,.hero .buscador{animation:heroSubir .75s cubic-bezier(.22,.61,.36,1) both}
+.hero .etiqueta,.hero h1,.hero p.lead,.hero 
 .hero h1{animation-delay:.1s}
 .hero p.lead{animation-delay:.22s}
-.hero .buscador{animation-delay:.34s}
+.hero 
 @keyframes heroSubir{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:none}}
 
 /* ======================== BUSCADOR ======================== */
-.buscador{background:rgba(15,23,42,0.8)!important;backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.15)!important;border-radius:24px!important;padding:20px!important;box-shadow:0 20px 40px rgba(0,0,0,0.6)!important;display:grid!important;grid-template-columns:1fr 1fr 1fr auto!important;gap:16px!important;align-items:end!important;}
+
 .campo{display:flex;flex-direction:column;gap:8px;width:100%}
-.campo label{font-size:.72rem;letter-spacing:1.5px;text-transform:uppercase;opacity:.75}
+.buscador .campo label{font-size:.72rem;letter-spacing:1.5px;text-transform:uppercase;opacity:.75}
 .campo input,.campo select{background:rgba(255,255,255,.96);border:none;border-radius:12px;padding:12px 14px;font-family:inherit;font-size:.95rem;color:var(--tinta);outline:none}
 .buscador .btn-primario{align-self:end;height:48px;padding:0 32px;white-space:nowrap;}
 
@@ -449,7 +449,7 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);padding-top:22px;text-a
   nav.abierto{transform:none}
   nav a{font-size:1.1rem}
   .hamburguesa{display:flex;z-index:55}
-  .buscador{grid-template-columns:1fr 1fr !important}
+  
   .tarjetas,.grid-amenidades{grid-template-columns:1fr}
   .contacto-grid{grid-template-columns:1fr}
 }
@@ -468,7 +468,7 @@ footer .legal{border-top:1px solid rgba(255,255,255,.12);padding-top:22px;text-a
 
 /* Móviles (≤ 520px) */
 @media(max-width:520px){
-  .buscador{grid-template-columns:1fr !important}
+  
   .fila{grid-template-columns:1fr}
   footer .grid{grid-template-columns:1fr}
 
@@ -1117,7 +1117,8 @@ h1, h2, h3, .serif, .tarjeta h3, .formulario h3, .room h3, .kpi .lbl, .limp-card
 }
 
 .habitaciones-swiper .tarjeta.swiper-slide {
-  width: 400px;
+  width: 480px; /* Mas grande */
+  min-height: 550px;
   max-width: 85vw;
   height: auto; /* Para que crezca con el flex del wrapper */
   display: flex;
@@ -1305,57 +1306,203 @@ body.tema-claro .swiper-button-next, body.tema-claro .swiper-button-prev { backg
   box-shadow: 0 20px 50px rgba(0,0,0,0.4) !important;
 }
 
-/* Mejoras al Buscador y Fechas */
+
+
+
+/* ======================== BUSCADOR ULTRA-PREMIUM (Estilo Airbnb/Lujo) ======================== */
 .buscador {
-  background: rgba(15, 23, 42, 0.8) !important; /* Azul muy oscuro/elegante */
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.6) !important;
-  border-radius: 24px !important;
-  padding: 16px !important;
+  background: rgba(15, 23, 42, 0.65) !important;
+  backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 999px !important; /* Forma de píldora */
+  display: flex !important;
+  align-items: center !important;
+  padding: 8px 8px 8px 32px !important;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1) !important;
+  width: fit-content !important;
+  margin: 0 auto !important;
+  gap: 0 !important;
 }
-.campo input[type="date"], .campo select {
-  background: rgba(255, 255, 255, 0.05) !important;
-  color: #fff !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  border-radius: 12px;
-  padding: 14px 18px;
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1rem;
-  letter-spacing: 0.5px;
-  transition: all 0.3s ease;
-  cursor: pointer;
+
+.buscador .campo {
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 0 28px !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+  width: auto !important;
+  gap: 4px !important;
 }
-.campo input[type="date"]:hover, .campo select:hover, .campo input[type="date"]:focus {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-color: var(--cobre) !important;
-  box-shadow: 0 0 15px rgba(5, 150, 105, 0.3);
+.buscador .campo:nth-last-of-type(2) {
+  border-right: none !important;
 }
-/* Style calendar icon to be white */
-.campo input[type="date"]::-webkit-calendar-picker-indicator {
+
+.buscador .campo label {
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+  color: #94a3b8 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1.5px !important;
+  margin: 0 !important;
+}
+
+.buscador .campo input, .buscador .campo select {
+  background: transparent !important;
+  border: none !important;
+  color: #ffffff !important;
+  padding: 0 !important;
+  font-size: 1.05rem !important;
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-weight: 500 !important;
+  outline: none !important;
+  box-shadow: none !important;
+  height: auto !important;
+  cursor: pointer !important;
+  width: 130px !important;
+}
+.buscador .campo select { width: 150px !important; }
+
+.buscador .campo input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(1);
-  opacity: 0.7;
+  opacity: 0.5;
   cursor: pointer;
+  transition: opacity 0.2s;
 }
-.campo input[type="date"]::-webkit-calendar-picker-indicator:hover {
+.buscador .campo input[type="date"]::-webkit-calendar-picker-indicator:hover {
   opacity: 1;
 }
-.campo label {
-  color: #94a3b8 !important;
-  font-weight: 600;
-  letter-spacing: 1.5px;
-  margin-bottom: 6px;
-  margin-left: 4px;
+
+.buscador .btn-primario {
+  height: 56px !important;
+  border-radius: 999px !important;
+  padding: 0 36px !important;
+  font-size: 1.05rem !important;
+  font-weight: 600 !important;
+  margin-left: 12px !important;
+  align-self: center !important;
+  box-shadow: 0 10px 25px rgba(5, 150, 105, 0.5) !important;
 }
+
+@media(max-width: 900px) {
+  .buscador {
+    flex-direction: column !important;
+    border-radius: 32px !important;
+    padding: 24px !important;
+    width: 100% !important;
+    gap: 16px !important;
+  }
+  .campo {
+    border-right: none !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    padding: 12px 0 !important;
+    width: 100% !important;
+  }
+  .campo:nth-last-of-type(2) { border-bottom: none !important; }
+  .campo input, .campo select { width: 100% !important; }
+  .buscador .btn-primario {
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-top: 12px !important;
+  }
+}
+
+
+/* ======================== TEMA CLARO MEJORADO (Ultra-Premium) ======================== */
+body.tema-claro {
+  --bg-base: #fafafa !important;
+  --bg-surface: #ffffff !important;
+  --bg-card: #ffffff !important;
+  --text-main: #0f172a !important;
+  --text-muted: #64748b !important;
+  background-color: #fafafa !important;
+  background-image: radial-gradient(circle at 50% 0%, rgba(5,150,105,0.03) 0%, transparent 60%) !important;
+}
+
+body.tema-claro .hero h1, body.tema-claro .cabecera-seccion h2 {
+  color: #0f172a !important;
+}
+
+body.tema-claro .hero p.lead, body.tema-claro .cabecera-seccion p {
+  color: #475569 !important;
+}
+
+body.tema-claro .tarjeta {
+  background: #ffffff !important;
+  border: 1px solid rgba(0,0,0,0.04) !important;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.03) !important;
+}
+
+body.tema-claro .tarjeta:hover {
+  box-shadow: 0 30px 60px rgba(5,150,105,0.08) !important;
+  border-color: rgba(5,150,105,0.2) !important;
+}
+
+/* Buscador Light Theme overrides */
 body.tema-claro .buscador {
   background: #ffffff !important;
-  border: 1px solid #e2e8f0 !important;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.06) !important;
+  border: 1px solid rgba(0,0,0,0.08) !important;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.06), 0 0 0 4px rgba(255,255,255,0.5) !important;
 }
-body.tema-claro .campo input[type="date"], body.tema-claro .campo select {
-  background: #f8fafc !important;
+body.tema-claro .campo {
+  border-color: rgba(0,0,0,0.06) !important;
+}
+body.tema-claro .campo label {
+  color: #64748b !important;
+}
+body.tema-claro .campo input, body.tema-claro .campo select {
   color: #0f172a !important;
-  border: 1px solid #cbd5e1 !important;
 }
 body.tema-claro .campo input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: none;
+  filter: none !important;
+  opacity: 0.6;
 }
+
+body.tema-claro .franja {
+  background: #ffffff !important;
+  border-top: 1px solid #e2e8f0 !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.02) !important;
+}
+body.tema-claro .franja .item { color: #475569 !important; }
+body.tema-claro .franja .item b { color: var(--cobre) !important; }
+
+body.tema-claro footer {
+  background: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+}
+
+body.tema-claro .admin-caja, body.tema-claro .modal .caja {
+  background: #ffffff !important;
+  border: 1px solid rgba(0,0,0,0.05) !important;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.08) !important;
+}
+body.tema-claro .admin-caja h3, body.tema-claro .modal h3 { color: #0f172a !important; }
+body.tema-claro .admin-caja .sub, body.tema-claro .modal p { color: #475569 !important; }
+body.tema-claro .campo-form input, body.tema-claro .campo-form select {
+  background: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+/* Admin Dashboard Light */
+body.tema-claro .admin-shell {
+  background: #f8fafc !important;
+}
+body.tema-claro .admin-shell aside {
+  background: #ffffff !important;
+  border-right: 1px solid #e2e8f0 !important;
+}
+body.tema-claro .admin-shell aside button { color: #475569 !important; }
+body.tema-claro .admin-shell aside button.activo {
+  background: rgba(5,150,105,0.08) !important;
+  color: var(--cobre) !important;
+}
+body.tema-claro .admin-shell main { background: #f8fafc !important; color: #0f172a !important; }
+body.tema-claro .kpi {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.02) !important;
+}
+body.tema-claro .kpi .lbl { color: #64748b !important; }
+body.tema-claro .kpi .num { color: #0f172a !important; }
+body.tema-claro .tabla th { background: #f1f5f9 !important; color: #475569 !important; }
+body.tema-claro .tabla td { border-color: #e2e8f0 !important; color: #0f172a !important; }
