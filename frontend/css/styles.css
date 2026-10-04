@@ -1382,28 +1382,7 @@ body.tema-claro .swiper-button-next, body.tema-claro .swiper-button-prev { backg
   box-shadow: 0 10px 25px rgba(5, 150, 105, 0.5) !important;
 }
 
-@media(max-width: 900px) {
-  .buscador {
-    flex-direction: column !important;
-    border-radius: 32px !important;
-    padding: 24px !important;
-    width: 100% !important;
-    gap: 16px !important;
-  }
-  .campo {
-    border-right: none !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-    padding: 12px 0 !important;
-    width: 100% !important;
-  }
-  .campo:nth-last-of-type(2) { border-bottom: none !important; }
-  .campo input, .campo select { width: 100% !important; }
-  .buscador .btn-primario {
-    width: 100% !important;
-    margin-left: 0 !important;
-    margin-top: 12px !important;
-  }
-}
+
 
 
 /* ======================== TEMA CLARO MEJORADO (Ultra-Premium) ======================== */
@@ -1417,13 +1396,9 @@ body.tema-claro {
   background-image: radial-gradient(circle at 50% 0%, rgba(5,150,105,0.03) 0%, transparent 60%) !important;
 }
 
-body.tema-claro .hero h1, body.tema-claro .cabecera-seccion h2 {
-  color: #0f172a !important;
-}
+body.tema-claro .cabecera-seccion h2 { color: #0f172a !important; }
 
-body.tema-claro .hero p.lead, body.tema-claro .cabecera-seccion p {
-  color: #475569 !important;
-}
+body.tema-claro .cabecera-seccion p { color: #475569 !important; }
 
 body.tema-claro .tarjeta {
   background: #ffffff !important;
@@ -1507,12 +1482,8 @@ body.tema-claro .kpi .num { color: #0f172a !important; }
 body.tema-claro .tabla th { background: #f1f5f9 !important; color: #475569 !important; }
 body.tema-claro .tabla td { border-color: #e2e8f0 !important; color: #0f172a !important; }
 
-body.tema-claro .hero .fondo {
-  background: linear-gradient(115deg, rgba(255,255,255,0.95), rgba(255,255,255,0.7) 50%, rgba(255,255,255,0.4)), url('../assets/img/hero.jpg') center/cover no-repeat !important;
-}
-body.tema-claro .hero .velo {
-  background: linear-gradient(to bottom, rgba(255,255,255,0.1) 0%, var(--bg-base) 100%) !important;
-}
+body.tema-claro .hero .fondo { background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 100%), url('../assets/img/hero.jpg') center/cover no-repeat !important; }
+body.tema-claro .hero .velo { display: none !important; }
 
 body.tema-claro .mapa iframe {
   filter: none !important;
@@ -1520,25 +1491,10 @@ body.tema-claro .mapa iframe {
 
 
 /* FIX: Header y Nav siempre legibles en modo claro */
-body.tema-claro header .logo b, 
-body.tema-claro header nav a { 
-  color: #0f172a !important; 
-  text-shadow: none !important;
-  font-weight: 600 !important;
-}
-body.tema-claro header .btn-idioma, 
-body.tema-claro header .btn-tema { 
-  border-color: rgba(15, 23, 42, 0.2) !important; 
-  color: #0f172a !important; 
-}
-body.tema-claro header .btn-idioma:hover, 
-body.tema-claro header .btn-tema:hover { 
-  background: rgba(15, 23, 42, 0.05) !important;
-  border-color: var(--cobre) !important; 
-}
-body.tema-claro header .hamburguesa span {
-  background-color: #0f172a !important;
-}
+
+
+
+
 
 /* En móviles, el nav abierto necesita fondo blanco */
 @media(max-width: 900px) {
@@ -1683,4 +1639,69 @@ body.tema-claro .flatpickr-day.flatpickr-disabled {
 /* Make sure altInput gets the right styles */
 .buscador .campo input.flatpickr-input {
   /* It inherits the styling from .buscador .campo input */
+}
+
+body.tema-claro .hero h1 { color: #ffffff !important; }
+body.tema-claro .hero p.lead { color: #e2e8f0 !important; }
+
+/* FIX: Header Transparente sobre Hero Oscuro */
+body.tema-claro header:not(.scrolled) .logo b, 
+body.tema-claro header:not(.scrolled) nav a { 
+  color: #ffffff !important; 
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5) !important;
+}
+body.tema-claro header:not(.scrolled) .btn-idioma, 
+body.tema-claro header:not(.scrolled) .btn-tema { 
+  border-color: rgba(255, 255, 255, 0.5) !important; 
+  color: #ffffff !important; 
+}
+body.tema-claro header:not(.scrolled) .hamburguesa span {
+  background-color: #ffffff !important;
+}
+
+body.tema-claro header.scrolled .logo b, 
+body.tema-claro header.scrolled nav a { 
+  color: #0f172a !important; 
+  text-shadow: none !important;
+}
+body.tema-claro header.scrolled .btn-idioma, 
+body.tema-claro header.scrolled .btn-tema { 
+  border-color: rgba(15, 23, 42, 0.2) !important; 
+  color: #0f172a !important; 
+}
+body.tema-claro header.scrolled .hamburguesa span {
+  background-color: #0f172a !important;
+}
+
+@media(max-width: 900px) {
+  .buscador {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    flex-direction: row !important;
+    border-radius: 32px !important;
+    padding: 24px !important;
+    width: 100% !important;
+    gap: 16px !important;
+  }
+  .buscador .campo {
+    border-right: none !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    padding: 12px 0 !important;
+    width: 100% !important;
+  }
+  body.tema-claro .buscador .campo {
+    border-bottom: 1px solid rgba(0,0,0,0.06) !important;
+  }
+  .buscador .campo:nth-last-of-type(2) { border-bottom: none !important; }
+  .buscador .btn-primario {
+    grid-column: 1 / -1 !important; /* Ocupa todo el ancho */
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-top: 12px !important;
+  }
+}
+@media(max-width: 520px) {
+  .buscador {
+    grid-template-columns: 1fr !important;
+  }
 }
