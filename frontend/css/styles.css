@@ -1781,3 +1781,37 @@ body.tema-claro .tarjeta .precio b {
 
 /* Hero Full Screen */
 .hero { min-height: 100vh !important; }
+
+
+/* FIX UX: Nav visible when scrolling in Light Mode */
+body.tema-claro header.scrolled .logo,
+body.tema-claro header.scrolled .logo b,
+body.tema-claro header.scrolled nav a {
+  color: #0f172a !important;
+  text-shadow: none !important;
+}
+
+body.tema-claro header.scrolled .btn-tema {
+  color: #0f172a !important;
+  border-color: rgba(15, 23, 42, 0.2) !important;
+}
+
+body.tema-claro header.scrolled nav .btn-idioma {
+  color: #0f172a !important;
+  border-color: rgba(15, 23, 42, 0.2) !important;
+}
+body.tema-claro header.scrolled nav .btn-idioma:hover,
+body.tema-claro header.scrolled .btn-tema:hover {
+  background: rgba(15, 23, 42, 0.05) !important;
+  border-color: #0f172a !important;
+}
+
+body.tema-claro header.scrolled .hamburguesa span {
+  background: #0f172a !important;
+}
+
+/* Ensure the primary button in nav (Reservar) stays green if it exists */
+body.tema-claro header.scrolled nav .btn-primario {
+  color: #ffffff !important;
+  text-shadow: none !important;
+}
