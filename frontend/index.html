@@ -265,7 +265,7 @@
 </a>
 
 <div class="modal" id="modalReserva">
-  <div class="caja">
+  <div class="caja" id="cajaFormulario">
     <button class="cerrar" onclick="cerrarModal()">&times;</button>
     <h3 id="rTitulo">Reserva</h3>
     <p class="sub" id="rSubtitulo">Complete sus datos para confirmar.</p>
@@ -323,6 +323,37 @@
       <span style="text-align:right"><b id="rTotal">S/ 0</b><br><span id="rTotalConv" style="font-size:.82rem;color:var(--gris)"></span></span>
     </div>
     <button class="btn btn-primario" id="btnConfirmarReserva" style="width:100%;justify-content:center;margin-top:14px" onclick="confirmarReserva()" data-i18n="reserva_confirmar">Confirmar reserva</button>
+  </div>
+
+  <div class="caja" id="cajaExito" style="display:none; text-align:center; padding: 40px 30px;">
+    <button class="cerrar" onclick="cerrarModal()">&times;</button>
+    <div class="alerta-exito">
+      <div style="font-size: 4rem; color: #10b981; margin-bottom: 20px;">
+        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+      </div>
+      <h2 id="exitoTitulo" style="font-size:1.8rem; margin-bottom:10px; color: var(--text-main); font-family: 'Playfair Display', serif;">¡Reserva Confirmada!</h2>
+      <p id="exitoSub" style="color: var(--text-muted); font-size: 1.05rem; margin-bottom: 24px;">Hemos recibido tu solicitud.</p>
+      
+      <div style="background: rgba(16, 185, 129, 0.05); border: 1px dashed rgba(16, 185, 129, 0.4); border-radius: 16px; padding: 20px; margin-bottom: 24px;">
+        <p style="color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px;">Código de Reserva</p>
+        <div id="exitoCodigo" style="font-size: 2.2rem; font-weight: 700; color: #10b981; letter-spacing: 3px;">---</div>
+      </div>
+
+      <div style="display:flex; justify-content: space-between; text-align:left; background: var(--bg-base); border-radius: 12px; padding: 16px; margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.05);">
+        <div>
+          <p style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 4px;">Check-in</p>
+          <p style="color: var(--text-main); font-weight: 600;">1:00 p.m.</p>
+        </div>
+        <div style="text-align: right;">
+          <p style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 4px;">Check-out</p>
+          <p style="color: var(--text-main); font-weight: 600;">12:00 p.m.</p>
+        </div>
+      </div>
+
+      <p id="exitoVoucher" style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 24px; display:none;"></p>
+      
+      <button class="btn btn-primario" style="width: 100%; height: 54px; font-size: 1.1rem;" onclick="cerrarModal()">Entendido</button>
+    </div>
   </div>
 </div>
 

@@ -215,6 +215,9 @@ const API_BACKOFFICE = API_BASE_URL;
   let reservaEnProceso=false;
 
   function abrirReserva(nombre,key){
+    document.getElementById('cajaFormulario').style.display = 'block';
+    const cajaExito = document.getElementById('cajaExito');
+    if(cajaExito) cajaExito.style.display = 'none';
     habitacionActual=nombre; tarifaActual=TARIFAS[key]||60;
     idempotencyKey=nuevaIdempotencyKey();
     reservaEnProceso=false;
@@ -473,18 +476,27 @@ const API_BACKOFFICE = API_BASE_URL;
       localStorage.setItem('tampur_reservas',JSON.stringify(reservasLocales));
     }
 
-    document.getElementById('modalReserva').innerHTML=`
-      <div class="caja">
-        <button class="cerrar" onclick="cerrarModal()">&times;</button>
-        <div class="alerta-exito">
-          <h3 style="margin-bottom:6px">${esDuplicada?'Ya tenías esta reserva registrada':'¡Reserva registrada!'}</h3>
-          <p>${esDuplicada?'Encontramos una reserva activa con los mismos datos, así que no se creó una duplicada.':(desdeServidor?'Procesada por el servidor de reservas.':'Modo local (backend no conectado).')}</p>
-          <div class="codigo">${codigo}</div>
-          ${voucher?`<p class="sub">Voucher: <b>${voucher}</b> · Pago: ${pagoEstado}</p>`:''}
-          <p class="sub">Check-in: 1:00 p.m. · Check-out: 12:00 p.m.</p>
-          <button class="btn btn-primario" onclick="cerrarModal()">Listo</button>
-        </div>
-      </div>`;
+    
+    const cajaForm = document.getElementById('cajaFormulario');
+    const cajaExito = document.getElementById('cajaExito');
+    
+    if(cajaForm && cajaExito) {
+      cajaForm.style.display = 'none';
+      cajaExito.style.display = 'block';
+      
+      document.getElementById('exitoTitulo').textContent = esDuplicada ? 'Ya tenías esta reserva' : '¡Reserva Confirmada!';
+      document.getElementById('exitoSub').textContent = esDuplicada ? 'Encontramos una reserva activa con los mismos datos.' : (desdeServidor ? 'Hemos recibido tu solicitud y tu habitación está separada.' : 'Tu reserva ha sido guardada en modo local (sin conexión).');
+      document.getElementById('exitoCodigo').textContent = codigo;
+      
+      const vNode = document.getElementById('exitoVoucher');
+      if(voucher) {
+        vNode.style.display = 'block';
+        vNode.innerHTML = `Voucher: <b style="color:var(--text-main);">${voucher}</b> · Pago: <span style="color:#10b981;">${pagoEstado}</span>`;
+      } else {
+        vNode.style.display = 'none';
+      }
+    }
+
 
     // El modal ya cambió de contenido (botón "Listo" en su lugar), así que no
     // hace falta reactivar btnConfirmarReserva: para una nueva reserva se
