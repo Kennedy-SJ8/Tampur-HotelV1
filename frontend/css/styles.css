@@ -1705,3 +1705,60 @@ body.tema-claro header.scrolled .hamburguesa span {
     grid-template-columns: 1fr !important;
   }
 }
+
+
+/* FIX UX: Calendario Administrador en Modo Claro */
+body.tema-claro .cal-mes-label, 
+body.tema-claro .mini-cal-dow {
+  color: #0f172a !important;
+}
+body.tema-claro .cal-leyenda,
+body.tema-claro .cal-loading {
+  color: #64748b !important;
+}
+body.tema-claro .btn-cal-nav {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+}
+body.tema-claro .btn-cal-nav:hover {
+  background: #e2e8f0 !important;
+}
+body.tema-claro .btn-cal-hoy {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+body.tema-claro .btn-cal-hoy:hover {
+  background: #e2e8f0 !important;
+}
+body.tema-claro .mini-cal-dia:not(.reservada):not(.mantenimiento) {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+body.tema-claro .mini-cal-dia:not(.reservada):not(.mantenimiento):hover {
+  background: #e2e8f0;
+}
+body.tema-claro .cal-libre {
+  background: #cbd5e1 !important;
+}
+
+/* FIX UX: Responsive Admin Sidebar Scroll */
+.admin-shell aside::-webkit-scrollbar {
+  display: none; /* Oculta scrollbar en móviles para diseño limpio */
+}
+
+/* FIX UX: Tabla Responsive en Admin */
+.tabla {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-collapse: collapse;
+}
+
+/* FIX UX: Hover General en Botones para Feedback */
+button {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
