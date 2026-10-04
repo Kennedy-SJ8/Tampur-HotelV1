@@ -11,6 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 </head>
 <body>
 
@@ -92,8 +93,9 @@
       </select>
       <span class="tasa-hint" id="tasaHint"></span>
     </div>
-    <div class="tarjetas">
-      <article class="tarjeta revelar">
+    <div class="swiper habitaciones-swiper" style="padding-bottom:50px; padding-top:20px;">
+    <div class="tarjetas swiper-wrapper">
+      <article class="tarjeta swiper-slide revelar">
         <div class="foto"><img src="assets/img/Habitacion_Simple.jpg" alt="Habitación Simple" loading="lazy"><span class="precio"><span data-i18n="precio_desde">Desde</span> <b>S/ 60</b><span data-i18n="precio_noche">/noche</span></span></div>
         <div class="cuerpo">
           <h3 data-i18n="habitacion_simple">Habitación Simple</h3>
@@ -101,7 +103,7 @@
           <button class="btn btn-primario" onclick="abrirReserva('Habitación Simple','simple')" data-i18n="btn_reservar">Reservar</button>
         </div>
       </article>
-      <article class="tarjeta revelar">
+      <article class="tarjeta swiper-slide revelar">
         <div class="foto"><img src="assets/img/Habitacion_Matrimonial.jpg" alt="Habitación Matrimonial" loading="lazy"><span class="precio"><span data-i18n="precio_desde">Desde</span> <b>S/ 80</b><span data-i18n="precio_noche">/noche</span></span></div>
         <div class="cuerpo">
           <h3 data-i18n="habitacion_matrimonial">Habitación Matrimonial</h3>
@@ -109,7 +111,7 @@
           <button class="btn btn-primario" onclick="abrirReserva('Habitación Matrimonial','matrimonial')" data-i18n="btn_reservar">Reservar</button>
         </div>
       </article>
-      <article class="tarjeta revelar">
+      <article class="tarjeta swiper-slide revelar">
         <div class="foto"><img src="assets/img/Habitacion_Doble.jpg" alt="Habitación Queen" loading="lazy"><span class="precio"><span data-i18n="precio_desde">Desde</span> <b>S/ 120</b><span data-i18n="precio_noche">/noche</span></span></div>
         <div class="cuerpo">
           <h3 data-i18n="habitacion_queen">Habitación Queen</h3>
@@ -117,7 +119,7 @@
           <button class="btn btn-primario" onclick="abrirReserva('Habitación Queen','queen')" data-i18n="btn_reservar">Reservar</button>
         </div>
       </article>
-      <article class="tarjeta revelar">
+      <article class="tarjeta swiper-slide revelar">
         <div class="foto"><img src="assets/img/Habitacion_Matrimonial.jpg" alt="Habitación King" loading="lazy"><span class="precio"><span data-i18n="precio_desde">Desde</span> <b>S/ 140</b><span data-i18n="precio_noche">/noche</span></span></div>
         <div class="cuerpo">
           <h3 data-i18n="habitacion_king">Habitación King</h3>
@@ -126,6 +128,10 @@
         </div>
       </article>
     </div>
+    <div class="swiper-pagination"></div>
+    <div class="swiper-button-next" style="color: var(--cobre);"></div>
+    <div class="swiper-button-prev" style="color: var(--cobre);"></div>
+  </div>
   </div>
 </section>
 
@@ -339,5 +345,37 @@
 <script src="js/config.js"></script>
 <script src="js/i18n.js"></script>
 <script src="js/app.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    new Swiper(".habitaciones-swiper", {
+      effect: "coverflow",
+      grabCursor: true,
+      centeredSlides: true,
+      slidesPerView: "auto",
+      coverflowEffect: {
+        rotate: 20,
+        stretch: 0,
+        depth: 150,
+        modifier: 1,
+        slideShadows: false,
+      },
+      pagination: {
+        el: ".swiper-pagination",
+        clickable: true,
+      },
+      navigation: {
+        nextEl: ".swiper-button-next",
+        prevEl: ".swiper-button-prev",
+      },
+      loop: true,
+      autoplay: {
+        delay: 3500,
+        disableOnInteraction: false,
+      }
+    });
+  });
+</script>
 </body>
 </html>

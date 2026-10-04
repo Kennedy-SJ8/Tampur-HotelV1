@@ -117,9 +117,9 @@ section.bloque{padding:96px 0}
 .cabecera-seccion p{color:var(--gris)}
 
 /* ======================== TARJETAS HABITACIONES ======================== */
-.tarjetas{display:flex;gap:26px;overflow-x:auto;scroll-snap-type:x mandatory;padding:10px 0 30px;scrollbar-width:none;-ms-overflow-style:none;scroll-behavior:smooth}
+.tarjetas{display:flex;align-items:stretch;}
 .tarjetas::-webkit-scrollbar{display:none}
-.tarjeta{min-width:min(100%,340px);flex:0 0 auto;scroll-snap-align:center;background:var(--bg-card);border-radius:var(--radio);overflow:hidden;box-shadow:var(--sombra);border:1px solid rgba(255,255,255,0.1);display:flex;flex-direction:column;transition:.35s;border:1px solid rgba(22,26,34,.05)}
+.tarjeta{width:min(100%,320px);flex:0 0 auto;height:auto;background:var(--bg-card);border-radius:var(--radio);overflow:hidden;box-shadow:var(--sombra);border:1px solid rgba(255,255,255,0.1);display:flex;flex-direction:column;transition:.35s;border:1px solid rgba(22,26,34,.05)}
 .tarjeta:hover{transform:translateY(-8px);box-shadow:0 28px 60px -20px rgba(13,16,23,.5),0 0 0 1px rgba(255,178,94,.35)}
 .tarjeta .foto{position:relative;height:210px;overflow:hidden}
 .tarjeta .foto img{width:100%;height:100%;object-fit:cover;transition:.6s}
@@ -1105,3 +1105,8 @@ body {
 h1, h2, h3, .serif, .tarjeta h3, .formulario h3, .room h3, .kpi .lbl, .limp-card h3, .ocupacion h4 {
   color: #f5f5f4 !important; /* Stone-100 */
 }
+
+/* Swiper Customizations */
+.swiper-pagination-bullet { background: #fff; opacity: 0.5; }
+.swiper-pagination-bullet-active { background: var(--cobre); opacity: 1; }
+.swiper-button-next::after, .swiper-button-prev::after { text-shadow: 0 0 10px rgba(0,0,0,0.5); font-size: 24px; font-weight: bold; }
