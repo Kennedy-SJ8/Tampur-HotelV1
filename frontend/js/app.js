@@ -9,12 +9,24 @@
   document.querySelectorAll('.revelar').forEach(el=>obs.observe(el));
 
   // Buscador hero -> scroll a habitaciones y setear fechas
-  document.getElementById('buscador').addEventListener('submit',e=>{
+    document.getElementById('buscador').addEventListener('submit',e=>{
     e.preventDefault();
     const en=document.getElementById('entrada').value, sa=document.getElementById('salida').value;
     const huespedes=document.getElementById('huespedes').value;
     document.getElementById('habitaciones').scrollIntoView({behavior:'smooth'});
-    if(en&&sa){ document.getElementById('rEntrada').value=en; document.getElementById('rSalida').value=sa; }
+    
+    // Update flatpickr instances
+    const rE = document.getElementById('rEntrada');
+    const rS = document.getElementById('rSalida');
+    if(en){
+      if(rE._flatpickr) rE._flatpickr.setDate(en);
+      else rE.value = en;
+    }
+    if(sa){
+      if(rS._flatpickr) rS._flatpickr.setDate(sa);
+      else rS.value = sa;
+    }
+    
     const selHuespedes=document.getElementById('rHuespedes');
     if(selHuespedes){ selHuespedes.value=huespedes; }
   });
@@ -208,6 +220,21 @@ const API_BACKOFFICE = API_BASE_URL;
     reservaEnProceso=false;
     document.getElementById('rTitulo').textContent=nombre;
     document.getElementById('rSubtitulo').textContent=t('reserva_subtitle');
+    
+    // PRE-LLENAR FECHAS DEL BUSCADOR PRINCIPAL
+    const bEntrada = document.getElementById('entrada').value;
+    const bSalida = document.getElementById('salida').value;
+    const rE = document.getElementById('rEntrada');
+    const rS = document.getElementById('rSalida');
+    if(bEntrada) {
+      if(rE._flatpickr) rE._flatpickr.setDate(bEntrada);
+      else rE.value = bEntrada;
+    }
+    if(bSalida) {
+      if(rS._flatpickr) rS._flatpickr.setDate(bSalida);
+      else rS.value = bSalida;
+    }
+
     document.getElementById('rDetalle').textContent='Seleccione fechas';
     document.getElementById('rTotal').textContent='S/ 0';
     const conv0=document.getElementById('rTotalConv'); if(conv0) conv0.textContent='';
