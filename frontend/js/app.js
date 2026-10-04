@@ -628,7 +628,7 @@ const API_BACKOFFICE = API_BASE_URL;
           <div class="kpi"><div class="num">${conf.length}</div><div class="lbl">${t('mon_confirmadas')}</div></div>
           <div class="kpi"><div class="num">${pend.length}</div><div class="lbl">${t('mon_pendientes')}</div></div>
           <div class="kpi"><div class="num">${canc.length}</div><div class="lbl">${t('mon_canceladas')}</div></div>
-          <div class="kpi"><div class="num">S/ ${ingConf}</div><div class="lbl">${t('mon_ingresos')}</div></div>
+          <div class="kpi"><div class="num">S/ ${Number(ingConf).toLocaleString("en-US")}</div><div class="lbl">${t('mon_ingresos')}</div></div>
           ${checkinHoy?`<div class="kpi kpi-alert"><div class="num">${checkinHoy}</div><div class="lbl">${t('mon_checkin_hoy')}</div></div>`:''}
           ${checkoutHoy?`<div class="kpi kpi-alert"><div class="num">${checkoutHoy}</div><div class="lbl">${t('mon_checkout_hoy')}</div></div>`:''}
         </div>`;
@@ -840,9 +840,9 @@ const API_BACKOFFICE = API_BASE_URL;
     const ingPend=pendientes.reduce((s,r)=>s+r.total,0);
     cont.innerHTML=`
       <div class="tarjetas-kpi">
-        <div class="kpi"><div class="num">S/ ${ingConf+ingPend}</div><div class="lbl">Ingresos (confirmadas + pendientes)</div></div>
+        <div class="kpi"><div class="num">S/ ${Number(ingConf+ingPend).toLocaleString("en-US")}</div><div class="lbl">Ingresos (confirmadas + pendientes)</div></div>
         <div class="kpi"><div class="num">${rs.length}</div><div class="lbl">Reservas totales</div></div>
-        <div class="kpi"><div class="num">S/ ${ingConf}</div><div class="lbl">Ingresos confirmados</div></div>
+        <div class="kpi"><div class="num">S/ ${Number(ingConf).toLocaleString("en-US")}</div><div class="lbl">Ingresos confirmados</div></div>
       </div>
       <div class="tarjetas-kpi">
         <div class="kpi"><div class="num">${pendientes.length}</div><div class="lbl">Pendientes de confirmar</div></div>
