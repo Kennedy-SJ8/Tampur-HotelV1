@@ -28,6 +28,7 @@
       <a href="#ubicacion" data-i18n="nav_ubicacion">Ubicación</a>
       <a href="#contacto" data-i18n="nav_contacto">Contacto</a>
       <a class="btn btn-primario" href="#habitaciones" data-i18n="nav_reservar">Reservar</a>
+      <button class="btn-tema" id="btnTema" onclick="toggleTema()" title="Alternar tema">☀️</button>
       <button class="btn-idioma" id="btnIdioma" onclick="toggleIdioma()" title="Cambiar idioma">EN</button>
     </nav>
     <button class="hamburguesa" id="hamburguesa" aria-label="Menú">
@@ -424,6 +425,21 @@
     initSwiper();
     window.addEventListener('resize', initSwiper);
   });
+</script>
+<script>
+function toggleTema() {
+  document.body.classList.toggle('tema-claro');
+  const isLight = document.body.classList.contains('tema-claro');
+  localStorage.setItem('hotel_tema', isLight ? 'claro' : 'oscuro');
+  document.getElementById('btnTema').innerText = isLight ? '🌙' : '☀️';
+}
+document.addEventListener('DOMContentLoaded', () => {
+  if (localStorage.getItem('hotel_tema') === 'claro') {
+    document.body.classList.add('tema-claro');
+    const btn = document.getElementById('btnTema');
+    if(btn) btn.innerText = '🌙';
+  }
+});
 </script>
 </body>
 </html>
