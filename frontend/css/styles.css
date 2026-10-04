@@ -1118,7 +1118,7 @@ h1, h2, h3, .serif, .tarjeta h3, .formulario h3, .room h3, .kpi .lbl, .limp-card
 }
 
 .habitaciones-swiper .tarjeta.swiper-slide {
-  width: 320px;
+  width: 400px;
   max-width: 85vw;
   height: auto; /* Para que crezca con el flex del wrapper */
   display: flex;
@@ -1179,13 +1179,29 @@ h1, h2, h3, .serif, .tarjeta h3, .formulario h3, .room h3, .kpi .lbl, .limp-card
 }
 
 /* Ajustes responsivos */
-@media(max-width: 600px) {
+@media(max-width: 768px) {
   .habitaciones-swiper .swiper-button-next, 
-  .habitaciones-swiper .swiper-button-prev {
-    display: none; /* Ocultar flechas en móvil, usar solo touch */
+  .habitaciones-swiper .swiper-button-prev,
+  .habitaciones-swiper .swiper-pagination {
+    display: none !important; /* Ocultar controles Swiper */
   }
+  
+  /* Destruir el swiper visualmente y usar CSS Grid */
   .habitaciones-swiper {
-    padding-bottom: 50px !important;
-    margin-bottom: -50px;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  
+  .habitaciones-swiper .swiper-wrapper {
+    display: grid !important;
+    grid-template-columns: 1fr !important; /* Una columna en teléfonos */
+    gap: 24px !important;
+    transform: none !important;
+  }
+  
+  .habitaciones-swiper .tarjeta.swiper-slide {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
   }
 }
