@@ -162,7 +162,7 @@ const API_BACKOFFICE = API_BASE_URL;
   }
 
   function refrescarTotal(){
-    document.getElementById('rTotal').textContent='S/ '+totalActual;
+    document.getElementById('rTotal').textContent='S/ ' + Number(totalActual).toLocaleString('en-US');
     const conv=document.getElementById('rTotalConv');
     if(conv) conv.textContent=(monedaActual!=='PEN'&&totalActual>0)?('≈ '+formatearPrecio(totalActual)):'';
   }
@@ -282,7 +282,7 @@ const API_BACKOFFICE = API_BASE_URL;
     if(typeof qrcode==='undefined'){ cont.innerHTML='<span style="color:#888;font-size:.85rem">Generador de QR no disponible.</span>'; return; }
     const qr=qrcode(0,'M'); qr.addData(data); qr.make();
     cont.innerHTML=qr.createSvgTag({cellSize:5,margin:1});
-    document.getElementById('qrMonto').textContent='S/ '+totalActual;
+    document.getElementById('qrMonto').textContent='S/ ' + Number(totalActual).toLocaleString('en-US');
   }
   function actualizarMetodoPago(){
     const m=document.getElementById('rMetodo').value;
@@ -662,7 +662,7 @@ const API_BACKOFFICE = API_BASE_URL;
           </td>
           <td>${r.fechaEntrada} → ${r.fechaSalida}</td>
           <td>${r.noches}</td>
-          <td>S/ ${r.total}</td>
+          <td>S/ ${Number(r.total).toLocaleString("en-US")}</td>
           <td>${pagoIcon}</td>
           <td><span class="estado ${r.estado}">${r.estado}</span></td>
           <td style="white-space:nowrap">
@@ -724,7 +724,7 @@ const API_BACKOFFICE = API_BASE_URL;
         <td>${r.habitacion}</td>
         <td>${r.llegada} → ${r.salida}</td>
         <td>${r.noches}</td>
-        <td>S/ ${r.total}</td>
+        <td>S/ ${Number(r.total).toLocaleString("en-US")}</td>
         <td><span class="estado ${r.estado}">${r.estado}</span></td>
         <td style="white-space:nowrap">
           ${r.estado!=='Confirmada'?`<button class="btn-sm btn-confirmar" onclick="accionReservaLocal(${i},'Confirmada')">Confirmar</button> `:''}
@@ -1181,10 +1181,18 @@ const API_BACKOFFICE = API_BASE_URL;
       </div>`:'';
 
     if(habitaciones.length===0){
+      
       cont.innerHTML=`
         ${ocupacionesHtml}
-        <p style="color:#888">${t('limp_msj_vacio')}</p>`;
+        <div style="text-align:center; padding: 60px 20px;">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--gris)" stroke-width="1.5" style="margin-bottom:20px; opacity: 0.5;">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <h3 style="color:var(--text-main); font-size:1.4rem;">Todo Limpio</h3>
+          <p style="color:var(--text-muted); font-size:1rem; margin-top:8px;">No hay habitaciones pendientes de limpieza en este momento.</p>
+        </div>`;
       return;
+
     }
 
     const totalLimpiadas=habitaciones.filter(h=>h.limpieza==='limpiada').length;
