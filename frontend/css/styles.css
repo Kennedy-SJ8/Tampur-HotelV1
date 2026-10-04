@@ -1259,8 +1259,8 @@ body.tema-claro footer { background: #f8fafc; border-top: 1px solid #e2e8f0; }
 body.tema-claro footer h4, body.tema-claro footer p, body.tema-claro footer a, body.tema-claro footer .legal { color: #475569; }
 
 body.tema-claro header.scrolled { background: rgba(255,255,255,0.9); box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-body.tema-claro header.scrolled .logo b, body.tema-claro header.scrolled nav a { color: #0f172a !important; }
-body.tema-claro header.scrolled .btn-idioma, body.tema-claro header.scrolled .btn-tema { border-color: #cbd5e1; color: #0f172a; }
+
+
 
 body.tema-claro .amenidades { background: #f1f5f9; }
 body.tema-claro .amenidades::before { filter: invert(1); opacity: 0.03; }
@@ -1517,4 +1517,97 @@ body.tema-claro .hero .velo {
 body.tema-claro .mapa iframe {
   filter: none !important;
 }
+
+
+/* FIX: Header y Nav siempre legibles en modo claro */
+body.tema-claro header .logo b, 
+body.tema-claro header nav a { 
+  color: #0f172a !important; 
+  text-shadow: none !important;
+  font-weight: 600 !important;
+}
+body.tema-claro header .btn-idioma, 
+body.tema-claro header .btn-tema { 
+  border-color: rgba(15, 23, 42, 0.2) !important; 
+  color: #0f172a !important; 
+}
+body.tema-claro header .btn-idioma:hover, 
+body.tema-claro header .btn-tema:hover { 
+  background: rgba(15, 23, 42, 0.05) !important;
+  border-color: var(--cobre) !important; 
+}
+body.tema-claro header .hamburguesa span {
+  background-color: #0f172a !important;
+}
+
+/* En móviles, el nav abierto necesita fondo blanco */
+@media(max-width: 900px) {
+  body.tema-claro nav {
+    background: #ffffff !important;
+    box-shadow: -10px 0 30px rgba(0,0,0,0.1) !important;
+  }
+}
+
+/* FIX: Modo Administrador Ultra Premium en Modo Claro */
+body.tema-claro .admin-overlay, body.tema-claro .modal { 
+  background: rgba(255, 255, 255, 0.85) !important; 
+  backdrop-filter: blur(12px) !important;
+}
+body.tema-claro .admin-shell aside .titulo b,
+body.tema-claro .admin-shell aside .titulo,
+body.tema-claro .admin-shell main h2,
+body.tema-claro .admin-shell main h3 { 
+  color: #0f172a !important; 
+}
+body.tema-claro .admin-shell aside .titulo small { 
+  color: #64748b !important; 
+}
+body.tema-claro .admin-shell aside button:hover {
+  background: rgba(15, 23, 42, 0.04) !important;
+  color: #0f172a !important;
+}
+body.tema-claro .admin-shell aside button.salir {
+  color: #ef4444 !important;
+}
+body.tema-claro .admin-shell aside button.salir:hover {
+  background: rgba(239, 68, 68, 0.1) !important;
+}
+body.tema-claro .badge-hoy.checkin {
+  background: rgba(52, 211, 153, 0.15) !important;
+  color: #059669 !important;
+  border-color: rgba(52, 211, 153, 0.4) !important;
+}
+body.tema-claro .btn-sm {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+}
+body.tema-claro .btn-sm:hover {
+  background: #e2e8f0 !important;
+}
+body.tema-claro .filtro-input, body.tema-claro .filtro-select {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02) !important;
+}
+body.tema-claro .limp-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03) !important;
+}
+body.tema-claro .limp-card h4, body.tema-claro .limp-card .room {
+  color: #0f172a !important;
+}
+body.tema-claro .plano-item {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+}
+body.tema-claro .plano-item.ocupada {
+  background: rgba(239, 68, 68, 0.05) !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+body.tema-claro .campo-form label { color: #64748b !important; }
 
