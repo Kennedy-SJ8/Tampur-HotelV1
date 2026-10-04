@@ -81,10 +81,10 @@ nav .btn-idioma:hover{background:rgba(255,255,255,.15);border-color:var(--cobre)
 .hamburguesa span{width:24px;height:2px;background:var(--bg-card);border-radius:2px}
 
 /* ======================== HERO ======================== */
-.hero{position:relative;color:#fff;overflow:hidden;display:flex;align-items:center;min-height: 100vh !important; flex-direction:column; justify-content:center;}
+.hero{position:relative;color:#fff;overflow:hidden;display:flex;align-items:center;min-height: 100vh !important;}
 .hero .fondo{position:absolute;inset:0;z-index:-2;background:linear-gradient(115deg,rgba(22,26,34,.94),rgba(22,26,34,.6) 55%,rgba(22,26,34,.35)),var(--topo) center/1100px no-repeat,url('../assets/img/hero.jpg') center/cover no-repeat}
 .hero .velo{position:absolute;inset:0;z-index:-1;background:linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, var(--bg-base) 100%);}
-.hero .contenido{padding:150px 0 120px;width:min(1180px,90%);margin:0 auto}
+.hero .contenido{padding:0; margin: 80px auto 0 auto; width:min(1180px,90%);}
 .hero .etiqueta{display:inline-flex;align-items:center;gap:8px;background:rgba(52, 211, 153,.12);border:1px solid rgba(52, 211, 153,.4);padding:8px 16px;border-radius:999px;font-size:.8rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:22px;color:var(--cobre-2);box-shadow:0 0 20px -6px rgba(52, 211, 153,.5)}
 .hero h1{font-size:clamp(2.4rem,5.4vw,4.4rem);line-height:1.06;max-width:14ch;margin-bottom:20px}
 .hero h1 em{font-style:normal;color:var(--cobre-2);text-shadow:0 0 30px rgba(52, 211, 153,.5)}
