@@ -1179,15 +1179,7 @@ h1, h2, h3, .serif, .tarjeta h3, .formulario h3, .room h3, .kpi .lbl, .limp-card
 }
 
 /* Ajustes responsivos */
-@media(max-width: 768px) {
-  .habitaciones-swiper .swiper-button-next, 
-  .habitaciones-swiper .swiper-button-prev,
-  .habitaciones-swiper .swiper-pagination {
-    display: none !important; /* Ocultar controles Swiper */
-  }
-  
 
-}
 
 /* ======================== TEMA CLARO ======================== */
 body.tema-claro {
@@ -1481,6 +1473,23 @@ body.tema-claro .mapa iframe {
 
 /* En móviles, el nav abierto necesita fondo blanco */
 @media(max-width: 900px) {
+  
+  /* FIX UX: Nav Links on Mobile Sidebar in Light Mode */
+  body.tema-claro nav a,
+  body.tema-claro nav .btn-idioma {
+    color: #0f172a !important;
+    text-shadow: none !important;
+  }
+  body.tema-claro nav .btn-idioma {
+    border-color: rgba(15, 23, 42, 0.2) !important;
+  }
+  body.tema-claro nav .btn-primario {
+    color: #ffffff !important;
+  }
+  body.tema-claro .hamburguesa.abierto span {
+    background-color: #0f172a !important;
+  }
+
   body.tema-claro nav {
     background: #ffffff !important;
     box-shadow: -10px 0 30px rgba(0,0,0,0.1) !important;
