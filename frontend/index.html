@@ -417,41 +417,34 @@
     let swiperInstance = null;
 
     function initSwiper() {
-      if (window.innerWidth <= 768) {
-        if (swiperInstance) {
-          swiperInstance.destroy(true, true);
-          swiperInstance = null;
-        }
-      } else {
-        if (!swiperInstance) {
-          swiperInstance = new Swiper(".habitaciones-swiper", {
-            effect: "coverflow",
-            grabCursor: true,
-            centeredSlides: true,
-            slidesPerView: "auto",
-            coverflowEffect: {
-              rotate: 0,
-              stretch: -10,
-              depth: 250,
-              modifier: 1.5,
-              slideShadows: false,
-              scale: 0.85
-            },
-            pagination: {
-              el: ".swiper-pagination",
-              clickable: true,
-            },
-            navigation: {
-              nextEl: ".swiper-button-next",
-              prevEl: ".swiper-button-prev",
-            },
-            loop: true,
-            autoplay: {
-              delay: 3500,
-              disableOnInteraction: false,
-            }
-          });
-        }
+      if (!swiperInstance) {
+        swiperInstance = new Swiper(".habitaciones-swiper", {
+          effect: "coverflow",
+          grabCursor: true,
+          centeredSlides: true,
+          slidesPerView: "auto",
+          coverflowEffect: {
+            rotate: 0,
+            stretch: -10,
+            depth: 250,
+            modifier: 1.5,
+            slideShadows: false,
+            scale: 0.85
+          },
+          pagination: {
+            el: ".swiper-pagination",
+            clickable: true,
+          },
+          navigation: {
+            nextEl: ".swiper-button-next",
+            prevEl: ".swiper-button-prev",
+          },
+          loop: true,
+          autoplay: {
+            delay: 3500,
+            disableOnInteraction: false,
+          }
+        });
       }
     }
 
