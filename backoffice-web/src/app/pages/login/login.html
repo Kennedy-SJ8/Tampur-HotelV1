@@ -1,0 +1,9 @@
+<div class="contenedor">
+  <form (ngSubmit)="entrar()">
+    <h2>Backoffice Hotel Támpur</h2>
+    <input name="usuario" [(ngModel)]="usuario" placeholder="Usuario" required>
+    <input name="clave" type="password" [(ngModel)]="clave" placeholder="Contraseña" required>
+    <button type="submit" [disabled]="cargando">{{ cargando ? 'Entrando...' : 'Entrar' }}</button>
+    <p class="error">{{ error }}</p>
+  </form>
+</div>

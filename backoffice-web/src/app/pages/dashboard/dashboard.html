@@ -1,0 +1,44 @@
+<header class="barra">
+  <h1>Hotel Támpur · Backoffice</h1>
+  <button (click)="salir()">Cerrar sesión</button>
+</header>
+
+<main>
+  @if (error()) { <p class="error">{{ error() }}</p> }
+
+  <section class="tarjetas">
+    <div class="tarjeta"><span>Total</span><strong>{{ resumen().total }}</strong></div>
+    <div class="tarjeta libre"><span>Libres</span><strong>{{ resumen().libres }}</strong></div>
+    <div class="tarjeta ocupada"><span>Ocupadas</span><strong>{{ resumen().ocupadas }}</strong></div>
+    <div class="tarjeta limpieza"><span>Limpieza</span><strong>{{ resumen().limpieza }}</strong></div>
+    <div class="tarjeta mant"><span>Mantenimiento</span><strong>{{ resumen().mantenimiento }}</strong></div>
+  </section>
+
+  <h2>Habitaciones</h2>
+  @if (cargando()) {
+    <p>Cargando... (el servidor puede tardar si estaba dormido)</p>
+  } @else {
+    <table>
+      <thead>
+        <tr><th>N°</th><th>Tipo</th><th>Piso</th><th>Estado</th><th>Cambiar a</th></tr>
+      </thead>
+      <tbody>
+        @for (h of habitaciones(); track h.id) {
+          <tr>
+            <td>{{ h.id }}</td>
+            <td>{{ h.tipo }}</td>
+            <td>{{ h.piso }}</td>
+            <td>{{ h.estado }}</td>
+            <td>
+              <select [value]="h.estado" (change)="cambiarEstado(h, $any($event.target).value)">
+                @for (e of estados; track e) {
+                  <option [value]="e">{{ e }}</option>
+                }
+              </select>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</main>
