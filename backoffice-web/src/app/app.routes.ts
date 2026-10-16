@@ -1,11 +1,19 @@
 import { Routes } from '@angular/router';
 import { Login } from './pages/login/login';
 import { Dashboard } from './pages/dashboard/dashboard';
+import { Reservas } from './pages/reservas/reservas';
+import { Precios } from './pages/precios/precios';
+import { Huespedes } from './pages/huespedes/huespedes';
+import { Limpieza } from './pages/limpieza/limpieza';
 import { authGuard } from './core/auth-guard';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
   { path: 'dashboard', component: Dashboard, canActivate: [authGuard] },
+  { path: 'reservas', component: Reservas, canActivate: [authGuard] },
+  { path: 'precios', component: Precios, canActivate: [authGuard] },
+  { path: 'huespedes', component: Huespedes, canActivate: [authGuard] },
+  { path: 'limpieza', component: Limpieza, canActivate: [authGuard] },
   { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
   { path: '**', redirectTo: 'dashboard' }
 ];

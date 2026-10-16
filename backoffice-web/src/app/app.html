@@ -1,1 +1,12 @@
+@if (logueado) {
+  <nav class="menu">
+    <strong>Hotel Támpur · Admin</strong>
+    <a routerLink="/dashboard" routerLinkActive="activo">Dashboard</a>
+    <a routerLink="/reservas" routerLinkActive="activo">Reservas</a>
+    <a routerLink="/precios" routerLinkActive="activo">Precios</a>
+    <a routerLink="/huespedes" routerLinkActive="activo">Huéspedes</a>
+    <a routerLink="/limpieza" routerLinkActive="activo">Limpieza</a>
+    <button (click)="salir()">Cerrar sesión</button>
+  </nav>
+}
 <router-outlet />

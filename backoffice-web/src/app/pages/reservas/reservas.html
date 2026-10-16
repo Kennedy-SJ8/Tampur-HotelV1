@@ -1,0 +1,47 @@
+<h2>Reservas</h2>
+
+<input class="buscador" placeholder="Buscar por código, nombre, DNI o estado"
+       (input)="buscar($any($event.target).value)">
+
+@if (error()) { <p class="error">{{ error() }}</p> }
+
+@if (cargando()) {
+  <p>Cargando...</p>
+} @else {
+  <table>
+    <thead>
+      <tr>
+        <th>Código</th><th>Huésped</th><th>Tipo</th><th>N° Hab.</th><th>Entrada</th>
+        <th>Salida</th><th>Total</th><th>Estado</th><th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (r of visibles(); track r.codigo) {
+        <tr>
+          <td><strong>{{ r.codigo }}</strong></td>
+          <td>{{ r.nombre }}<br><small>{{ r.dni }} · {{ r.telefono }}</small></td>
+          <td>{{ r.tipoHabitacion }}</td>
+          <td>
+            <input class="input-hab" [value]="r.numeroHabitacion ?? ''" placeholder="Ej. 101"
+                   (change)="asignarHabitacion(r, $any($event.target).value)">
+          </td>
+          <td>{{ r.fechaEntrada }}</td>
+          <td>{{ r.fechaSalida }}</td>
+          <td><strong>S/ {{ r.total }}</strong></td>
+          <td>
+            <select [value]="r.estado" (change)="cambiarEstado(r, $any($event.target).value)">
+              @for (e of estados; track e) {
+                <option [value]="e">{{ e }}</option>
+              }
+            </select>
+          </td>
+          <td>
+            <button class="btn-del" (click)="eliminar(r)">Eliminar</button>
+          </td>
+        </tr>
+      } @empty {
+        <tr><td colspan="9">No hay reservas.</td></tr>
+      }
+    </tbody>
+  </table>
+}

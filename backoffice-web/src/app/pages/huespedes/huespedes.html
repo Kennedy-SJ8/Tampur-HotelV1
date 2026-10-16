@@ -1,0 +1,41 @@
+<div class="contenedor">
+  <h2>Directorio de Huéspedes</h2>
+
+  <input class="buscador" placeholder="Buscar por nombre, DNI, correo o teléfono"
+         (input)="buscar($any($event.target).value)">
+
+  @if (error()) { <p class="error">{{ error() }}</p> }
+
+  @if (cargando()) {
+    <p>Cargando huéspedes...</p>
+  } @else {
+    <table>
+      <thead>
+        <tr>
+          <th>DNI / Doc.</th>
+          <th>Nombre</th>
+          <th>Contacto</th>
+          <th>Reservas</th>
+          <th>Noches</th>
+          <th>Total invertido</th>
+          <th>Última entrada</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (h of huespedes(); track h.dni) {
+          <tr>
+            <td><strong>{{ h.dni }}</strong></td>
+            <td>{{ h.nombre }}</td>
+            <td>{{ h.telefono }}<br><small>{{ h.correo }}</small></td>
+            <td>{{ h.visitas }}</td>
+            <td>{{ h.nochesTotales }}</td>
+            <td><strong>S/ {{ h.totalGastado }}</strong></td>
+            <td>{{ h.ultimaVisita }}</td>
+          </tr>
+        } @empty {
+          <tr><td colspan="7">No se encontraron huéspedes.</td></tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>

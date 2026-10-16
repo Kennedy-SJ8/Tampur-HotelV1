@@ -1,0 +1,20 @@
+.contenedor { padding: 24px; max-width: 1200px; margin: 0 auto; }
+
+.buscador {
+  width: 100%;
+  max-width: 420px;
+  padding: 10px;
+  margin-bottom: 16px;
+  font-size: 1rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+
+  th, td { padding: 10px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+  th { background: #f9fafb; }
+}
+
+.error { color: #b91c1c; }

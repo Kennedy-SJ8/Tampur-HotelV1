@@ -1,0 +1,47 @@
+<div class="contenedor">
+  <h2>Control de Limpieza del Día</h2>
+
+  @if (error()) { <p class="error">{{ error() }}</p> }
+
+  @if (cargando()) {
+    <p>Cargando programación de limpieza...</p>
+  } @else {
+    <table>
+      <thead>
+        <tr>
+          <th>Habitación</th>
+          <th>Tipo</th>
+          <th>Piso</th>
+          <th>Prioridad</th>
+          <th>Estado Flujo</th>
+          <th>Inicio</th>
+          <th>Fin</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of items(); track item.id) {
+          <tr>
+            <td><strong>{{ item.id }}</strong></td>
+            <td>{{ item.tipo }}</td>
+            <td>{{ item.piso }}</td>
+            <td>{{ item.prioridad === 1 ? 'Alta' : 'Normal' }}</td>
+            <td>{{ item.estadoFlujo }}</td>
+            <td>{{ item.horaInicio || '—' }}</td>
+            <td>{{ item.horaFin || '—' }}</td>
+            <td class="acciones">
+              @if (item.estadoFlujo === 'pendiente') {
+                <button (click)="iniciar(item)">Iniciar</button>
+              }
+              @if (item.estadoFlujo !== 'completada') {
+                <button class="ok" (click)="completar(item)">Completar</button>
+              } @else {
+                <span>✅ Lista</span>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>

@@ -1,0 +1,31 @@
+<div class="contenedor">
+  <h2>Gestión de Tarifas por Noche</h2>
+  <p class="sub">Cambia el precio por tipo de habitación. El cambio se aplica de inmediato al catálogo y a las nuevas reservas.</p>
+
+  @if (mensaje()) { <p class="ok">{{ mensaje() }}</p> }
+  @if (error()) { <p class="error">{{ error() }}</p> }
+
+  @if (cargando()) {
+    <p>Cargando tarifas...</p>
+  } @else {
+    <div class="grid-tarifas">
+      @for (t of tarifas(); track t.tipo) {
+        <div class="card-tarifa">
+          <div class="cabecera">
+            <h3>{{ t.tipo }}</h3>
+            <span>{{ t.cantidad }} habitaciones</span>
+          </div>
+          <p class="actual">Precio actual: <strong>S/ {{ t.precioActual }}</strong></p>
+          <label>
+            Nuevo precio (S/):
+            <input type="number" min="0" step="5" [(ngModel)]="t.nuevoPrecio">
+          </label>
+        </div>
+      }
+    </div>
+
+    <button class="btn-guardar" (click)="guardarTodo()" [disabled]="guardando()">
+      {{ guardando() ? 'Guardando...' : 'Guardar nuevos precios' }}
+    </button>
+  }
+</div>

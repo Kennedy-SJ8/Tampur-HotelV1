@@ -1,12 +1,23 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { AuthService } from './core/auth';
 
 @Component({
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive],
   selector: 'app-root',
   styleUrl: './app.scss',
   templateUrl: './app.html',
 })
 export class App {
-  protected readonly title = signal('backoffice-web');
+  private auth = inject(AuthService);
+  private router = inject(Router);
+
+  get logueado() {
+    return this.auth.logueado;
+  }
+
+  salir() {
+    this.auth.logout();
+    this.router.navigate(['/login']);
+  }
 }

@@ -1,0 +1,41 @@
+:host { display: block; padding: 24px; max-width: 1200px; margin: 0 auto; }
+
+.buscador {
+  width: 100%;
+  max-width: 420px;
+  padding: 10px;
+  margin-bottom: 16px;
+  font-size: 1rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+
+  th, td { padding: 10px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+  th { background: #f9fafb; }
+}
+
+.input-hab {
+  width: 72px;
+  padding: 6px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+}
+
+select {
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+
+.btn-del {
+  padding: 6px 10px;
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.error { color: #b91c1c; }
