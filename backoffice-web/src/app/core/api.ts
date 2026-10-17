@@ -91,7 +91,7 @@ export class ApiService {
   }
 
   cambiarEstadoReserva(codigo: string, estado: string) {
-    return this.http.patch<Reserva>(`${this.base}/reservas/${codigo}/estado`, { estado });
+    return this.http.patch<{ ok: boolean; reserva: Reserva }>(`${this.base}/reservas/${codigo}/estado`, { estado });
   }
 
   asignarHabitacionReserva(codigo: string, numeroHabitacion: string) {

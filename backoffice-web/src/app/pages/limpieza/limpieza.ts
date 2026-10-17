@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { ApiService, LimpiezaItem } from '../../core/api';
+import { ApiService, LimpiezaItem, Reserva } from '../../core/api';
 
 @Component({
   imports: [],
@@ -11,6 +11,7 @@ export class Limpieza implements OnInit {
   private api = inject(ApiService);
 
   items = signal<LimpiezaItem[]>([]);
+  confirmadas = signal<Reserva[]>([]);
   cargando = signal(true);
   error = signal('');
 
@@ -63,6 +64,22 @@ export class Limpieza implements OnInit {
         this.error.set('No se pudo cargar la lista de limpieza.');
       }
     });
+
+    this.api.reservas().subscribe({
+      next: rs => {
+        const conf = rs
+          .filter(r => r.estado === 'Confirmada')
+          .sort((a, b) => (a.fechaEntrada || '').localeCompare(b.fechaEntrada || ''));
+        this.confirmadas.set(conf);
+      },
+      error: () => {}
+    });
+  }
+
+  formatearFecha(iso: string) {
+    if (!iso) return '';
+    const d = new Date(iso + 'T00:00:00');
+    return d.toLocaleDateString('es-PE', { weekday: 'long', day: 'numeric', month: 'long' });
   }
 
   iniciar(item: LimpiezaItem) {
@@ -76,6 +93,16 @@ export class Limpieza implements OnInit {
     this.api.actualizarLimpieza(item.numero, { limpiada: true, estadoFlujo: 'completada' }).subscribe({
       next: act => this.items.update(l => l.map(x => (x.numero === act.numero ? act : x))),
       error: () => this.error.set('No se pudo marcar como limpiada.')
+    });
+  }
+
+  toggleCheck(item: LimpiezaItem, checked: boolean) {
+    this.api.actualizarLimpieza(item.numero, {
+      limpiada: checked,
+      estadoFlujo: checked ? 'completada' : 'pendiente'
+    }).subscribe({
+      next: act => this.items.update(l => l.map(x => (x.numero === act.numero ? act : x))),
+      error: () => this.error.set('No se pudo actualizar el estado de limpieza.')
     });
   }
 

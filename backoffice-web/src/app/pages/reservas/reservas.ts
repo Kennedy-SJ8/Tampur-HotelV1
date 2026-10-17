@@ -58,7 +58,10 @@ export class Reservas implements OnInit {
 
   cambiarEstado(r: Reserva, estado: string) {
     this.api.cambiarEstadoReserva(r.codigo, estado).subscribe({
-      next: () => this.reservas.update(l => l.map(x => (x.codigo === r.codigo ? { ...x, estado } : x))),
+      next: res => {
+        const actualizada = res?.reserva ?? { ...r, estado };
+        this.reservas.update(l => l.map(x => (x.codigo === r.codigo ? { ...x, ...actualizada, estado } : x)));
+      },
       error: () => this.error.set('No se pudo cambiar el estado de la reserva.')
     });
   }

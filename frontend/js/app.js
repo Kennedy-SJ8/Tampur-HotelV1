@@ -89,8 +89,16 @@ const API_BACKOFFICE = API_BASE_URL;
       const res=await fetch(API_RESERVAS+'/api/habitaciones');
       if(!res.ok) return;
       const rooms=await res.json();
-      // No sobrescribir TARIFAS con precios de la BD (pueden estar desactualizados)
-      // Los precios están definidos en TARIFAS y el admin puede cambiarlos desde el panel
+      if(Array.isArray(rooms) && rooms.length){
+        rooms.forEach(r=>{
+          const tipo=(r.tipo||'').toLowerCase();
+          if(r.precioNoche>0 && TARIFAS[tipo]!==undefined){
+            TARIFAS[tipo]=r.precioNoche;
+          }
+        });
+        localStorage.setItem('tampur_tarifas',JSON.stringify(TARIFAS));
+        pintarPrecios();
+      }
     }catch(e){}
   }
 

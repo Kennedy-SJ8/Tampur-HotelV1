@@ -53,11 +53,15 @@ export class Dashboard implements OnInit {
     }
     return Array.from(mapa.entries())
       .sort(([a], [b]) => a - b)
-      .map(([piso, habs]) => ({
-        piso,
-        tipo: habs[0]?.tipo ?? '',
-        habs: [...habs].sort((a, b) => a.numero - b.numero)
-      }));
+      .map(([piso, habs]) => {
+        const ordenadas = [...habs].sort((a, b) => a.numero - b.numero);
+        const tiposUnicos = Array.from(new Set(ordenadas.map(h => h.tipo))).join(' · ');
+        return {
+          piso,
+          tipo: tiposUnicos,
+          habs: ordenadas
+        };
+      });
   });
 
   ingresosPorTipo = computed(() => {

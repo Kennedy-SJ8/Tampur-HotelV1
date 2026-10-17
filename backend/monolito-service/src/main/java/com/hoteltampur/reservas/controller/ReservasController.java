@@ -128,8 +128,8 @@ public class ReservasController {
         ReservaEntity reserva = registrarReserva(r);
         log.info("Reserva guardada: {}", reserva.getCodigo());
 
-        // Auto-bloquear fechas en calendario
-        bloquearFechas(r.fechaEntrada(), r.fechaSalida(), null, reserva.getCodigo());
+        // Auto-bloquear fechas en calendario solo para la habitación asignada
+        bloquearFechasHabitacion(reserva.getFechaEntrada(), reserva.getFechaSalida(), reserva.getNumeroHabitacion(), reserva.getCodigo());
 
         final Reserva record = reserva.toRecord();
         CompletableFuture.runAsync(() -> {
@@ -188,8 +188,16 @@ public class ReservasController {
         return ocupadas < libres;
     }
 
+    private double obtenerPrecioNoche(String tipo) {
+        return habitacionRepo.findByTipo(tipo).stream()
+                .mapToDouble(HabitacionEntity::getPrecioNoche)
+                .filter(p -> p > 0)
+                .findFirst()
+                .orElseGet(() -> tarifas.getOrDefault(tipo, 80.0));
+    }
+
     private ReservaEntity registrarReserva(ReservaRequest r) {
-        double precioNoche = tarifas.getOrDefault(r.tipoHabitacion(), 90.0);
+        double precioNoche = obtenerPrecioNoche(r.tipoHabitacion());
         long noches = ChronoUnit.DAYS.between(r.fechaEntrada(), r.fechaSalida());
         if (noches <= 0) noches = 1;
 
@@ -202,6 +210,10 @@ public class ReservasController {
         );
         entity.setMetodoPago(r.metodoPago());
         entity.setHuespedes(r.huespedes() != null ? r.huespedes() : 1);
+        String numAsignado = asignarHabitacionLibre(r.tipoHabitacion(), r.fechaEntrada(), r.fechaSalida());
+        if (numAsignado != null) {
+            entity.setNumeroHabitacion(numAsignado);
+        }
         return reservaRepo.save(entity);
     }
 
@@ -235,13 +247,19 @@ public class ReservasController {
             String nuevoEstado = body.getOrDefault("estado", actual.getEstado());
             actual.setEstado(nuevoEstado);
 
-            // Al confirmar, asignar habitación libre automáticamente si no tiene
-            if ("Confirmada".equals(nuevoEstado) && (actual.getNumeroHabitacion() == null || actual.getNumeroHabitacion().isBlank())) {
-                String num = asignarHabitacionLibre(actual.getTipoHabitacion(), actual.getFechaEntrada(), actual.getFechaSalida());
-                if (num != null) {
-                    actual.setNumeroHabitacion(num);
-                    log.info("Habitación {} auto-asignada a reserva {}", num, codigo);
+            if ("Cancelada".equals(nuevoEstado)) {
+                disponibilidadRepo.deleteByCodigoReserva(codigo);
+            } else {
+                // Al confirmar o reactivar, asignar habitación libre automáticamente si no tiene
+                if (actual.getNumeroHabitacion() == null || actual.getNumeroHabitacion().isBlank()) {
+                    String num = asignarHabitacionLibre(actual.getTipoHabitacion(), actual.getFechaEntrada(), actual.getFechaSalida());
+                    if (num != null) {
+                        actual.setNumeroHabitacion(num);
+                        log.info("Habitación {} auto-asignada a reserva {}", num, codigo);
+                    }
                 }
+                disponibilidadRepo.deleteByCodigoReserva(codigo);
+                bloquearFechasHabitacion(actual.getFechaEntrada(), actual.getFechaSalida(), actual.getNumeroHabitacion(), codigo);
             }
 
             reservaRepo.save(actual);
@@ -280,9 +298,17 @@ public class ReservasController {
         if (numero.isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Indique el número de habitación."));
         }
-        actual.setNumeroHabitacion(numero.trim().toUpperCase());
+        String nuevoNum = numero.trim().toUpperCase();
+        actual.setNumeroHabitacion(nuevoNum);
         reservaRepo.save(actual);
-        log.info("Habitación {} asignada a la reserva {}", numero.trim().toUpperCase(), codigo);
+
+        // Actualizar también el bloqueo en el calendario para la nueva habitación
+        disponibilidadRepo.deleteByCodigoReserva(codigo);
+        if (!"Cancelada".equals(actual.getEstado())) {
+            bloquearFechasHabitacion(actual.getFechaEntrada(), actual.getFechaSalida(), nuevoNum, codigo);
+        }
+
+        log.info("Habitación {} asignada a la reserva {}", nuevoNum, codigo);
         return ResponseEntity.ok(actual.toRecord());
     }
 
@@ -310,33 +336,20 @@ public class ReservasController {
         return ResponseEntity.ok(tarifas);
     }
 
-    /** Bloquea todas las noches entre entrada y salida para habitaciones del tipo dado.
-     *  Si tipoHabitacion es null, bloquea para todas las del tipo de la reserva. */
-    private void bloquearFechas(LocalDate entrada, LocalDate salida, String tipoHabitacion, String codigoReserva) {
-        List<HabitacionEntity> habitaciones;
-        if (tipoHabitacion != null) {
-            habitaciones = habitacionRepo.findByTipo(tipoHabitacion);
-        } else {
-            // Buscar por el tipo de la reserva ya guardada
-            ReservaEntity res = reservaRepo.findById(codigoReserva).orElse(null);
-            if (res == null) return;
-            habitaciones = habitacionRepo.findByTipo(res.getTipoHabitacion());
-        }
-
+    /** Bloquea todas las noches entre entrada y salida únicamente para la habitación asignada. */
+    private void bloquearFechasHabitacion(LocalDate entrada, LocalDate salida, String idHabitacion, String codigoReserva) {
+        if (entrada == null || salida == null || idHabitacion == null || idHabitacion.isBlank()) return;
         List<DisponibilidadEntity> bloques = new ArrayList<>();
         LocalDate fecha = entrada;
         while (fecha.isBefore(salida)) {
-            for (HabitacionEntity h : habitaciones) {
-                String id = h.getId() + "_" + fecha.toString();
-                if (!disponibilidadRepo.existsById(id)) {
-                    bloques.add(new DisponibilidadEntity(id, h.getId(), fecha, "reservada", codigoReserva));
-                }
+            String id = idHabitacion + "_" + fecha.toString();
+            if (!disponibilidadRepo.existsById(id)) {
+                bloques.add(new DisponibilidadEntity(id, idHabitacion, fecha, "reservada", codigoReserva));
             }
             fecha = fecha.plusDays(1);
         }
         if (!bloques.isEmpty()) {
             disponibilidadRepo.saveAll(bloques);
-            log.info("Fechas bloqueadas: {} noches x {} habitaciones", ChronoUnit.DAYS.between(entrada, salida), habitaciones.size());
         }
     }
 }

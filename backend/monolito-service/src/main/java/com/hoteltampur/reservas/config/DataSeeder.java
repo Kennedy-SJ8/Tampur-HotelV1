@@ -27,32 +27,54 @@ public class DataSeeder implements CommandLineRunner {
         // Asegurar que las columnas nuevas existan en las tablas
         asegurarColumnas();
 
+        // Eliminar habitaciones obsoletas de tipo Doble si existieran
         List<HabitacionEntity> existentes = habitacionRepo.findAll();
+        List<HabitacionEntity> obsoletas = existentes.stream()
+                .filter(h -> "Doble".equalsIgnoreCase(h.getTipo()) || h.getId().startsWith("D"))
+                .toList();
+        if (!obsoletas.isEmpty()) {
+            habitacionRepo.deleteAll(obsoletas);
+            existentes = habitacionRepo.findAll();
+        }
+
+        // Solo asignar precio por defecto si la habitación aún no tiene precio válido (<= 0)
         existentes.forEach(h -> {
-            switch (h.getTipo()) {
-                case "Simple" -> h.setPrecioNoche(60.0);
-                case "Matrimonial" -> h.setPrecioNoche(80.0);
-                case "Queen" -> h.setPrecioNoche(120.0);
-                case "King" -> h.setPrecioNoche(140.0);
-                default -> {}
+            if (h.getPrecioNoche() <= 0) {
+                switch (h.getTipo()) {
+                    case "Simple" -> h.setPrecioNoche(60.0);
+                    case "Matrimonial" -> h.setPrecioNoche(80.0);
+                    case "Queen" -> h.setPrecioNoche(120.0);
+                    case "King" -> h.setPrecioNoche(140.0);
+                    default -> {}
+                }
+            }
+            if (h.getEstado() == null || h.getEstado().isBlank()) {
+                h.setEstado("Libre");
             }
         });
         habitacionRepo.saveAll(existentes);
 
-        java.util.Set<String> tiposExistentes = new java.util.HashSet<>();
-        existentes.forEach(h -> tiposExistentes.add(h.getTipo()));
-        List<HabitacionEntity> nuevos = new java.util.ArrayList<>();
-        if (!tiposExistentes.contains("Queen")) {
-            nuevos.add(new HabitacionEntity("Q1", "Queen", 120.0, "Libre"));
-            nuevos.add(new HabitacionEntity("Q2", "Queen", 120.0, "Libre"));
-        }
-        if (!tiposExistentes.contains("King")) {
-            nuevos.add(new HabitacionEntity("K1", "King", 140.0, "Libre"));
-            nuevos.add(new HabitacionEntity("K2", "King", 140.0, "Libre"));
-        }
+        java.util.Set<String> idsExistentes = new java.util.HashSet<>();
+        existentes.forEach(h -> idsExistentes.add(h.getId()));
+
+        List<HabitacionEntity> catalogoOficial = List.of(
+            new HabitacionEntity("S1", "Simple", 60.0, "Libre"),
+            new HabitacionEntity("S2", "Simple", 60.0, "Libre"),
+            new HabitacionEntity("M1", "Matrimonial", 80.0, "Libre"),
+            new HabitacionEntity("M2", "Matrimonial", 80.0, "Libre"),
+            new HabitacionEntity("Q1", "Queen", 120.0, "Libre"),
+            new HabitacionEntity("Q2", "Queen", 120.0, "Libre"),
+            new HabitacionEntity("K1", "King", 140.0, "Libre"),
+            new HabitacionEntity("K2", "King", 140.0, "Libre")
+        );
+
+        List<HabitacionEntity> nuevos = catalogoOficial.stream()
+                .filter(h -> !idsExistentes.contains(h.getId()))
+                .toList();
+
         if (!nuevos.isEmpty()) {
             habitacionRepo.saveAll(nuevos);
-            log.info("Nuevos tipos insertados: {}", nuevos.size());
+            log.info("Habitaciones oficiales insertadas: {}", nuevos.size());
         }
         log.info("DataSeeder completado. Total habitaciones: {}", habitacionRepo.count());
     }

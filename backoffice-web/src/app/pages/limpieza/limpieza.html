@@ -25,6 +25,31 @@
   <button class="btn btn-primario" (click)="imprimir()">🖨️ Imprimir lista</button>
 </div>
 
+@if (confirmadas().length > 0) {
+  <div class="limp-ocupaciones">
+    <h3>Próximas ocupaciones (reservas confirmadas)</h3>
+    <div class="ocupaciones-grid">
+      @for (r of confirmadas(); track r.codigo) {
+        <div class="ocupacion-card">
+          <div class="ocup-top">
+            <span class="ocup-tipo">Habitación {{ r.tipoHabitacion }}</span>
+            @if (r.numeroHabitacion) {
+              <span class="ocup-hab-num">#{{ r.numeroHabitacion }}</span>
+            }
+          </div>
+          <div class="ocup-huesped">{{ r.nombre }}</div>
+          <div class="ocup-fecha">
+            <span>📅 Check-in: <b>{{ formatearFecha(r.fechaEntrada) }}</b> <span class="hora">(1:00 p. m.)</span></span>
+          </div>
+          <div class="ocup-fecha">
+            <span>🕛 Check-out: <b>{{ formatearFecha(r.fechaSalida) }}</b> <span class="hora">(12:00 p. m.)</span></span>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+}
+
 @if (cargando()) {
   <p style="color:var(--text-muted)">Cargando programación de limpieza...</p>
 } @else {
@@ -37,11 +62,11 @@
           <div class="limp-card" [class.limpiada]="lista" [class]="'limp-card prio-' + h.prioridad + (lista ? ' limpiada' : '')">
             <div class="limp-card-top">
               <span>{{ h.prioridad === 1 ? '🔴' : '⚪' }}</span>
-              <span class="limp-num">{{ h.numero }}</span>
+              <span class="limp-num">{{ h.id }} · {{ h.numero }}</span>
               <span class="limp-tipo">{{ h.tipo }}</span>
             </div>
             <div class="limp-card-mid">
-              <span>{{ lista ? 'Limpiada' : (h.prioridad === 1 ? 'Urgente' : 'Normal') }}</span>
+              <span>{{ lista ? 'Limpiada' : (h.prioridad === 1 ? 'Urgente (Check-in/out)' : 'Normal') }}</span>
               @if (h.horaInicio) {
                 <span>{{ h.horaInicio }}{{ h.horaFin ? ' → ' + h.horaFin : '' }}</span>
               }
@@ -54,6 +79,13 @@
               } @else {
                 <span style="color:#34d399;font-weight:700">✓ Lista</span>
               }
+              <input
+                type="checkbox"
+                class="limp-check"
+                [checked]="lista"
+                (change)="toggleCheck(h, $any($event.target).checked)"
+                title="Marcar o desmarcar como limpiada"
+              />
             </div>
           </div>
         }

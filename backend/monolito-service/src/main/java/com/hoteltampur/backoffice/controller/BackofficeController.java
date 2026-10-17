@@ -32,13 +32,46 @@ public class BackofficeController {
     public record LimpiezaItem(String id, String tipo, int piso, int numero, String estadoOcupacion,
                                String estadoLimpieza, int prioridad, String horaInicio, String horaFin, String estadoFlujo) {}
 
+    private static final Map<String, Integer> MAPA_NUMEROS = Map.of(
+        "S1", 101, "S2", 102,
+        "M1", 201, "M2", 202,
+        "Q1", 203, "Q2", 204,
+        "K1", 301, "K2", 302
+    );
+
     private int getNumero(HabitacionEntity h) {
-        try { return Integer.parseInt(h.getId()); } catch (Exception e) { return 0; }
+        if (h == null || h.getId() == null) return 0;
+        String id = h.getId().trim().toUpperCase();
+        if (MAPA_NUMEROS.containsKey(id)) {
+            return MAPA_NUMEROS.get(id);
+        }
+        try {
+            return Integer.parseInt(id);
+        } catch (Exception e) {
+            return Math.abs(id.hashCode() % 900) + 100;
+        }
     }
-    
+
     private int getPiso(HabitacionEntity h) {
         int num = getNumero(h);
-        return num > 0 ? num / 100 : 0;
+        if (num >= 100) return num / 100;
+        if (h != null && h.getTipo() != null) {
+            return switch (h.getTipo()) {
+                case "Simple" -> 1;
+                case "Matrimonial", "Queen" -> 2;
+                case "King" -> 3;
+                default -> 1;
+            };
+        }
+        return 1;
+    }
+
+    private boolean tieneReservaActivaHoy(String idHabitacion, LocalDate hoy) {
+        return reservaRepository.findAll().stream()
+                .filter(r -> idHabitacion.equalsIgnoreCase(r.getNumeroHabitacion()))
+                .filter(r -> "Confirmada".equalsIgnoreCase(r.getEstado()))
+                .filter(r -> r.getFechaEntrada() != null && r.getFechaSalida() != null)
+                .anyMatch(r -> !hoy.isBefore(r.getFechaEntrada()) && hoy.isBefore(r.getFechaSalida()));
     }
 
     // ─── MAPA INTERACTIVO (OCUPACIÓN) ────────────────────────────────
@@ -57,12 +90,15 @@ public class BackofficeController {
         String nuevo = body.getOrDefault("estado", entity.getEstado());
         entity.setEstado(nuevo);
         habitacionRepository.save(entity);
-        
-        return new HabitacionDTO(entity.getId(), entity.getTipo(), getPiso(entity), getNumero(entity), entity.getEstado(), "");
+
+        int num = getNumero(entity);
+        String claveFecha = LocalDate.now().format(FORMATO_FECHA);
+        boolean limpiada = limpiadasPorFecha.getOrDefault(claveFecha, java.util.Set.of()).contains(num);
+        return new HabitacionDTO(entity.getId(), entity.getTipo(), getPiso(entity), num, entity.getEstado(), limpiada ? "limpiada" : "");
     }
 
     // ─── LIMPIEZA DEL DÍA ──────────────────────────────────────────
-    private static final double PROBABILIDAD_LIMPIEZA = 0.35;
+    private static final double PROBABILIDAD_LIMPIEZA = 0.50;
     private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ISO_LOCAL_DATE;
     private final Map<String, java.util.Set<Integer>> limpiadasPorFecha = new ConcurrentHashMap<>();
     private final Map<String, String> horaInicioPorFecha = new ConcurrentHashMap<>();
@@ -76,13 +112,13 @@ public class BackofficeController {
         LocalDate hoy = LocalDate.now();
         String claveFecha = hoy.format(FORMATO_FECHA);
         java.util.Set<Integer> marcadas = limpiadasPorFecha.getOrDefault(claveFecha, java.util.Set.of());
-        
+
         return habs.stream()
             .filter(h -> seleccionadas.contains(getNumero(h)))
             .map(h -> {
                 int num = getNumero(h);
                 boolean limpiada = marcadas.contains(num);
-                int prioridad = calcularPrioridad(num, hoy);
+                int prioridad = calcularPrioridad(h, num, hoy);
                 String clave = claveFecha + "_" + num;
                 String inicio = horaInicioPorFecha.getOrDefault(clave, "");
                 String fin = horaFinPorFecha.getOrDefault(clave, "");
@@ -111,18 +147,26 @@ public class BackofficeController {
         java.util.Set<Integer> marcadas = limpiadasPorFecha.computeIfAbsent(fecha, f -> ConcurrentHashMap.newKeySet());
         if (limpiada) { marcadas.add(numero); } else { marcadas.remove(numero); }
 
-        if ("en_curso".equals(nuevoFlujo) && !horaInicioPorFecha.containsKey(clave)) {
-            horaInicioPorFecha.put(clave, LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")));
+        if ("en_curso".equals(nuevoFlujo)) {
+            if (!horaInicioPorFecha.containsKey(clave)) {
+                horaInicioPorFecha.put(clave, LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")));
+            }
+            entity.setEstado("Limpieza");
+            habitacionRepository.save(entity);
         }
         if ("completada".equals(nuevoFlujo) || limpiada) {
             horaFinPorFecha.put(clave, LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")));
             nuevoFlujo = "completada";
+            if ("Limpieza".equals(entity.getEstado())) {
+                entity.setEstado(tieneReservaActivaHoy(entity.getId(), hoy) ? "Ocupada" : "Libre");
+                habitacionRepository.save(entity);
+            }
         }
         if (!nuevoFlujo.isEmpty()) {
             estadoFlujoPorFecha.put(clave, nuevoFlujo);
         }
 
-        int prioridad = calcularPrioridad(numero, hoy);
+        int prioridad = calcularPrioridad(entity, numero, hoy);
         String flujo = estadoFlujoPorFecha.getOrDefault(clave, "pendiente");
         String inicio = horaInicioPorFecha.getOrDefault(clave, "");
         String fin = horaFinPorFecha.getOrDefault(clave, "");
@@ -131,30 +175,43 @@ public class BackofficeController {
     }
 
     private java.util.Set<Integer> numerosLimpiasHoy(List<HabitacionEntity> habitaciones) {
-        Random azar = new Random(LocalDate.now().toEpochDay());
+        LocalDate hoy = LocalDate.now();
+        Random azar = new Random(hoy.toEpochDay());
         java.util.Set<Integer> seleccionadas = new HashSet<>();
         for (HabitacionEntity h : habitaciones) {
-            if (azar.nextDouble() < PROBABILIDAD_LIMPIEZA) {
-                seleccionadas.add(getNumero(h));
+            int num = getNumero(h);
+            if ("Limpieza".equalsIgnoreCase(h.getEstado()) || tieneMovimientoHoy(h.getId(), hoy) || azar.nextDouble() < PROBABILIDAD_LIMPIEZA) {
+                seleccionadas.add(num);
             }
         }
         List<HabitacionEntity> ordenadas = new ArrayList<>(habitaciones);
         Collections.shuffle(ordenadas, azar);
         for (HabitacionEntity h : ordenadas) {
-            if (seleccionadas.size() >= 8) break;
+            if (seleccionadas.size() >= Math.min(6, habitaciones.size())) break;
             seleccionadas.add(getNumero(h));
         }
         return seleccionadas;
     }
 
-    private int calcularPrioridad(int numero, LocalDate hoy) {
+    private boolean tieneMovimientoHoy(String idHabitacion, LocalDate hoy) {
+        return reservaRepository.findAll().stream()
+                .filter(r -> idHabitacion.equalsIgnoreCase(r.getNumeroHabitacion()))
+                .filter(r -> !"Cancelada".equalsIgnoreCase(r.getEstado()))
+                .anyMatch(r -> hoy.equals(r.getFechaSalida()) || hoy.equals(r.getFechaEntrada()));
+    }
+
+    private int calcularPrioridad(HabitacionEntity h, int numero, LocalDate hoy) {
+        if (h != null && tieneMovimientoHoy(h.getId(), hoy)) {
+            return 1; // Urgente: tiene check-out o check-in hoy
+        }
         if (numero % 2 == 0) return 1;
         return 3;
     }
 
     private List<HabitacionDTO> enrichConLimpieza(List<HabitacionEntity> lista) {
         java.util.Set<Integer> seleccionadas = numerosLimpiasHoy(lista);
-        String claveFecha = LocalDate.now().format(FORMATO_FECHA);
+        LocalDate hoy = LocalDate.now();
+        String claveFecha = hoy.format(FORMATO_FECHA);
         java.util.Set<Integer> marcadas = limpiadasPorFecha.getOrDefault(claveFecha, java.util.Set.of());
         return lista.stream()
             .map(h -> {
@@ -163,8 +220,13 @@ public class BackofficeController {
                 if (seleccionadas.contains(num)) {
                     limpieza = marcadas.contains(num) ? "limpiada" : "pendiente";
                 }
-                return new HabitacionDTO(h.getId(), h.getTipo(), getPiso(h), num, h.getEstado(), limpieza);
+                String estadoEfectivo = h.getEstado();
+                if ("Libre".equalsIgnoreCase(estadoEfectivo) && tieneReservaActivaHoy(h.getId(), hoy)) {
+                    estadoEfectivo = "Ocupada";
+                }
+                return new HabitacionDTO(h.getId(), h.getTipo(), getPiso(h), num, estadoEfectivo, limpieza);
             })
+            .sorted(Comparator.comparingInt(HabitacionDTO::piso).thenComparingInt(HabitacionDTO::numero))
             .toList();
     }
 
