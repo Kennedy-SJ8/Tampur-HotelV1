@@ -62,15 +62,11 @@ export class Dashboard implements OnInit {
 
   ingresosPorTipo = computed(() => {
     const tipos = ['Simple', 'Matrimonial', 'Queen', 'King'];
-    const mapa = new Map<string, number>();
+    const mapa = new Map<string, number>(tipos.map(t => [t, 0]));
     for (const r of this.reservas()) {
-      if (r.estado === 'Confirmada' || r.estado === 'Pagada') {
-        const t = r.tipoHabitacion || 'Otro';
-        mapa.set(t, (mapa.get(t) ?? 0) + (r.total ?? 0));
+      if ((r.estado === 'Confirmada' || r.estado === 'Pagada') && mapa.has(r.tipoHabitacion)) {
+        mapa.set(r.tipoHabitacion, (mapa.get(r.tipoHabitacion) ?? 0) + (r.total ?? 0));
       }
-    }
-    for (const t of tipos) {
-      if (!mapa.has(t)) mapa.set(t, 0);
     }
     const entradas = Array.from(mapa.entries());
     const max = Math.max(...entradas.map(([, v]) => v), 1);

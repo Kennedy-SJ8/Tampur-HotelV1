@@ -32,19 +32,26 @@ export class Precios implements OnInit {
     this.cargando.set(true);
     this.api.habitacionesCatalogo().subscribe({
       next: habs => {
+        const tiposValidos = ['Simple', 'Matrimonial', 'Queen', 'King'];
         const agrupado = new Map<string, { precio: number; cantidad: number }>();
         for (const h of habs) {
+          if (!tiposValidos.includes(h.tipo)) continue;
           const item = agrupado.get(h.tipo) ?? { precio: h.precioNoche, cantidad: 0 };
           item.cantidad++;
           item.precio = h.precioNoche;
           agrupado.set(h.tipo, item);
         }
-        const lista: TarifaItem[] = Array.from(agrupado.entries()).map(([tipo, info]) => ({
-          tipo,
-          precioActual: info.precio,
-          nuevoPrecio: info.precio,
-          cantidad: info.cantidad,
-        }));
+        const lista: TarifaItem[] = tiposValidos
+          .filter(t => agrupado.has(t))
+          .map(tipo => {
+            const info = agrupado.get(tipo)!;
+            return {
+              tipo,
+              precioActual: info.precio,
+              nuevoPrecio: info.precio,
+              cantidad: info.cantidad,
+            };
+          });
         this.tarifas.set(lista);
         this.cargando.set(false);
       },
