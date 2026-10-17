@@ -1020,27 +1020,26 @@ h2 {
    ================================================================ */
 
 :root {
-  /* Fondo base: Charcoal cálido muy profundo en lugar de negro puro */
-  --bg-base: #0c0a09 !important; 
-  /* Superficies (nav, barras): Ligeramente más claro, tono piedra oscuro */
-  --bg-surface: #161412 !important; 
-  /* Tarjetas: Un tono gris cálido muy oscuro */
-  --bg-card: #1c1917 !important; 
+  /* Fondo base: Carbón oscuro neutro profundo (sin subtono marrón) */
+  --bg-base: #090d16 !important; 
+  /* Superficies (nav, barras): Pizarra nocturna */
+  --bg-surface: #0f172a !important; 
+  /* Tarjetas: Gris pizarra oscuro elegante */
+  --bg-card: #131c31 !important; 
 
-  /* Bordes: Toque sutil de cobre translúcido para elegancia */
-  --border-subtle: rgba(5, 150, 105, 0.15) !important;
-  --border-hover: rgba(5, 150, 105, 0.4) !important;
+  /* Bordes: Toque sutil esmeralda translúcido */
+  --border-subtle: rgba(16, 185, 129, 0.16) !important;
+  --border-hover: rgba(16, 185, 129, 0.4) !important;
 
-  /* Textos: Blanco hueso/marfil (más suave a la vista y elegante) */
-  --text-main: #fdf8f6 !important;
-  /* Textos secundarios: Gris piedra cálido */
-  --text-muted: #a8a29e !important;
+  /* Textos: Blanco puro frío y gris pizarra claro */
+  --text-main: #f8fafc !important;
+  --text-muted: #94a3b8 !important;
 }
 
 body {
   background-color: var(--bg-base) !important;
   color: var(--text-main) !important;
-  background-image: radial-gradient(circle at 50% 0%, rgba(5,150,105,0.05) 0%, transparent 60%) !important;
+  background-image: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.06) 0%, transparent 60%) !important;
 }
 
 /* Badges y Chips de Estado (Tonos Joya Elegantes) */

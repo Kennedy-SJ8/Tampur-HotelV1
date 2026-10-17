@@ -1,20 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Space+Grotesk:wght@300..700&display=swap');
 
 :root {
-  --grafito: #000000;
-  --grafito-2: #18181b;
-  --tinta: #fafafa;
-  --gris: #a1a1aa;
-  --niebla: #09090b;
-  --niebla-2: #27272a;
-  --blanco: #18181b;
-  --bg-base: #0c0a09;
-  --bg-surface: #161412;
-  --bg-card: #1c1917;
-  --border-subtle: rgba(5, 150, 105, 0.15);
-  --border-hover: rgba(5, 150, 105, 0.4);
-  --text-main: #fdf8f6;
-  --text-muted: #a8a29e;
+  --grafito: #090d16;
+  --grafito-2: #0f172a;
+  --tinta: #f8fafc;
+  --gris: #94a3b8;
+  --niebla: #090d16;
+  --niebla-2: #1e293b;
+  --blanco: #0f172a;
+  --bg-base: #090d16;
+  --bg-surface: #0f172a;
+  --bg-card: #131c31;
+  --border-subtle: rgba(16, 185, 129, 0.16);
+  --border-hover: rgba(16, 185, 129, 0.4);
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
   --cobre: #059669;
   --cobre-2: #10b981;
   --cobre-grad: linear-gradient(135deg, #34d399 0%, #10b981 50%, #047857 100%);
@@ -28,7 +28,7 @@ body {
   font-family: 'Space Grotesk', system-ui, sans-serif;
   color: var(--text-main);
   background-color: var(--bg-base);
-  background-image: radial-gradient(circle at 50% 0%, rgba(5, 150, 105, 0.05) 0%, transparent 60%);
+  background-image: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.06) 0%, transparent 60%);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
