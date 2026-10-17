@@ -4,7 +4,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build --base-href /admin/",
+    "build:vercel": "ng build --base-href /admin/ && rm -rf ../frontend/admin && cp -R dist/backoffice-web/browser ../frontend/admin",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },

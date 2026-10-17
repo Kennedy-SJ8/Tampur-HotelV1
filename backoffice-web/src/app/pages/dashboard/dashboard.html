@@ -1,94 +1,81 @@
-<main>
-  @if (error()) { <p class="error">{{ error() }}</p> }
+<h2>Plano de habitaciones y Caja</h2>
 
+@if (error()) { <div class="admin-error">{{ error() }}</div> }
+
+<div class="plano-leyenda">
+  <span class="chip chip-Libre">Libre</span>
+  <span class="chip chip-Ocupada">Ocupada</span>
+  <span class="chip chip-Limpieza">En limpieza</span>
+  <span class="chip chip-Mantenimiento">Mantenimiento</span>
+  <span class="chip chip-limp-ok">✓ Limpiada hoy</span>
+  <span class="chip chip-limp-pend">🧹 Pendiente limpieza</span>
+</div>
+
+<div class="tarjetas-kpi">
+  <div class="kpi"><div class="num">{{ resumen().ocupadas }}/{{ resumen().total }}</div><div class="lbl">Ocupación ({{ resumen().pctOcupacion }}%)</div></div>
+  <div class="kpi"><div class="num">{{ resumen().libres }}</div><div class="lbl">Libres</div></div>
+  <div class="kpi"><div class="num">{{ resumen().limpieza }}</div><div class="lbl">En limpieza</div></div>
+  <div class="kpi"><div class="num">{{ resumen().mantenimiento }}</div><div class="lbl">Mantenimiento</div></div>
   @if (reporte(); as rep) {
-    <section class="finanzas">
-      <div class="kpi">
-        <span>Ingresos Confirmados</span>
-        <strong>S/ {{ rep.ingresosTotales }}</strong>
-      </div>
-      <div class="kpi">
-        <span>Reservas Confirmadas</span>
-        <strong>{{ rep.reservasConfirmadas }}</strong>
-      </div>
-      <div class="kpi">
-        <span>Reservas Pendientes</span>
-        <strong>{{ rep.reservasPendientes }}</strong>
-      </div>
-      <div class="kpi">
-        <span>Tasa de Ocupación</span>
-        <strong>{{ resumen().pctOcupacion }}%</strong>
-      </div>
-    </section>
+    <div class="kpi"><div class="num">S/ {{ rep.ingresosTotales }}</div><div class="lbl">Ingresos confirmados</div></div>
   }
+</div>
 
-  <section class="tarjetas">
-    <div class="tarjeta"><span>Total Habitaciones</span><strong>{{ resumen().total }}</strong></div>
-    <div class="tarjeta libre"><span>Libres</span><strong>{{ resumen().libres }}</strong></div>
-    <div class="tarjeta ocupada"><span>Ocupadas</span><strong>{{ resumen().ocupadas }}</strong></div>
-    <div class="tarjeta limpieza"><span>Limpieza</span><strong>{{ resumen().limpieza }}</strong></div>
-    <div class="tarjeta mant"><span>Mantenimiento</span><strong>{{ resumen().mantenimiento }}</strong></div>
-  </section>
-
-  <section class="graficos">
-    <div class="panel-grafico">
-      <h3>Distribución de Ocupación</h3>
-      <div class="barra-apilada">
-        <div class="seg libre" [style.width.%]="resumen().pctLibres" title="Libres"></div>
-        <div class="seg ocupada" [style.width.%]="resumen().pctOcupacion" title="Ocupadas"></div>
-        <div class="seg limpieza" [style.width.%]="resumen().pctLimpieza" title="Limpieza"></div>
-        <div class="seg mant" [style.width.%]="resumen().pctMantenimiento" title="Mantenimiento"></div>
-      </div>
-      <div class="leyenda">
-        <span><i class="dot libre"></i> Libres ({{ resumen().pctLibres }}%)</span>
-        <span><i class="dot ocupada"></i> Ocupadas ({{ resumen().pctOcupacion }}%)</span>
-        <span><i class="dot limpieza"></i> Limpieza ({{ resumen().pctLimpieza }}%)</span>
-        <span><i class="dot mant"></i> Mant. ({{ resumen().pctMantenimiento }}%)</span>
-      </div>
+<section class="graficos-grid">
+  <div class="panel-grafico">
+    <h3>Distribución de Ocupación</h3>
+    <div class="barra-apilada">
+      <div class="seg libre" [style.width.%]="resumen().pctLibres"></div>
+      <div class="seg ocupada" [style.width.%]="resumen().pctOcupacion"></div>
+      <div class="seg limpieza" [style.width.%]="resumen().pctLimpieza"></div>
+      <div class="seg mant" [style.width.%]="resumen().pctMantenimiento"></div>
     </div>
+    <div class="leyenda-graf">
+      <span><i class="dot libre"></i> Libres ({{ resumen().pctLibres }}%)</span>
+      <span><i class="dot ocupada"></i> Ocupadas ({{ resumen().pctOcupacion }}%)</span>
+      <span><i class="dot limpieza"></i> Limpieza ({{ resumen().pctLimpieza }}%)</span>
+      <span><i class="dot mant"></i> Mant. ({{ resumen().pctMantenimiento }}%)</span>
+    </div>
+  </div>
 
-    <div class="panel-grafico">
-      <h3>Ingresos por Tipo de Habitación</h3>
-      <div class="barras-verticales">
-        @for (item of ingresosPorTipo(); track item.tipo) {
-          <div class="fila-barra">
-            <span class="etiqueta">{{ item.tipo }}</span>
-            <div class="pista">
-              <div class="relleno" [style.width.%]="item.pct"></div>
+  <div class="panel-grafico">
+    <h3>Ingresos por Tipo de Habitación</h3>
+    <div class="barras-verticales">
+      @for (item of ingresosPorTipo(); track item.tipo) {
+        <div class="fila-barra">
+          <span>{{ item.tipo }}</span>
+          <div class="pista"><div class="relleno" [style.width.%]="item.pct"></div></div>
+          <strong style="text-align:right">S/ {{ item.monto }}</strong>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+@if (cargando()) {
+  <p style="color:var(--text-muted)">Cargando plano del hotel...</p>
+} @else {
+  @for (bloque of porPiso(); track bloque.piso) {
+    <div class="plano-grupo">
+      <h3>Piso {{ bloque.piso }} · {{ bloque.tipo }}</h3>
+      <div class="plano">
+        @for (h of bloque.habs; track h.id) {
+          <div class="room" [class]="'room room-' + h.estado">
+            <div class="room-top">
+              <span class="room-id">{{ h.id }}</span>
+              <span class="room-tipo">{{ h.tipo }}</span>
+              @if (h.limpieza === 'limpiada') {
+                <span class="room-limpieza" style="color:#34d399" title="Limpiada">✓</span>
+              } @else if (h.limpieza === 'pendiente') {
+                <span class="room-limpieza" title="Pendiente">🧹</span>
+              }
             </div>
-            <strong class="monto">S/ {{ item.monto }}</strong>
+            <button [class]="'estado-plano ' + h.estado" (click)="rotarEstado(h)">
+              {{ h.estado }}
+            </button>
           </div>
         }
       </div>
     </div>
-  </section>
-
-  <h2>Mapa de Habitaciones</h2>
-  @if (cargando()) {
-    <p>Cargando... (el servidor puede tardar si estaba dormido)</p>
-  } @else {
-    <table>
-      <thead>
-        <tr><th>N°</th><th>Tipo</th><th>Piso</th><th>Estado</th><th>Limpieza hoy</th><th>Cambiar estado</th></tr>
-      </thead>
-      <tbody>
-        @for (h of habitaciones(); track h.id) {
-          <tr>
-            <td><strong>{{ h.id }}</strong></td>
-            <td>{{ h.tipo }}</td>
-            <td>{{ h.piso }}</td>
-            <td><span class="badge" [class]="h.estado.toLowerCase()">{{ h.estado }}</span></td>
-            <td>{{ h.limpieza || '—' }}</td>
-            <td>
-              <select [value]="h.estado" (change)="cambiarEstado(h, $any($event.target).value)">
-                @for (e of estados; track e) {
-                  <option [value]="e">{{ e }}</option>
-                }
-              </select>
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
   }
-</main>
+}

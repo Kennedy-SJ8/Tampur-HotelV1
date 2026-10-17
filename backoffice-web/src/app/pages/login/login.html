@@ -1,9 +1,20 @@
-<div class="contenedor">
-  <form (ngSubmit)="entrar()">
-    <h2>Backoffice Hotel Támpur</h2>
-    <input name="usuario" [(ngModel)]="usuario" placeholder="Usuario" required>
-    <input name="clave" type="password" [(ngModel)]="clave" placeholder="Contraseña" required>
-    <button type="submit" [disabled]="cargando">{{ cargando ? 'Entrando...' : 'Entrar' }}</button>
-    <p class="error">{{ error }}</p>
+<div class="admin-overlay">
+  <form class="admin-caja" (ngSubmit)="entrar()">
+    <h3>Panel Administrativo</h3>
+    <p class="sub">Ingrese sus credenciales para monitorear el hotel.</p>
+    <div class="campo-form">
+      <label>Usuario</label>
+      <input name="usuario" [(ngModel)]="usuario" placeholder="admin" autocomplete="off" required>
+    </div>
+    <div class="campo-form">
+      <label>Contraseña</label>
+      <input name="clave" type="password" [(ngModel)]="clave" placeholder="••••••••" required>
+    </div>
+    @if (error) {
+      <div class="admin-error">{{ error }}</div>
+    }
+    <button type="submit" class="btn btn-primario" [disabled]="cargando">
+      {{ cargando ? 'Entrando...' : 'Ingresar' }}
+    </button>
   </form>
 </div>

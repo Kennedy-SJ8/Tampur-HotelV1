@@ -1,47 +1,63 @@
-<div class="contenedor">
-  <h2>Control de Limpieza del Día</h2>
+<h2>Limpieza del día</h2>
 
-  @if (error()) { <p class="error">{{ error() }}</p> }
+@if (error()) { <div class="admin-error">{{ error() }}</div> }
 
-  @if (cargando()) {
-    <p>Cargando programación de limpieza...</p>
-  } @else {
-    <table>
-      <thead>
-        <tr>
-          <th>Habitación</th>
-          <th>Tipo</th>
-          <th>Piso</th>
-          <th>Prioridad</th>
-          <th>Estado Flujo</th>
-          <th>Inicio</th>
-          <th>Fin</th>
-          <th>Acción</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (item of items(); track item.id) {
-          <tr>
-            <td><strong>{{ item.id }}</strong></td>
-            <td>{{ item.tipo }}</td>
-            <td>{{ item.piso }}</td>
-            <td>{{ item.prioridad === 1 ? 'Alta' : 'Normal' }}</td>
-            <td>{{ item.estadoFlujo }}</td>
-            <td>{{ item.horaInicio || '—' }}</td>
-            <td>{{ item.horaFin || '—' }}</td>
-            <td class="acciones">
-              @if (item.estadoFlujo === 'pendiente') {
-                <button (click)="iniciar(item)">Iniciar</button>
-              }
-              @if (item.estadoFlujo !== 'completada') {
-                <button class="ok" (click)="completar(item)">Completar</button>
-              } @else {
-                <span>✅ Lista</span>
-              }
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
+<div class="tarjetas-kpi">
+  <div class="kpi"><div class="num">{{ kpis().total }}</div><div class="lbl">Para limpiar hoy</div></div>
+  <div class="kpi"><div class="num">{{ kpis().limpiadas }}</div><div class="lbl">Ya limpiadas</div></div>
+  <div class="kpi"><div class="num">{{ kpis().pendientes }}</div><div class="lbl">Pendientes</div></div>
+  <div class="kpi kpi-progreso"><div class="num">{{ kpis().pct }}%</div><div class="lbl">Progreso total</div></div>
+</div>
+
+<div class="progreso-bar"><div class="progreso-fill" [style.width.%]="kpis().pct"></div></div>
+
+<div class="progreso-pisos">
+  @for (p of porPiso(); track p.piso) {
+    <div class="progreso-piso">
+      <span class="progreso-label">Piso {{ p.piso }}</span>
+      <div class="progreso-bar"><div class="progreso-fill" [style.width.%]="p.pct"></div></div>
+      <span class="progreso-num">{{ p.limpiadas }}/{{ p.total }}</span>
+    </div>
   }
 </div>
+
+<div>
+  <button class="btn btn-primario" (click)="imprimir()">🖨️ Imprimir lista</button>
+</div>
+
+@if (cargando()) {
+  <p style="color:var(--text-muted)">Cargando programación de limpieza...</p>
+} @else {
+  @for (p of porPiso(); track p.piso) {
+    <div class="limp-piso">
+      <h3>Piso {{ p.piso }}</h3>
+      <div class="limp-grid">
+        @for (h of p.habs; track h.id) {
+          @let lista = h.estadoLimpieza === 'limpiada' || h.estadoFlujo === 'completada';
+          <div class="limp-card" [class.limpiada]="lista" [class]="'limp-card prio-' + h.prioridad + (lista ? ' limpiada' : '')">
+            <div class="limp-card-top">
+              <span>{{ h.prioridad === 1 ? '🔴' : '⚪' }}</span>
+              <span class="limp-num">{{ h.numero }}</span>
+              <span class="limp-tipo">{{ h.tipo }}</span>
+            </div>
+            <div class="limp-card-mid">
+              <span>{{ lista ? 'Limpiada' : (h.prioridad === 1 ? 'Urgente' : 'Normal') }}</span>
+              @if (h.horaInicio) {
+                <span>{{ h.horaInicio }}{{ h.horaFin ? ' → ' + h.horaFin : '' }}</span>
+              }
+            </div>
+            <div class="limp-card-bottom">
+              @if (h.estadoFlujo === 'pendiente' && !lista) {
+                <button class="btn-sm btn-iniciar" (click)="iniciar(h)">Iniciar</button>
+              } @else if (!lista) {
+                <button class="btn-sm btn-completar" (click)="completar(h)">Completar</button>
+              } @else {
+                <span style="color:#34d399;font-weight:700">✓ Lista</span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+}

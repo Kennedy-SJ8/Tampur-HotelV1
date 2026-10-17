@@ -1,35 +1,37 @@
-<div class="contenedor">
-  <h2>Directorio de Huéspedes</h2>
+<h2>Directorio de Huéspedes (CRM)</h2>
 
-  <input class="buscador" placeholder="Buscar por nombre, DNI, correo o teléfono"
+<div class="filtro-bar">
+  <input class="filtro-input" placeholder="Buscar por nombre, DNI, correo o teléfono..."
          (input)="buscar($any($event.target).value)">
+</div>
 
-  @if (error()) { <p class="error">{{ error() }}</p> }
+@if (error()) { <div class="admin-error">{{ error() }}</div> }
 
-  @if (cargando()) {
-    <p>Cargando huéspedes...</p>
-  } @else {
-    <table>
+@if (cargando()) {
+  <p style="color:var(--text-muted)">Cargando huéspedes...</p>
+} @else {
+  <div class="tabla-wrap">
+    <table class="tabla">
       <thead>
         <tr>
           <th>DNI / Doc.</th>
-          <th>Nombre</th>
+          <th>Huésped</th>
           <th>Contacto</th>
-          <th>Reservas</th>
+          <th>Visitas</th>
           <th>Noches</th>
           <th>Total invertido</th>
-          <th>Última entrada</th>
+          <th>Última estadía</th>
         </tr>
       </thead>
       <tbody>
         @for (h of huespedes(); track h.dni) {
           <tr>
-            <td><strong>{{ h.dni }}</strong></td>
+            <td><b>{{ h.dni }}</b></td>
             <td>{{ h.nombre }}</td>
-            <td>{{ h.telefono }}<br><small>{{ h.correo }}</small></td>
+            <td>{{ h.telefono }}<br><small style="color:var(--text-muted)">{{ h.correo }}</small></td>
             <td>{{ h.visitas }}</td>
             <td>{{ h.nochesTotales }}</td>
-            <td><strong>S/ {{ h.totalGastado }}</strong></td>
+            <td><b style="color:#34d399">S/ {{ h.totalGastado }}</b></td>
             <td>{{ h.ultimaVisita }}</td>
           </tr>
         } @empty {
@@ -37,5 +39,5 @@
         }
       </tbody>
     </table>
-  }
-</div>
+  </div>
+}

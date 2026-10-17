@@ -1,0 +1,59 @@
+<h2>Calendario de habitaciones</h2>
+
+<div class="cal-top">
+  <button class="btn-cal-nav" (click)="nav(-1)">◀</button>
+  <span class="cal-mes-label">{{ meses[mes() - 1] }} {{ anio() }}</span>
+  <button class="btn-cal-nav" (click)="nav(1)">▶</button>
+  <button class="btn-cal-hoy" (click)="irHoy()">Hoy</button>
+  <span class="cal-leyenda">
+    <span class="cal-leg-item"><span class="cal-dot cal-libre"></span>Libre</span>
+    <span class="cal-leg-item"><span class="cal-dot cal-reservada"></span>Reservada</span>
+    <span class="cal-leg-item"><span class="cal-dot cal-mantenimiento"></span>Mantenimiento</span>
+  </span>
+</div>
+
+<div class="cal-badges">
+  @for (h of habitaciones; track h.id) {
+    @let ocu = ocupadosHab(h.id);
+    <div class="cal-badge"
+         [class.badge-libre]="ocu === 0"
+         [class.badge-partial]="ocu > 0 && ocu < numDias()"
+         [class.badge-full]="ocu >= numDias()"
+         [class.badge-activo]="habActiva()?.id === h.id"
+         (click)="seleccionarHab(h)">
+      <span class="badge-id">{{ h.id }}</span>
+      <span class="badge-tipo">{{ h.tipo }}</span>
+      <span class="badge-ocu">{{ ocu }}/{{ numDias() }}</span>
+    </div>
+  }
+</div>
+
+@if (habActiva(); as hab) {
+  <div class="cal-panel">
+    <div class="panel-hdr">
+      <span class="panel-id">{{ hab.id }}</span>
+      <span class="panel-tipo">{{ hab.tipo }}</span>
+      <span class="panel-piso">Piso {{ hab.piso }}</span>
+      <button class="panel-close" (click)="habActiva.set(null)">✕</button>
+    </div>
+    <div class="mini-cal-header">
+      @for (dow of diasSemana; track dow) {
+        <span class="mini-cal-dow">{{ dow }}</span>
+      }
+    </div>
+    <div class="mini-cal-dias">
+      @for (v of vaciosInicio(); track v) {
+        <span class="mini-cal-vacio"></span>
+      }
+      @for (d of diasMes(); track d) {
+        @let est = estadoDia(hab.id, d);
+        <span class="mini-cal-dia"
+              [class.reservada]="est === 'reservada'"
+              [class.mantenimiento]="est === 'mantenimiento'"
+              (click)="toggleDia(hab, d)">
+          {{ d }}
+        </span>
+      }
+    </div>
+  </div>
+}

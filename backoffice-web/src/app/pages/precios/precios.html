@@ -1,31 +1,23 @@
-<div class="contenedor">
-  <h2>Gestión de Tarifas por Noche</h2>
-  <p class="sub">Cambia el precio por tipo de habitación. El cambio se aplica de inmediato al catálogo y a las nuevas reservas.</p>
+<h2>Gestión de tarifas</h2>
 
-  @if (mensaje()) { <p class="ok">{{ mensaje() }}</p> }
-  @if (error()) { <p class="error">{{ error() }}</p> }
+@if (mensaje()) { <div class="chip chip-Libre" style="padding:10px 16px">{{ mensaje() }}</div> }
+@if (error()) { <div class="admin-error">{{ error() }}</div> }
 
-  @if (cargando()) {
-    <p>Cargando tarifas...</p>
-  } @else {
-    <div class="grid-tarifas">
-      @for (t of tarifas(); track t.tipo) {
-        <div class="card-tarifa">
-          <div class="cabecera">
-            <h3>{{ t.tipo }}</h3>
-            <span>{{ t.cantidad }} habitaciones</span>
-          </div>
-          <p class="actual">Precio actual: <strong>S/ {{ t.precioActual }}</strong></p>
-          <label>
-            Nuevo precio (S/):
-            <input type="number" min="0" step="5" [(ngModel)]="t.nuevoPrecio">
-          </label>
-        </div>
-      }
-    </div>
-
-    <button class="btn-guardar" (click)="guardarTodo()" [disabled]="guardando()">
-      {{ guardando() ? 'Guardando...' : 'Guardar nuevos precios' }}
+@if (cargando()) {
+  <p style="color:var(--text-muted)">Cargando tarifas...</p>
+} @else {
+  <div class="admin-caja" style="max-width:460px;padding:28px">
+    <p class="sub" style="text-align:left;margin-bottom:16px">
+      Configure el precio por noche para cada tipo de habitación (conectado en vivo a la base de datos).
+    </p>
+    @for (t of tarifas(); track t.tipo) {
+      <div class="campo-form">
+        <label>Habitación {{ t.tipo }} (S/ por noche · actual S/ {{ t.precioActual }})</label>
+        <input type="number" min="0" step="1" [(ngModel)]="t.nuevoPrecio">
+      </div>
+    }
+    <button class="btn btn-primario" (click)="guardarTodo()" [disabled]="guardando()">
+      {{ guardando() ? 'Guardando...' : 'Guardar tarifas' }}
     </button>
-  }
-</div>
+  </div>
+}

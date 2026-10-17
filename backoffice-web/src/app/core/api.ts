@@ -33,8 +33,8 @@ export interface Reserva {
   numeroHabitacion: string | null;
   metodoPago: string | null;
   huespedes: number;
-  esCheckinHoy?: boolean;
-  esCheckoutHoy?: boolean;
+  checkinHoy?: boolean;
+  checkoutHoy?: boolean;
 }
 
 export interface LimpiezaItem {
@@ -56,6 +56,13 @@ export interface ReporteIngresos {
   reservasConfirmadas: number;
   reservasPendientes: number;
   metodoPrincipal: string;
+}
+
+export interface CalendarioDia {
+  habitacion: string;
+  fecha: string;
+  estado: string;
+  reserva?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -105,5 +112,13 @@ export class ApiService {
 
   ingresos() {
     return this.http.get<ReporteIngresos>(`${this.base}/reportes/ingresos`);
+  }
+
+  calendario(anio: number, mes: number) {
+    return this.http.get<CalendarioDia[]>(`${this.base}/calendario?anio=${anio}&mes=${mes}`);
+  }
+
+  toggleCalendario(habitacion: string, fecha: string) {
+    return this.http.post<{ accion: string; estado: string }>(`${this.base}/calendario/toggle`, { habitacion, fecha });
   }
 }

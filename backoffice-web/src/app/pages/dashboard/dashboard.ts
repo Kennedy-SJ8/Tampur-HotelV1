@@ -29,12 +29,14 @@ export class Dashboard implements OnInit {
     const ocupadas = cuenta('Ocupada');
     const limpieza = cuenta('Limpieza');
     const mantenimiento = cuenta('Mantenimiento');
+    const pendLimpieza = lista.filter(h => h.limpieza === 'pendiente').length;
     return {
       total: lista.length,
       libres,
       ocupadas,
       limpieza,
       mantenimiento,
+      pendLimpieza,
       pctOcupacion: Math.round((ocupadas / total) * 100),
       pctLibres: Math.round((libres / total) * 100),
       pctLimpieza: Math.round((limpieza / total) * 100),
@@ -42,8 +44,24 @@ export class Dashboard implements OnInit {
     };
   });
 
+  porPiso = computed(() => {
+    const mapa = new Map<number, Habitacion[]>();
+    for (const h of this.habitaciones()) {
+      const arr = mapa.get(h.piso) ?? [];
+      arr.push(h);
+      mapa.set(h.piso, arr);
+    }
+    return Array.from(mapa.entries())
+      .sort(([a], [b]) => a - b)
+      .map(([piso, habs]) => ({
+        piso,
+        tipo: habs[0]?.tipo ?? '',
+        habs: [...habs].sort((a, b) => a.numero - b.numero)
+      }));
+  });
+
   ingresosPorTipo = computed(() => {
-    const tipos = ['Simple', 'Matrimonial', 'Doble', 'Queen', 'King'];
+    const tipos = ['Simple', 'Matrimonial', 'Queen', 'King'];
     const mapa = new Map<string, number>();
     for (const r of this.reservas()) {
       if (r.estado === 'Confirmada' || r.estado === 'Pagada') {
@@ -54,7 +72,7 @@ export class Dashboard implements OnInit {
     for (const t of tipos) {
       if (!mapa.has(t)) mapa.set(t, 0);
     }
-    const entradas = Array.from(mapa.entries()).filter(([t, v]) => v > 0 || ['Simple', 'Matrimonial', 'Doble'].includes(t));
+    const entradas = Array.from(mapa.entries());
     const max = Math.max(...entradas.map(([, v]) => v), 1);
     return entradas.map(([tipo, monto]) => ({
       tipo,
@@ -96,8 +114,9 @@ export class Dashboard implements OnInit {
     });
   }
 
-  cambiarEstado(h: Habitacion, estado: string) {
-    this.api.cambiarEstado(h.id, estado).subscribe({
+  rotarEstado(h: Habitacion) {
+    const sig = this.estados[(this.estados.indexOf(h.estado) + 1) % this.estados.length];
+    this.api.cambiarEstado(h.id, sig).subscribe({
       next: act => this.habitaciones.update(l => l.map(x => (x.id === act.id ? act : x))),
       error: () => this.error.set('No se pudo cambiar el estado.')
     });
