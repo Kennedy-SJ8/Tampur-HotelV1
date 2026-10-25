@@ -93,7 +93,7 @@
             </div>
             <div class="campo-inner">
               <label for="entrada" data-i18n="lbl_llegada">Llegada</label>
-              <input type="date" id="entrada" required>
+              <input type="date" id="entrada" placeholder="Agregar fecha" required>
             </div>
           </div>
           <div class="campo">
@@ -102,7 +102,7 @@
             </div>
             <div class="campo-inner">
               <label for="salida" data-i18n="lbl_salida">Salida</label>
-              <input type="date" id="salida" required>
+              <input type="date" id="salida" placeholder="Agregar fecha" required>
             </div>
           </div>
           <div class="campo">
@@ -593,8 +593,8 @@
     <h3 id="rTitulo">Reserva</h3>
     <p class="sub" id="rSubtitulo">Complete sus datos para confirmar.</p>
     <div class="fila">
-      <div class="campo-form"><label data-i18n="reserva_llegada">Llegada</label><input type="date" id="rEntrada"><span class="campo-error" id="errEntrada"></span></div>
-      <div class="campo-form"><label data-i18n="reserva_salida">Salida</label><input type="date" id="rSalida"><span class="campo-error" id="errSalida"></span></div>
+      <div class="campo-form"><label data-i18n="reserva_llegada">Llegada</label><input type="date" id="rEntrada" placeholder="Agregar fecha"><span class="campo-error" id="errEntrada"></span></div>
+      <div class="campo-form"><label data-i18n="reserva_salida">Salida</label><input type="date" id="rSalida" placeholder="Agregar fecha"><span class="campo-error" id="errSalida"></span></div>
     </div>
     <div class="fila">
       <div class="campo-form"><label data-i18n="reserva_nombre">Nombre completo</label><input type="text" id="rNombre" placeholder="Juan Pérez" maxlength="100"><span class="campo-error" id="errNombre"></span></div>
@@ -805,13 +805,50 @@ document.addEventListener('DOMContentLoaded', () => {
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    flatpickr('input[type="date"]', {
+    const baseConfig = {
       locale: "es",
       minDate: "today",
       altInput: true,
       altFormat: "j M, Y",
       dateFormat: "Y-m-d",
-      disableMobile: "true"
+      disableMobile: true
+    };
+
+    const fpSalida = flatpickr('#salida', { ...baseConfig });
+    flatpickr('#entrada', {
+      ...baseConfig,
+      onChange: function(selectedDates) {
+        if (selectedDates.length > 0) {
+          const nextDay = new Date(selectedDates[0]);
+          nextDay.setDate(nextDay.getDate() + 1);
+          fpSalida.set('minDate', nextDay);
+          if (!fpSalida.selectedDates.length || fpSalida.selectedDates[0] <= selectedDates[0]) {
+            fpSalida.setDate(nextDay, true);
+          }
+          setTimeout(() => fpSalida.open(), 120);
+        }
+      }
+    });
+
+    const fpRSalida = flatpickr('#rSalida', {
+      ...baseConfig,
+      onChange: function() {
+        document.getElementById('rSalida').dispatchEvent(new Event('change'));
+      }
+    });
+    flatpickr('#rEntrada', {
+      ...baseConfig,
+      onChange: function(selectedDates) {
+        if (selectedDates.length > 0) {
+          const nextDay = new Date(selectedDates[0]);
+          nextDay.setDate(nextDay.getDate() + 1);
+          fpRSalida.set('minDate', nextDay);
+          if (!fpRSalida.selectedDates.length || fpRSalida.selectedDates[0] <= selectedDates[0]) {
+            fpRSalida.setDate(nextDay, true);
+          }
+        }
+        document.getElementById('rEntrada').dispatchEvent(new Event('change'));
+      }
     });
   });
 </script>
