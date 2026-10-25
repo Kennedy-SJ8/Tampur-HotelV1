@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hotel Támpur · Luxury Mountain Retreat · San Mateo, Huarochirí</title>
+<title>Hotel Támpur · Modern Mountain Stay · San Mateo, Huarochirí</title>
 <meta name="description" content="Reserve directamente en el Hotel Támpur en San Mateo, Huarochirí. Habitaciones simples, matrimoniales, queen y king a 3,200 msnm. Sin comisiones de terceros.">
 <link rel="icon" type="image/png" href="assets/img/logo-sin-fondo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -20,7 +20,7 @@
   <div class="contenedor barra">
     <a class="logo" href="#inicio">
       <div class="logo-marca-wrap">
-        <img class="marca" src="assets/img/logo-sin-fondo.png" alt="Hotel Támpur" height="40">
+        <img class="marca" src="assets/img/logo-sin-fondo.png" alt="Hotel Támpur" height="36">
       </div>
       <span>
         <b>Hotel Támpur</b>
@@ -35,9 +35,12 @@
       <a href="#ubicacion" data-i18n="nav_ubicacion">Ubicación</a>
       <a href="#contacto" data-i18n="nav_contacto">Contacto</a>
       <div class="nav-acciones">
-        <button class="btn-tema" id="btnTema" onclick="toggleTema()" title="Alternar tema" aria-label="Alternar tema">☀️</button>
+        <button class="btn-tema" id="btnTema" onclick="toggleTema()" title="Alternar tema" aria-label="Alternar tema">🌙</button>
         <button class="btn-idioma" id="btnIdioma" onclick="toggleIdioma()" title="Cambiar idioma">EN</button>
-        <a class="btn btn-primario btn-nav-cta" href="#habitaciones" data-i18n="nav_reservar">Reservar</a>
+        <a class="btn btn-primario btn-nav-cta" href="#habitaciones">
+          <span data-i18n="nav_reservar">Reservar</span>
+          <span class="btn-arrow">↗</span>
+        </a>
       </div>
     </nav>
     <button class="hamburguesa" id="hamburguesa" aria-label="Menú">
@@ -46,102 +49,108 @@
   </div>
 </header>
 
-<section class="hero" id="inicio">
-  <div class="fondo"></div>
-  <div class="velo"></div>
-  <div class="hero-lineas-arquitectura" aria-hidden="true"></div>
-  <div class="contenido">
-    <div class="hero-top-meta">
-      <span class="etiqueta" data-i18n="hero_etiqueta">✦ Reservas directas · sin comisiones</span>
-      <span class="coordenadas-pill">11°45′S 76°18′W · CORDILLERA CENTRAL</span>
-    </div>
-
-    <div class="hero-editorial-grid">
-      <div class="hero-col-principal">
-        <h1 data-i18n="hero_titulo">Descanso en las alturas de <em>San Mateo</em></h1>
-        <p class="lead" data-i18n="hero_lead">A 3,200 msnm, rodeado de montañas. Reserve directamente y pague la mejor tarifa, sin intermediarios ni cargos ocultos.</p>
+<!-- ======================= HERO MODERNO ENMARCADO (ESTILO DRIBBBLE 2026) ======================= -->
+<div class="hero-viewport-wrap" id="inicio">
+  <section class="hero">
+    <div class="fondo"></div>
+    <div class="velo"></div>
+    <div class="contenido">
+      <div class="hero-top-row">
+        <span class="etiqueta" data-i18n="hero_etiqueta">✦ Reservas directas · sin comisiones</span>
+        <div class="hero-location-pill">
+          <span class="dot-live"></span>
+          <span>San Mateo, Huarochirí · 3,200 msnm</span>
+        </div>
       </div>
 
-      <aside class="hero-glass-card">
-        <div class="hero-glass-top">
-          <span class="hero-glass-rating" data-i18n="hero_badge_rating">★ 4.9 · Hospitalidad de Altura</span>
-          <span class="hero-glass-dot"></span>
+      <div class="hero-main-grid">
+        <div class="hero-copy">
+          <h1 data-i18n="hero_titulo">Descanso en las alturas de <em>San Mateo</em></h1>
+          <p class="lead" data-i18n="hero_lead">A 3,200 msnm, rodeado de montañas. Reserve directamente y pague la mejor tarifa, sin intermediarios ni cargos ocultos.</p>
         </div>
-        <div class="hero-glass-stat">
-          <strong>3,200 <small>msnm</small></strong>
-          <p data-i18n="hero_badge_altitud">San Mateo, Huarochirí · Lima</p>
-        </div>
-        <div class="hero-glass-divider"></div>
-        <div class="hero-glass-footer">
-          <span>✓ Mejor tarifa garantizada</span>
-          <span>✓ Agua caliente 24h</span>
-        </div>
-      </aside>
-    </div>
 
-    <div class="buscador-shell">
-      <form class="buscador" id="buscador">
-        <div class="campo">
-          <span class="campo-num">01</span>
-          <div class="campo-inner">
-            <label for="entrada" data-i18n="lbl_llegada">Llegada</label>
-            <input type="date" id="entrada" required>
+        <aside class="hero-bento-card">
+          <div class="hero-bento-header">
+            <span class="hero-bento-badge" data-i18n="hero_badge_rating">★ 4.9 · Hospitalidad de Altura</span>
           </div>
-        </div>
-        <div class="campo">
-          <span class="campo-num">02</span>
-          <div class="campo-inner">
-            <label for="salida" data-i18n="lbl_salida">Salida</label>
-            <input type="date" id="salida" required>
+          <div class="hero-bento-metric">
+            <strong>3,200<span>msnm</span></strong>
+            <p data-i18n="hero_badge_altitud">San Mateo, Huarochirí · Lima</p>
           </div>
-        </div>
-        <div class="campo">
-          <span class="campo-num">03</span>
-          <div class="campo-inner">
-            <label for="huespedes" data-i18n="lbl_huespedes">Huéspedes</label>
-            <select id="huespedes" data-i18n-options="huespedes_opciones">
-              <option value="1">1 huésped</option>
-              <option value="2">2 huéspedes</option>
-            </select>
+          <div class="hero-bento-tags">
+            <span>0% Comisión</span>
+            <span>Agua caliente 24h</span>
+            <span>Wi-Fi Fibra</span>
           </div>
-        </div>
-        <button type="submit" class="btn btn-primario" data-i18n="btn_buscar">Buscar</button>
-      </form>
-    </div>
-  </div>
-</section>
+        </aside>
+      </div>
 
+      <div class="buscador-dock">
+        <form class="buscador" id="buscador">
+          <div class="campo">
+            <div class="campo-ico">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            </div>
+            <div class="campo-inner">
+              <label for="entrada" data-i18n="lbl_llegada">Llegada</label>
+              <input type="date" id="entrada" required>
+            </div>
+          </div>
+          <div class="campo">
+            <div class="campo-ico">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            </div>
+            <div class="campo-inner">
+              <label for="salida" data-i18n="lbl_salida">Salida</label>
+              <input type="date" id="salida" required>
+            </div>
+          </div>
+          <div class="campo">
+            <div class="campo-ico">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div class="campo-inner">
+              <label for="huespedes" data-i18n="lbl_huespedes">Huéspedes</label>
+              <select id="huespedes" data-i18n-options="huespedes_opciones">
+                <option value="1">1 huésped</option>
+                <option value="2">2 huéspedes</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primario" data-i18n="btn_buscar">Buscar</button>
+        </form>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ======================= MÉTRICAS MODERNAS (BENTO STRIP) ======================= -->
 <div class="franja">
   <div class="contenedor">
     <div class="item">
-      <span class="item-idx">01</span>
       <b>0%</b>
       <span data-i18n="franja_comision">Comisión de terceros</span>
     </div>
     <div class="item">
-      <span class="item-idx">02</span>
       <b><span data-i18n="franja_checkin">Check-in 1:00 p.m.</span></b>
       <span data-i18n="franja_checkout">Check-out 12:00 p.m.</span>
     </div>
     <div class="item">
-      <span class="item-idx">03</span>
       <b>4 Suites</b>
       <span data-i18n="franja_tipos">Simple · Matrimonial · Queen · King</span>
     </div>
     <div class="item">
-      <span class="item-idx">04</span>
       <b data-contar="3200">3,200</b>
       <span data-i18n="franja_altura">msnm de altura</span>
     </div>
     <div class="item">
-      <span class="item-idx">05</span>
       <b>Yape / Plin</b>
       <span data-i18n="franja_pago">Efectivo en recepción</span>
     </div>
   </div>
 </div>
 
-<!-- ======================= SECCIÓN EDITORIAL: EL REFUGIO ======================= -->
+<!-- ======================= SECCIÓN 01: EL REFUGIO (EDITORIAL BENTO) ======================= -->
 <section class="bloque experiencia-editorial" id="experiencia">
   <div class="contenedor">
     <div class="exp-grid">
@@ -152,21 +161,21 @@
 
         <div class="exp-pilares">
           <div class="exp-pilar">
-            <div class="exp-pilar-ico">✦</div>
+            <div class="exp-pilar-ico">01</div>
             <div>
               <h3 data-i18n="exp_pilar1_tit">Confort de Altura</h3>
               <p data-i18n="exp_pilar1_desc">Habitaciones cálidas con agua caliente permanente las 24 horas y ropa de cama térmica.</p>
             </div>
           </div>
           <div class="exp-pilar">
-            <div class="exp-pilar-ico">✦</div>
+            <div class="exp-pilar-ico">02</div>
             <div>
               <h3 data-i18n="exp_pilar2_tit">Trato Directo</h3>
               <p data-i18n="exp_pilar2_desc">Reserve sin comisiones ocultas, con confirmación inmediata por Yape, Plin o en recepción.</p>
             </div>
           </div>
           <div class="exp-pilar">
-            <div class="exp-pilar-ico">✦</div>
+            <div class="exp-pilar-ico">03</div>
             <div>
               <h3 data-i18n="exp_pilar3_tit">Vistas Andinas</h3>
               <p data-i18n="exp_pilar3_desc">Balcones y ventanales orientados hacia el paisaje montañoso de Huarochirí.</p>
@@ -178,26 +187,29 @@
       <div class="exp-collage revelar">
         <div class="exp-img-principal">
           <img src="assets/img/hero.jpg" alt="Arquitectura y entorno natural Hotel Támpur" loading="lazy">
-          <span class="exp-caption">SAN MATEO DE HUANCHOR · LIMA</span>
+          <span class="exp-caption">San Mateo · Huarochirí</span>
         </div>
-        <div class="exp-img-secundaria">
-          <img src="assets/img/Habitacion_Matrimonial.jpg" alt="Interior cálido Hotel Támpur" loading="lazy">
-        </div>
-        <div class="exp-sello-flotante">
-          <span class="exp-sello-icono">⛰️</span>
-          <p data-i18n="exp_sello">Reserva Directa · Mejor Tarifa Garantizada</p>
+        <div class="exp-bento-row">
+          <div class="exp-img-secundaria">
+            <img src="assets/img/Habitacion_Matrimonial.jpg" alt="Interior cálido Hotel Támpur" loading="lazy">
+          </div>
+          <div class="exp-sello-flotante">
+            <div class="sello-badge-icon">✓</div>
+            <p data-i18n="exp_sello">Reserva Directa · Mejor Tarifa Garantizada</p>
+            <small>Atención 24/7 en recepción y WhatsApp</small>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ======================= SECCIÓN HABITACIONES & SUITES ======================= -->
+<!-- ======================= SECCIÓN 02: HABITACIONES & SUITES ======================= -->
 <section class="bloque seccion-habitaciones" id="habitaciones">
   <div class="contenedor">
     <div class="cabecera-editorial revelar">
       <div class="cabecera-izq">
-        <span class="kicker"><span class="kicker-num">02 —</span> <span data-i18n="sec_alojamiento">Alojamiento</span></span>
+        <span class="kicker" data-i18n="sec_alojamiento">Alojamiento</span>
         <h2 data-i18n="sec_habitaciones_titulo">Nuestras habitaciones</h2>
         <p data-i18n="sec_habitaciones_lead">Espacios cómodos y cálidos pensados para el clima de altura. Elija el tipo ideal para su estadía.</p>
       </div>
@@ -227,7 +239,7 @@
         <article class="tarjeta swiper-slide revelar">
           <div class="foto">
             <img src="assets/img/Habitacion_Simple.jpg" alt="Habitación Simple" loading="lazy">
-            <span class="suite-tag">01 · Essential</span>
+            <span class="suite-tag">Essential</span>
             <span class="precio"><span data-i18n="precio_desde">Desde</span> <b>S/ 60</b><span data-i18n="precio_noche">/noche</span></span>
           </div>
           <div class="cuerpo">
@@ -235,7 +247,6 @@
               <h3 data-i18n="habitacion_simple">Habitación Simple</h3>
               <span class="capacidad-pill">1 Huésped</span>
             </div>
-            <div class="tarjeta-divisor"></div>
             <ul>
               <li data-i18n="simple_1">1 cama individual</li>
               <li data-i18n="simple_2">Baño privado con agua caliente</li>
@@ -250,7 +261,7 @@
         <article class="tarjeta swiper-slide revelar">
           <div class="foto">
             <img src="assets/img/Habitacion_Matrimonial.jpg" alt="Habitación Matrimonial" loading="lazy">
-            <span class="suite-tag">02 · Classic</span>
+            <span class="suite-tag">Classic</span>
             <span class="precio"><span data-i18n="precio_desde">Desde</span> <b>S/ 80</b><span data-i18n="precio_noche">/noche</span></span>
           </div>
           <div class="cuerpo">
@@ -258,7 +269,6 @@
               <h3 data-i18n="habitacion_matrimonial">Habitación Matrimonial</h3>
               <span class="capacidad-pill">1–2 Huéspedes</span>
             </div>
-            <div class="tarjeta-divisor"></div>
             <ul>
               <li data-i18n="mat_1">1 cama matrimonial</li>
               <li data-i18n="mat_2">Baño privado con agua caliente</li>
@@ -273,7 +283,7 @@
         <article class="tarjeta swiper-slide revelar">
           <div class="foto">
             <img src="assets/img/Habitacion_Doble.jpg" alt="Habitación Queen" loading="lazy">
-            <span class="suite-tag">03 · Superior</span>
+            <span class="suite-tag">Superior</span>
             <span class="precio"><span data-i18n="precio_desde">Desde</span> <b>S/ 120</b><span data-i18n="precio_noche">/noche</span></span>
           </div>
           <div class="cuerpo">
@@ -281,7 +291,6 @@
               <h3 data-i18n="habitacion_queen">Habitación Queen</h3>
               <span class="capacidad-pill">1–2 Huéspedes</span>
             </div>
-            <div class="tarjeta-divisor"></div>
             <ul>
               <li data-i18n="queen_1">1 cama queen size</li>
               <li data-i18n="queen_2">Baño privado con agua caliente</li>
@@ -296,7 +305,7 @@
         <article class="tarjeta swiper-slide revelar">
           <div class="foto">
             <img src="assets/img/Habitacion_Matrimonial.jpg" alt="Habitación King" loading="lazy">
-            <span class="suite-tag">04 · Signature Suite</span>
+            <span class="suite-tag">Signature</span>
             <span class="precio"><span data-i18n="precio_desde">Desde</span> <b>S/ 140</b><span data-i18n="precio_noche">/noche</span></span>
           </div>
           <div class="cuerpo">
@@ -304,7 +313,6 @@
               <h3 data-i18n="habitacion_king">Habitación King</h3>
               <span class="capacidad-pill">1–2 Huéspedes</span>
             </div>
-            <div class="tarjeta-divisor"></div>
             <ul>
               <li data-i18n="king_1">1 cama king size</li>
               <li data-i18n="king_2">Baño privado con ducha de lluvia</li>
@@ -315,11 +323,11 @@
           </div>
         </article>
 
-        <!-- Duplicado para loop fluido de Swiper (mantiene orden Simple, Matrimonial, Queen, King) -->
+        <!-- Duplicados para loop infinito manteniendo orden de precios -->
         <article class="tarjeta swiper-slide revelar">
           <div class="foto">
             <img src="assets/img/Habitacion_Simple.jpg" alt="Habitación Simple" loading="lazy">
-            <span class="suite-tag">01 · Essential</span>
+            <span class="suite-tag">Essential</span>
             <span class="precio"><span data-i18n="precio_desde">Desde</span> <b>S/ 60</b><span data-i18n="precio_noche">/noche</span></span>
           </div>
           <div class="cuerpo">
@@ -327,7 +335,6 @@
               <h3 data-i18n="habitacion_simple">Habitación Simple</h3>
               <span class="capacidad-pill">1 Huésped</span>
             </div>
-            <div class="tarjeta-divisor"></div>
             <ul>
               <li data-i18n="simple_1">1 cama individual</li>
               <li data-i18n="simple_2">Baño privado con agua caliente</li>
@@ -341,7 +348,7 @@
         <article class="tarjeta swiper-slide revelar">
           <div class="foto">
             <img src="assets/img/Habitacion_Matrimonial.jpg" alt="Habitación Matrimonial" loading="lazy">
-            <span class="suite-tag">02 · Classic</span>
+            <span class="suite-tag">Classic</span>
             <span class="precio"><span data-i18n="precio_desde">Desde</span> <b>S/ 80</b><span data-i18n="precio_noche">/noche</span></span>
           </div>
           <div class="cuerpo">
@@ -349,7 +356,6 @@
               <h3 data-i18n="habitacion_matrimonial">Habitación Matrimonial</h3>
               <span class="capacidad-pill">1–2 Huéspedes</span>
             </div>
-            <div class="tarjeta-divisor"></div>
             <ul>
               <li data-i18n="mat_1">1 cama matrimonial</li>
               <li data-i18n="mat_2">Baño privado con agua caliente</li>
@@ -363,7 +369,7 @@
         <article class="tarjeta swiper-slide revelar">
           <div class="foto">
             <img src="assets/img/Habitacion_Doble.jpg" alt="Habitación Queen" loading="lazy">
-            <span class="suite-tag">03 · Superior</span>
+            <span class="suite-tag">Superior</span>
             <span class="precio"><span data-i18n="precio_desde">Desde</span> <b>S/ 120</b><span data-i18n="precio_noche">/noche</span></span>
           </div>
           <div class="cuerpo">
@@ -371,7 +377,6 @@
               <h3 data-i18n="habitacion_queen">Habitación Queen</h3>
               <span class="capacidad-pill">1–2 Huéspedes</span>
             </div>
-            <div class="tarjeta-divisor"></div>
             <ul>
               <li data-i18n="queen_1">1 cama queen size</li>
               <li data-i18n="queen_2">Baño privado con agua caliente</li>
@@ -385,7 +390,7 @@
         <article class="tarjeta swiper-slide revelar">
           <div class="foto">
             <img src="assets/img/Habitacion_Matrimonial.jpg" alt="Habitación King" loading="lazy">
-            <span class="suite-tag">04 · Signature Suite</span>
+            <span class="suite-tag">Signature</span>
             <span class="precio"><span data-i18n="precio_desde">Desde</span> <b>S/ 140</b><span data-i18n="precio_noche">/noche</span></span>
           </div>
           <div class="cuerpo">
@@ -393,7 +398,6 @@
               <h3 data-i18n="habitacion_king">Habitación King</h3>
               <span class="capacidad-pill">1–2 Huéspedes</span>
             </div>
-            <div class="tarjeta-divisor"></div>
             <ul>
               <li data-i18n="king_1">1 cama king size</li>
               <li data-i18n="king_2">Baño privado con ducha de lluvia</li>
@@ -411,72 +415,74 @@
   </div>
 </section>
 
-<!-- ======================= SECCIÓN AMENIDADES ======================= -->
-<section class="bloque amenidades" id="amenidades">
-  <div class="contenedor">
-    <div class="cabecera-seccion revelar">
-      <span class="kicker"><span class="kicker-num">03 —</span> <span data-i18n="sec_amenidades">Comodidades</span></span>
-      <h2 data-i18n="sec_amenidades_titulo">Amenidades del hotel</h2>
-      <p data-i18n="sec_amenidades_lead">Todo lo que necesita para una estadía cómoda y sin preocupaciones.</p>
+<!-- ======================= SECCIÓN 03: AMENIDADES (FOREST BENTO SHOWCASE) ======================= -->
+<div class="amenidades-outer-wrap" id="amenidades">
+  <section class="bloque amenidades">
+    <div class="contenedor">
+      <div class="cabecera-seccion revelar">
+        <span class="kicker" data-i18n="sec_amenidades">Comodidades</span>
+        <h2 data-i18n="sec_amenidades_titulo">Amenidades del hotel</h2>
+        <p data-i18n="sec_amenidades_lead">Todo lo que necesita para una estadía cómoda y sin preocupaciones.</p>
+      </div>
+      <div class="grid-amenidades">
+        <div class="amen revelar">
+          <div class="amen-head">
+            <div class="ico"><svg viewBox="0 0 24 24"><path d="M5 12.5a6.5 6.5 0 1 1 13 0"/><path d="M2 12.5h3l2-3 2.5 5 2.5-4 2 2h5"/><circle cx="19" cy="12.5" r="1"/></svg></div>
+            <span class="amen-num">01</span>
+          </div>
+          <h3 data-i18n="amen_wifi_titulo">Wi-Fi gratis</h3>
+          <p data-i18n="amen_wifi_desc">Conexión de alta velocidad en todas las áreas.</p>
+        </div>
+        <div class="amen revelar">
+          <div class="amen-head">
+            <div class="ico"><svg viewBox="0 0 24 24"><path d="M4 18V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10"/><path d="M2 18h20M8 8v3m4-3v3m4-3v3"/></svg></div>
+            <span class="amen-num">02</span>
+          </div>
+          <h3 data-i18n="amen_desayuno_titulo">Desayuno (pago aparte)</h3>
+          <p data-i18n="amen_desayuno_desc">Opciones calientes para empezar el día.</p>
+        </div>
+        <div class="amen revelar">
+          <div class="amen-head">
+            <div class="ico"><svg viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="10" rx="2"/><circle cx="8" cy="15" r="1"/><circle cx="16" cy="15" r="1"/></svg></div>
+            <span class="amen-num">03</span>
+          </div>
+          <h3 data-i18n="amen_estacionamiento_titulo">Estacionamiento gratis</h3>
+          <p data-i18n="amen_estacionamiento_desc">Espacio seguro para su vehículo.</p>
+        </div>
+        <div class="amen revelar">
+          <div class="amen-head">
+            <div class="ico"><svg viewBox="0 0 24 24"><path d="M4 16c4-1 6 1 8 0s4-1 8 0"/><path d="M4 12c4-1 6 1 8 0s4-1 8 0"/><path d="M4 8c4-1 6 1 8 0s4-1 8 0"/></svg></div>
+            <span class="amen-num">04</span>
+          </div>
+          <h3 data-i18n="amen_piscina_titulo">Piscina</h3>
+          <p data-i18n="amen_piscina_desc">Zona de descanso y recreación.</p>
+        </div>
+        <div class="amen revelar">
+          <div class="amen-head">
+            <div class="ico"><svg viewBox="0 0 24 24"><path d="M8 21c3-3 5 3 8 0"/><path d="M4 4c2 3 2 4 4 6l-2 3"/><circle cx="5" cy="4" r="1"/></svg></div>
+            <span class="amen-num">05</span>
+          </div>
+          <h3 data-i18n="amen_pet_titulo">Pet friendly</h3>
+          <p data-i18n="amen_pet_desc">Aceptamos mascotas con políticas claras.</p>
+        </div>
+        <div class="amen revelar">
+          <div class="amen-head">
+            <div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg></div>
+            <span class="amen-num">06</span>
+          </div>
+          <h3 data-i18n="amen_recepcion_titulo">Recepción 24h</h3>
+          <p data-i18n="amen_recepcion_desc">Personal disponible para ayudarle.</p>
+        </div>
+      </div>
     </div>
-    <div class="grid-amenidades">
-      <div class="amen revelar">
-        <div class="amen-head">
-          <div class="ico"><svg viewBox="0 0 24 24"><path d="M5 12.5a6.5 6.5 0 1 1 13 0"/><path d="M2 12.5h3l2-3 2.5 5 2.5-4 2 2h5"/><circle cx="19" cy="12.5" r="1"/></svg></div>
-          <span class="amen-num">01</span>
-        </div>
-        <h3 data-i18n="amen_wifi_titulo">Wi-Fi gratis</h3>
-        <p data-i18n="amen_wifi_desc">Conexión de alta velocidad en todas las áreas.</p>
-      </div>
-      <div class="amen revelar">
-        <div class="amen-head">
-          <div class="ico"><svg viewBox="0 0 24 24"><path d="M4 18V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10"/><path d="M2 18h20M8 8v3m4-3v3m4-3v3"/></svg></div>
-          <span class="amen-num">02</span>
-        </div>
-        <h3 data-i18n="amen_desayuno_titulo">Desayuno (pago aparte)</h3>
-        <p data-i18n="amen_desayuno_desc">Opciones calientes para empezar el día.</p>
-      </div>
-      <div class="amen revelar">
-        <div class="amen-head">
-          <div class="ico"><svg viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="10" rx="2"/><circle cx="8" cy="15" r="1"/><circle cx="16" cy="15" r="1"/></svg></div>
-          <span class="amen-num">03</span>
-        </div>
-        <h3 data-i18n="amen_estacionamiento_titulo">Estacionamiento gratis</h3>
-        <p data-i18n="amen_estacionamiento_desc">Espacio seguro para su vehículo.</p>
-      </div>
-      <div class="amen revelar">
-        <div class="amen-head">
-          <div class="ico"><svg viewBox="0 0 24 24"><path d="M4 16c4-1 6 1 8 0s4-1 8 0"/><path d="M4 12c4-1 6 1 8 0s4-1 8 0"/><path d="M4 8c4-1 6 1 8 0s4-1 8 0"/></svg></div>
-          <span class="amen-num">04</span>
-        </div>
-        <h3 data-i18n="amen_piscina_titulo">Piscina</h3>
-        <p data-i18n="amen_piscina_desc">Zona de descanso y recreación.</p>
-      </div>
-      <div class="amen revelar">
-        <div class="amen-head">
-          <div class="ico"><svg viewBox="0 0 24 24"><path d="M8 21c3-3 5 3 8 0"/><path d="M4 4c2 3 2 4 4 6l-2 3"/><circle cx="5" cy="4" r="1"/></svg></div>
-          <span class="amen-num">05</span>
-        </div>
-        <h3 data-i18n="amen_pet_titulo">Pet friendly</h3>
-        <p data-i18n="amen_pet_desc">Aceptamos mascotas con políticas claras.</p>
-      </div>
-      <div class="amen revelar">
-        <div class="amen-head">
-          <div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg></div>
-          <span class="amen-num">06</span>
-        </div>
-        <h3 data-i18n="amen_recepcion_titulo">Recepción 24h</h3>
-        <p data-i18n="amen_recepcion_desc">Personal disponible para ayudarle.</p>
-      </div>
-    </div>
-  </div>
-</section>
+  </section>
+</div>
 
-<!-- ======================= SECCIÓN UBICACIÓN Y CONTACTO ======================= -->
+<!-- ======================= SECCIÓN 04: UBICACIÓN Y CONTACTO ======================= -->
 <section class="bloque" id="ubicacion">
   <div class="contenedor">
     <div class="cabecera-seccion revelar">
-      <span class="kicker"><span class="kicker-num">04 —</span> <span data-i18n="sec_ubicacion_kicker">Encuéntrenos</span></span>
+      <span class="kicker" data-i18n="sec_ubicacion_kicker">Encuéntrenos</span>
       <h2 data-i18n="sec_ubicacion_titulo">Ubicación y contacto</h2>
       <p data-i18n="sec_ubicacion_lead">Magnolias 197, San Mateo, Huarochirí, Lima — a 3,200 msnm.</p>
     </div>
@@ -519,7 +525,7 @@
 
       <div class="datos revelar">
         <form class="formulario" id="formConsulta">
-          <span class="form-kicker">CONCIERGE DIRECTO</span>
+          <span class="form-kicker">Atención Directa</span>
           <h3 data-i18n="form_consulta">Envíe su consulta</h3>
           <p class="form-lead">¿Desea organizar una estadía especial o consultar disponibilidad grupal? Escríbanos directamente.</p>
           <div class="fila">
@@ -545,14 +551,11 @@
 
 <footer>
   <div class="contenedor">
-    <div class="footer-brand-banner">
-      <span>TÁMPUR</span>
-    </div>
     <div class="grid">
       <div>
         <a class="logo" href="#inicio" style="margin-bottom:18px">
           <div class="logo-marca-wrap">
-            <img class="marca" src="assets/img/logo-sin-fondo.png" alt="Hotel Támpur" height="40">
+            <img class="marca" src="assets/img/logo-sin-fondo.png" alt="Hotel Támpur" height="36">
           </div>
           <span><b>Hotel Támpur</b><small>San Mateo · Huarochirí</small></span>
         </a>
@@ -586,7 +589,7 @@
 <div class="modal" id="modalReserva">
   <div class="caja" id="cajaFormulario">
     <button class="cerrar" onclick="cerrarModal()">&times;</button>
-    <span class="modal-kicker">RESERVA DIRECTA · 0% COMISIÓN</span>
+    <span class="modal-kicker">Reserva Directa · 0% Comisión</span>
     <h3 id="rTitulo">Reserva</h3>
     <p class="sub" id="rSubtitulo">Complete sus datos para confirmar.</p>
     <div class="fila">
@@ -744,7 +747,7 @@
         swiperInstance = new Swiper(".habitaciones-swiper", {
           grabCursor: true,
           centeredSlides: false,
-          slidesPerView: 1.08,
+          slidesPerView: 1.06,
           spaceBetween: 24,
           breakpoints: {
             640: {
@@ -752,7 +755,7 @@
               spaceBetween: 28,
             },
             1024: {
-              slidesPerView: 2.5,
+              slidesPerView: 2.4,
               spaceBetween: 32,
             },
             1280: {
@@ -784,16 +787,16 @@
 </script>
 <script>
 function toggleTema() {
-  document.body.classList.toggle('tema-claro');
-  const isLight = document.body.classList.contains('tema-claro');
-  localStorage.setItem('hotel_tema', isLight ? 'claro' : 'oscuro');
-  document.getElementById('btnTema').innerText = isLight ? '🌙' : '☀️';
+  document.body.classList.toggle('tema-oscuro');
+  const isDark = document.body.classList.contains('tema-oscuro');
+  localStorage.setItem('hotel_tema_v2', isDark ? 'oscuro' : 'claro');
+  document.getElementById('btnTema').innerText = isDark ? '☀️' : '🌙';
 }
 document.addEventListener('DOMContentLoaded', () => {
-  if (localStorage.getItem('hotel_tema') === 'claro') {
-    document.body.classList.add('tema-claro');
+  if (localStorage.getItem('hotel_tema_v2') === 'oscuro') {
+    document.body.classList.add('tema-oscuro');
     const btn = document.getElementById('btnTema');
-    if(btn) btn.innerText = '🌙';
+    if(btn) btn.innerText = '☀️';
   }
 });
 </script>
