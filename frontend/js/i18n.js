@@ -4,8 +4,18 @@ let idiomaActual = localStorage.getItem('tampur_idioma') || 'ES';
 const traducciones = {
   ES: {
     // Nav
-    nav_inicio: 'Inicio', nav_habitaciones: 'Habitaciones', nav_amenidades: 'Amenidades',
+    nav_inicio: 'Inicio', nav_experiencia: 'El Refugio', nav_habitaciones: 'Habitaciones', nav_amenidades: 'Amenidades',
     nav_ubicacion: 'Ubicación', nav_contacto: 'Contacto', nav_reservar: 'Reservar',
+    // Experiencia Editorial
+    exp_kicker: '01 — El Refugio',
+    exp_titulo: 'Donde la serenidad de los Andes se une al <em>confort contemporáneo</em>',
+    exp_lead: 'Ubicado en el corazón de San Mateo de Huanchor a 3,200 msnm, Hotel Támpur ofrece una pausa íntima rodeada de montañas, aire puro y hospitalidad cálida sin intermediarios.',
+    exp_pilar1_tit: 'Confort de Altura', exp_pilar1_desc: 'Habitaciones cálidas con agua caliente permanente las 24 horas y ropa de cama térmica.',
+    exp_pilar2_tit: 'Trato Directo', exp_pilar2_desc: 'Reserve sin comisiones ocultas, con confirmación inmediata por Yape, Plin o en recepción.',
+    exp_pilar3_tit: 'Vistas Andinas', exp_pilar3_desc: 'Balcones y ventanales orientados hacia el paisaje montañoso de Huarochirí.',
+    exp_sello: 'Reserva Directa · Mejor Tarifa Garantizada',
+    hero_badge_altitud: 'San Mateo, Huarochirí · Lima',
+    hero_badge_rating: '★ 4.9 · Hospitalidad de Altura',
     // Hero
     hero_etiqueta: '✦ Reservas directas · sin comisiones',
     hero_titulo: 'Descanso en las alturas de <em>San Mateo</em>',
@@ -130,8 +140,18 @@ const traducciones = {
   },
   EN: {
     // Nav
-    nav_inicio: 'Home', nav_habitaciones: 'Rooms', nav_amenidades: 'Amenities',
+    nav_inicio: 'Home', nav_experiencia: 'The Sanctuary', nav_habitaciones: 'Rooms', nav_amenidades: 'Amenities',
     nav_ubicacion: 'Location', nav_contacto: 'Contact', nav_reservar: 'Book Now',
+    // Experiencia Editorial
+    exp_kicker: '01 — The Sanctuary',
+    exp_titulo: 'Where Andean serenity meets <em>contemporary comfort</em>',
+    exp_lead: 'Nestled in the heart of San Mateo de Huanchor at 3,200 m.a.s.l., Hotel Támpur offers an intimate mountain retreat with pure air and warm hospitality—with zero middlemen.',
+    exp_pilar1_tit: 'Highland Warmth', exp_pilar1_desc: 'Warm rooms featuring 24/7 hot water and cozy thermal bedding for mountain nights.',
+    exp_pilar2_tit: 'Direct Booking', exp_pilar2_desc: 'Book with zero hidden fees and instant confirmation via Yape, Plin, or cash at reception.',
+    exp_pilar3_tit: 'Andean Views', exp_pilar3_desc: 'Balconies and windows framing the majestic mountains of Huarochirí.',
+    exp_sello: 'Direct Booking · Best Rate Guaranteed',
+    hero_badge_altitud: 'San Mateo, Huarochirí · Lima',
+    hero_badge_rating: '★ 4.9 · Highland Boutique Stay',
     // Hero
     hero_etiqueta: '✦ Direct bookings · no commissions',
     hero_titulo: 'Rest in the heights of <em>San Mateo</em>',

@@ -34,10 +34,10 @@
   // Deshabilitar habitación Simple si hay 2 huéspedes
   document.getElementById('huespedes').addEventListener('change',function(){
     const max=parseInt(this.value)||1;
-    const cardSimple=document.querySelector('[onclick*="simple"]');
-    if(cardSimple){
+    document.querySelectorAll('[onclick*="simple"]').forEach(btn=>{
+      const cardSimple=btn.closest('.tarjeta')||btn;
       if(max>=2){
-        cardSimple.style.opacity='.35';
+        cardSimple.style.opacity='.42';
         cardSimple.style.pointerEvents='none';
         cardSimple.style.position='relative';
         let badge=cardSimple.querySelector('.badge-no-disponible');
@@ -45,8 +45,7 @@
           badge=document.createElement('span');
           badge.className='badge-no-disponible';
           badge.textContent=idiomaActual==='EN'?'Max 1 guest':'Máx 1 huésped';
-          badge.style.cssText='position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.75);color:#fff;padding:8px 16px;border-radius:8px;font-size:.85rem;font-weight:600;white-space:nowrap;z-index:2';
-          cardSimple.style.position='relative';
+          badge.style.cssText='position:absolute;top:16px;right:16px;background:rgba(10,13,12,.88);border:1px solid rgba(255,255,255,.18);color:#fff;padding:6px 14px;border-radius:999px;font-size:.74rem;letter-spacing:1px;text-transform:uppercase;font-weight:600;white-space:nowrap;z-index:5;backdrop-filter:blur(8px)';
           cardSimple.appendChild(badge);
         }
       } else {
@@ -55,7 +54,7 @@
         const badge=cardSimple.querySelector('.badge-no-disponible');
         if(badge) badge.remove();
       }
-    }
+    });
   });
 
   // Reserva

@@ -3,34 +3,42 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hotel Támpur · San Mateo, Huarochirí</title>
-<meta name="description" content="Reserve directamente en el Hotel Támpur en San Mateo, Huarochirí. Habitaciones simples, dobles y matrimoniales. Sin comisiones de terceros.">
+<title>Hotel Támpur · Luxury Mountain Retreat · San Mateo, Huarochirí</title>
+<meta name="description" content="Reserve directamente en el Hotel Támpur en San Mateo, Huarochirí. Habitaciones simples, matrimoniales, queen y king a 3,200 msnm. Sin comisiones de terceros.">
 <link rel="icon" type="image/png" href="assets/img/logo-sin-fondo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <link rel="stylesheet" href="css/styles.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 <body>
 
 <header id="header">
   <div class="contenedor barra">
     <a class="logo" href="#inicio">
-      <img class="marca" src="assets/img/logo-sin-fondo.png" alt="Hotel Támpur" height="42">
-      <span><b>Hotel Támpur</b><small>San Mateo · Huarochirí</small></span>
+      <div class="logo-marca-wrap">
+        <img class="marca" src="assets/img/logo-sin-fondo.png" alt="Hotel Támpur" height="40">
+      </div>
+      <span>
+        <b>Hotel Támpur</b>
+        <small>San Mateo · 3,200 msnm</small>
+      </span>
     </a>
     <nav id="nav">
       <a href="#inicio" data-i18n="nav_inicio">Inicio</a>
+      <a href="#experiencia" data-i18n="nav_experiencia">El Refugio</a>
       <a href="#habitaciones" data-i18n="nav_habitaciones">Habitaciones</a>
       <a href="#amenidades" data-i18n="nav_amenidades">Amenidades</a>
       <a href="#ubicacion" data-i18n="nav_ubicacion">Ubicación</a>
       <a href="#contacto" data-i18n="nav_contacto">Contacto</a>
-      <a class="btn btn-primario" href="#habitaciones" data-i18n="nav_reservar">Reservar</a>
-      <button class="btn-tema" id="btnTema" onclick="toggleTema()" title="Alternar tema">☀️</button>
-      <button class="btn-idioma" id="btnIdioma" onclick="toggleIdioma()" title="Cambiar idioma">EN</button>
+      <div class="nav-acciones">
+        <button class="btn-tema" id="btnTema" onclick="toggleTema()" title="Alternar tema" aria-label="Alternar tema">☀️</button>
+        <button class="btn-idioma" id="btnIdioma" onclick="toggleIdioma()" title="Cambiar idioma">EN</button>
+        <a class="btn btn-primario btn-nav-cta" href="#habitaciones" data-i18n="nav_reservar">Reservar</a>
+      </div>
     </nav>
     <button class="hamburguesa" id="hamburguesa" aria-label="Menú">
       <span></span><span></span><span></span>
@@ -39,197 +47,496 @@
 </header>
 
 <section class="hero" id="inicio">
-  <div class="fondo"></div><div class="velo"></div>
+  <div class="fondo"></div>
+  <div class="velo"></div>
+  <div class="hero-lineas-arquitectura" aria-hidden="true"></div>
   <div class="contenido">
-    <span class="etiqueta" data-i18n="hero_etiqueta">✦ Reservas directas · sin comisiones</span>
-    <h1 data-i18n="hero_titulo">Descanso en las alturas de <em>San Mateo</em></h1>
-    <p class="lead" data-i18n="hero_lead">A 3,200 msnm, rodeado de montañas. Reserve directamente y pague la mejor tarifa, sin intermediarios ni cargos ocultos.</p>
-    <form class="buscador" id="buscador">
-      <div class="campo">
-        <label for="entrada" data-i18n="lbl_llegada">Llegada</label>
-        <input type="date" id="entrada" required>
+    <div class="hero-top-meta">
+      <span class="etiqueta" data-i18n="hero_etiqueta">✦ Reservas directas · sin comisiones</span>
+      <span class="coordenadas-pill">11°45′S 76°18′W · CORDILLERA CENTRAL</span>
+    </div>
+
+    <div class="hero-editorial-grid">
+      <div class="hero-col-principal">
+        <h1 data-i18n="hero_titulo">Descanso en las alturas de <em>San Mateo</em></h1>
+        <p class="lead" data-i18n="hero_lead">A 3,200 msnm, rodeado de montañas. Reserve directamente y pague la mejor tarifa, sin intermediarios ni cargos ocultos.</p>
       </div>
-      <div class="campo">
-        <label for="salida" data-i18n="lbl_salida">Salida</label>
-        <input type="date" id="salida" required>
-      </div>
-      <div class="campo">
-        <label for="huespedes" data-i18n="lbl_huespedes">Huéspedes</label>
-        <select id="huespedes" data-i18n-options="huespedes_opciones">
-          <option value="1">1 huésped</option><option value="2">2 huéspedes</option>
-        </select>
-      </div>
-      <button type="submit" class="btn btn-primario" data-i18n="btn_buscar">Buscar</button>
-    </form>
+
+      <aside class="hero-glass-card">
+        <div class="hero-glass-top">
+          <span class="hero-glass-rating" data-i18n="hero_badge_rating">★ 4.9 · Hospitalidad de Altura</span>
+          <span class="hero-glass-dot"></span>
+        </div>
+        <div class="hero-glass-stat">
+          <strong>3,200 <small>msnm</small></strong>
+          <p data-i18n="hero_badge_altitud">San Mateo, Huarochirí · Lima</p>
+        </div>
+        <div class="hero-glass-divider"></div>
+        <div class="hero-glass-footer">
+          <span>✓ Mejor tarifa garantizada</span>
+          <span>✓ Agua caliente 24h</span>
+        </div>
+      </aside>
+    </div>
+
+    <div class="buscador-shell">
+      <form class="buscador" id="buscador">
+        <div class="campo">
+          <span class="campo-num">01</span>
+          <div class="campo-inner">
+            <label for="entrada" data-i18n="lbl_llegada">Llegada</label>
+            <input type="date" id="entrada" required>
+          </div>
+        </div>
+        <div class="campo">
+          <span class="campo-num">02</span>
+          <div class="campo-inner">
+            <label for="salida" data-i18n="lbl_salida">Salida</label>
+            <input type="date" id="salida" required>
+          </div>
+        </div>
+        <div class="campo">
+          <span class="campo-num">03</span>
+          <div class="campo-inner">
+            <label for="huespedes" data-i18n="lbl_huespedes">Huéspedes</label>
+            <select id="huespedes" data-i18n-options="huespedes_opciones">
+              <option value="1">1 huésped</option>
+              <option value="2">2 huéspedes</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primario" data-i18n="btn_buscar">Buscar</button>
+      </form>
+    </div>
   </div>
 </section>
 
 <div class="franja">
   <div class="contenedor">
-    <div class="item"><b>0%</b><span data-i18n="franja_comision">Comisión de terceros</span></div>
-    <div class="item"><b><span data-i18n="franja_checkin">Check-in 1:00 p.m.</span></b><span data-i18n="franja_checkout">Check-out 12:00 p.m.</span></div>
-    <div class="item"><b>4 tipos</b><span data-i18n="franja_tipos">Simple · Matrimonial · Queen · King</span></div>
-    <div class="item"><b data-contar="3200">3,200</b><span data-i18n="franja_altura">msnm de altura</span></div>
-    <div class="item"><b>Yape / Plin</b><span data-i18n="franja_pago">Efectivo en recepción</span></div>
+    <div class="item">
+      <span class="item-idx">01</span>
+      <b>0%</b>
+      <span data-i18n="franja_comision">Comisión de terceros</span>
+    </div>
+    <div class="item">
+      <span class="item-idx">02</span>
+      <b><span data-i18n="franja_checkin">Check-in 1:00 p.m.</span></b>
+      <span data-i18n="franja_checkout">Check-out 12:00 p.m.</span>
+    </div>
+    <div class="item">
+      <span class="item-idx">03</span>
+      <b>4 Suites</b>
+      <span data-i18n="franja_tipos">Simple · Matrimonial · Queen · King</span>
+    </div>
+    <div class="item">
+      <span class="item-idx">04</span>
+      <b data-contar="3200">3,200</b>
+      <span data-i18n="franja_altura">msnm de altura</span>
+    </div>
+    <div class="item">
+      <span class="item-idx">05</span>
+      <b>Yape / Plin</b>
+      <span data-i18n="franja_pago">Efectivo en recepción</span>
+    </div>
   </div>
 </div>
 
-<section class="bloque" id="habitaciones">
+<!-- ======================= SECCIÓN EDITORIAL: EL REFUGIO ======================= -->
+<section class="bloque experiencia-editorial" id="experiencia">
   <div class="contenedor">
-    <div class="cabecera-seccion revelar">
-      <span class="kicker" data-i18n="sec_alojamiento">Alojamiento</span>
-      <h2 data-i18n="sec_habitaciones_titulo">Nuestras habitaciones</h2>
-      <p data-i18n="sec_habitaciones_lead">Espacios cómodos y cálidos pensados para el clima de altura. Elija el tipo ideal para su estadía.</p>
+    <div class="exp-grid">
+      <div class="exp-texto revelar">
+        <span class="kicker" data-i18n="exp_kicker">01 — El Refugio</span>
+        <h2 class="titulo-editorial" data-i18n="exp_titulo">Donde la serenidad de los Andes se une al <em>confort contemporáneo</em></h2>
+        <p class="exp-parrafo" data-i18n="exp_lead">Ubicado en el corazón de San Mateo de Huanchor a 3,200 msnm, Hotel Támpur ofrece una pausa íntima rodeada de montañas, aire puro y hospitalidad cálida sin intermediarios.</p>
+
+        <div class="exp-pilares">
+          <div class="exp-pilar">
+            <div class="exp-pilar-ico">✦</div>
+            <div>
+              <h3 data-i18n="exp_pilar1_tit">Confort de Altura</h3>
+              <p data-i18n="exp_pilar1_desc">Habitaciones cálidas con agua caliente permanente las 24 horas y ropa de cama térmica.</p>
+            </div>
+          </div>
+          <div class="exp-pilar">
+            <div class="exp-pilar-ico">✦</div>
+            <div>
+              <h3 data-i18n="exp_pilar2_tit">Trato Directo</h3>
+              <p data-i18n="exp_pilar2_desc">Reserve sin comisiones ocultas, con confirmación inmediata por Yape, Plin o en recepción.</p>
+            </div>
+          </div>
+          <div class="exp-pilar">
+            <div class="exp-pilar-ico">✦</div>
+            <div>
+              <h3 data-i18n="exp_pilar3_tit">Vistas Andinas</h3>
+              <p data-i18n="exp_pilar3_desc">Balcones y ventanales orientados hacia el paisaje montañoso de Huarochirí.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="exp-collage revelar">
+        <div class="exp-img-principal">
+          <img src="assets/img/hero.jpg" alt="Arquitectura y entorno natural Hotel Támpur" loading="lazy">
+          <span class="exp-caption">SAN MATEO DE HUANCHOR · LIMA</span>
+        </div>
+        <div class="exp-img-secundaria">
+          <img src="assets/img/Habitacion_Matrimonial.jpg" alt="Interior cálido Hotel Támpur" loading="lazy">
+        </div>
+        <div class="exp-sello-flotante">
+          <span class="exp-sello-icono">⛰️</span>
+          <p data-i18n="exp_sello">Reserva Directa · Mejor Tarifa Garantizada</p>
+        </div>
+      </div>
     </div>
-    <div class="selector-moneda revelar">
-      <label for="selMoneda" data-i18n="lbl_moneda">Mostrar precios en</label>
-      <select id="selMoneda">
-        <option value="PEN">S/ · Soles (PEN)</option>
-        <option value="USD">US$ · Dólares (USD)</option>
-        <option value="EUR">€ · Euros (EUR)</option>
-        <option value="GBP">£ · Libras (GBP)</option>
-        <option value="BRL">R$ · Reales (BRL)</option>
-        <option value="MXN">MX$ · Pesos mexicanos (MXN)</option>
-        <option value="ARS">AR$ · Pesos argentinos (ARS)</option>
-        <option value="CLP">CL$ · Pesos chilenos (CLP)</option>
-      </select>
-      <span class="tasa-hint" id="tasaHint"></span>
-    </div>
-    <div class="swiper habitaciones-swiper" style="padding-bottom:50px; padding-top:20px;">
-    <div class="tarjetas swiper-wrapper">
-      <article class="tarjeta swiper-slide revelar">
-        <div class="foto"><img src="assets/img/Habitacion_Simple.jpg" alt="Habitación Simple" loading="lazy"><span class="precio"><span data-i18n="precio_desde">Desde</span> <b>S/ 60</b><span data-i18n="precio_noche">/noche</span></span></div>
-        <div class="cuerpo">
-          <h3 data-i18n="habitacion_simple">Habitación Simple</h3>
-          <ul><li data-i18n="simple_1">1 cama individual</li><li data-i18n="simple_2">Baño privado con agua caliente</li><li data-i18n="simple_3">Wi-Fi de alta velocidad</li><li data-i18n="simple_4">Vistas a la montaña</li></ul>
-          <button class="btn btn-primario" onclick="abrirReserva('Habitación Simple','simple')" data-i18n="btn_reservar">Reservar</button>
-        </div>
-      </article>
-      <article class="tarjeta swiper-slide revelar">
-        <div class="foto"><img src="assets/img/Habitacion_Matrimonial.jpg" alt="Habitación Matrimonial" loading="lazy"><span class="precio"><span data-i18n="precio_desde">Desde</span> <b>S/ 80</b><span data-i18n="precio_noche">/noche</span></span></div>
-        <div class="cuerpo">
-          <h3 data-i18n="habitacion_matrimonial">Habitación Matrimonial</h3>
-          <ul><li data-i18n="mat_1">1 cama matrimonial</li><li data-i18n="mat_2">Baño privado con agua caliente</li><li data-i18n="mat_3">Wi-Fi + TV por cable</li><li data-i18n="mat_4">Vistas a la montaña</li></ul>
-          <button class="btn btn-primario" onclick="abrirReserva('Habitación Matrimonial','matrimonial')" data-i18n="btn_reservar">Reservar</button>
-        </div>
-      </article>
-      <article class="tarjeta swiper-slide revelar">
-        <div class="foto"><img src="assets/img/Habitacion_Doble.jpg" alt="Habitación Queen" loading="lazy"><span class="precio"><span data-i18n="precio_desde">Desde</span> <b>S/ 120</b><span data-i18n="precio_noche">/noche</span></span></div>
-        <div class="cuerpo">
-          <h3 data-i18n="habitacion_queen">Habitación Queen</h3>
-          <ul><li data-i18n="queen_1">1 cama queen size</li><li data-i18n="queen_2">Baño privado con agua caliente</li><li data-i18n="queen_3">Wi-Fi + TV por cable</li><li data-i18n="queen_4">Balcón con vista</li></ul>
-          <button class="btn btn-primario" onclick="abrirReserva('Habitación Queen','queen')" data-i18n="btn_reservar">Reservar</button>
-        </div>
-      </article>
-      <article class="tarjeta swiper-slide revelar">
-        <div class="foto"><img src="assets/img/Habitacion_Matrimonial.jpg" alt="Habitación King" loading="lazy"><span class="precio"><span data-i18n="precio_desde">Desde</span> <b>S/ 140</b><span data-i18n="precio_noche">/noche</span></span></div>
-        <div class="cuerpo">
-          <h3 data-i18n="habitacion_king">Habitación King</h3>
-          <ul><li data-i18n="king_1">1 cama king size</li><li data-i18n="king_2">Baño privado con ducha de lluvia</li><li data-i18n="king_3">Wi-Fi + Smart TV</li><li data-i18n="king_4">Balcón panorámico</li></ul>
-          <button class="btn btn-primario" onclick="abrirReserva('Habitación King','king')" data-i18n="btn_reservar">Reservar</button>
-        </div>
-      </article>
-      <article class="tarjeta swiper-slide revelar">
-        <div class="foto"><img src="assets/img/Habitacion_Simple.jpg" alt="Habitación Simple" loading="lazy"><span class="precio"><span data-i18n="precio_desde">Desde</span> <b>S/ 60</b><span data-i18n="precio_noche">/noche</span></span></div>
-        <div class="cuerpo">
-          <h3 data-i18n="habitacion_simple">Habitación Simple</h3>
-          <ul><li data-i18n="simple_1">1 cama individual</li><li data-i18n="simple_2">Baño privado con agua caliente</li><li data-i18n="simple_3">Wi-Fi de alta velocidad</li><li data-i18n="simple_4">Vistas a la montaña</li></ul>
-          <button class="btn btn-primario" onclick="abrirReserva('Habitación Simple','simple')" data-i18n="btn_reservar">Reservar</button>
-        </div>
-      </article>
-      <article class="tarjeta swiper-slide revelar">
-        <div class="foto"><img src="assets/img/Habitacion_Matrimonial.jpg" alt="Habitación Matrimonial" loading="lazy"><span class="precio"><span data-i18n="precio_desde">Desde</span> <b>S/ 80</b><span data-i18n="precio_noche">/noche</span></span></div>
-        <div class="cuerpo">
-          <h3 data-i18n="habitacion_matrimonial">Habitación Matrimonial</h3>
-          <ul><li data-i18n="mat_1">1 cama matrimonial</li><li data-i18n="mat_2">Baño privado con agua caliente</li><li data-i18n="mat_3">Wi-Fi + TV por cable</li><li data-i18n="mat_4">Vistas a la montaña</li></ul>
-          <button class="btn btn-primario" onclick="abrirReserva('Habitación Matrimonial','matrimonial')" data-i18n="btn_reservar">Reservar</button>
-        </div>
-      </article>
-      <article class="tarjeta swiper-slide revelar">
-        <div class="foto"><img src="assets/img/Habitacion_Doble.jpg" alt="Habitación Queen" loading="lazy"><span class="precio"><span data-i18n="precio_desde">Desde</span> <b>S/ 120</b><span data-i18n="precio_noche">/noche</span></span></div>
-        <div class="cuerpo">
-          <h3 data-i18n="habitacion_queen">Habitación Queen</h3>
-          <ul><li data-i18n="queen_1">1 cama queen size</li><li data-i18n="queen_2">Baño privado con agua caliente</li><li data-i18n="queen_3">Wi-Fi + TV por cable</li><li data-i18n="queen_4">Balcón con vista</li></ul>
-          <button class="btn btn-primario" onclick="abrirReserva('Habitación Queen','queen')" data-i18n="btn_reservar">Reservar</button>
-        </div>
-      </article>
-      <article class="tarjeta swiper-slide revelar">
-        <div class="foto"><img src="assets/img/Habitacion_Matrimonial.jpg" alt="Habitación King" loading="lazy"><span class="precio"><span data-i18n="precio_desde">Desde</span> <b>S/ 140</b><span data-i18n="precio_noche">/noche</span></span></div>
-        <div class="cuerpo">
-          <h3 data-i18n="habitacion_king">Habitación King</h3>
-          <ul><li data-i18n="king_1">1 cama king size</li><li data-i18n="king_2">Baño privado con ducha de lluvia</li><li data-i18n="king_3">Wi-Fi + Smart TV</li><li data-i18n="king_4">Balcón panorámico</li></ul>
-          <button class="btn btn-primario" onclick="abrirReserva('Habitación King','king')" data-i18n="btn_reservar">Reservar</button>
-        </div>
-      </article>
-    </div>
-    <div class="swiper-pagination"></div>
-    <div class="swiper-button-next" style="color: var(--cobre);"></div>
-    <div class="swiper-button-prev" style="color: var(--cobre);"></div>
-  </div>
   </div>
 </section>
 
+<!-- ======================= SECCIÓN HABITACIONES & SUITES ======================= -->
+<section class="bloque seccion-habitaciones" id="habitaciones">
+  <div class="contenedor">
+    <div class="cabecera-editorial revelar">
+      <div class="cabecera-izq">
+        <span class="kicker"><span class="kicker-num">02 —</span> <span data-i18n="sec_alojamiento">Alojamiento</span></span>
+        <h2 data-i18n="sec_habitaciones_titulo">Nuestras habitaciones</h2>
+        <p data-i18n="sec_habitaciones_lead">Espacios cómodos y cálidos pensados para el clima de altura. Elija el tipo ideal para su estadía.</p>
+      </div>
+      <div class="cabecera-der">
+        <div class="selector-moneda">
+          <label for="selMoneda" data-i18n="lbl_moneda">Mostrar precios en</label>
+          <div class="moneda-controles">
+            <select id="selMoneda">
+              <option value="PEN">S/ · Soles (PEN)</option>
+              <option value="USD">US$ · Dólares (USD)</option>
+              <option value="EUR">€ · Euros (EUR)</option>
+              <option value="GBP">£ · Libras (GBP)</option>
+              <option value="BRL">R$ · Reales (BRL)</option>
+              <option value="MXN">MX$ · Pesos mexicanos (MXN)</option>
+              <option value="ARS">AR$ · Pesos argentinos (ARS)</option>
+              <option value="CLP">CL$ · Pesos chilenos (CLP)</option>
+            </select>
+            <span class="tasa-hint" id="tasaHint"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="swiper habitaciones-swiper">
+      <div class="tarjetas swiper-wrapper">
+        <!-- 1. Simple -->
+        <article class="tarjeta swiper-slide revelar">
+          <div class="foto">
+            <img src="assets/img/Habitacion_Simple.jpg" alt="Habitación Simple" loading="lazy">
+            <span class="suite-tag">01 · Essential</span>
+            <span class="precio"><span data-i18n="precio_desde">Desde</span> <b>S/ 60</b><span data-i18n="precio_noche">/noche</span></span>
+          </div>
+          <div class="cuerpo">
+            <div class="cuerpo-top">
+              <h3 data-i18n="habitacion_simple">Habitación Simple</h3>
+              <span class="capacidad-pill">1 Huésped</span>
+            </div>
+            <div class="tarjeta-divisor"></div>
+            <ul>
+              <li data-i18n="simple_1">1 cama individual</li>
+              <li data-i18n="simple_2">Baño privado con agua caliente</li>
+              <li data-i18n="simple_3">Wi-Fi de alta velocidad</li>
+              <li data-i18n="simple_4">Vistas a la montaña</li>
+            </ul>
+            <button class="btn btn-primario" onclick="abrirReserva('Habitación Simple','simple')" data-i18n="btn_reservar">Reservar</button>
+          </div>
+        </article>
+
+        <!-- 2. Matrimonial -->
+        <article class="tarjeta swiper-slide revelar">
+          <div class="foto">
+            <img src="assets/img/Habitacion_Matrimonial.jpg" alt="Habitación Matrimonial" loading="lazy">
+            <span class="suite-tag">02 · Classic</span>
+            <span class="precio"><span data-i18n="precio_desde">Desde</span> <b>S/ 80</b><span data-i18n="precio_noche">/noche</span></span>
+          </div>
+          <div class="cuerpo">
+            <div class="cuerpo-top">
+              <h3 data-i18n="habitacion_matrimonial">Habitación Matrimonial</h3>
+              <span class="capacidad-pill">1–2 Huéspedes</span>
+            </div>
+            <div class="tarjeta-divisor"></div>
+            <ul>
+              <li data-i18n="mat_1">1 cama matrimonial</li>
+              <li data-i18n="mat_2">Baño privado con agua caliente</li>
+              <li data-i18n="mat_3">Wi-Fi + TV por cable</li>
+              <li data-i18n="mat_4">Vistas a la montaña</li>
+            </ul>
+            <button class="btn btn-primario" onclick="abrirReserva('Habitación Matrimonial','matrimonial')" data-i18n="btn_reservar">Reservar</button>
+          </div>
+        </article>
+
+        <!-- 3. Queen -->
+        <article class="tarjeta swiper-slide revelar">
+          <div class="foto">
+            <img src="assets/img/Habitacion_Doble.jpg" alt="Habitación Queen" loading="lazy">
+            <span class="suite-tag">03 · Superior</span>
+            <span class="precio"><span data-i18n="precio_desde">Desde</span> <b>S/ 120</b><span data-i18n="precio_noche">/noche</span></span>
+          </div>
+          <div class="cuerpo">
+            <div class="cuerpo-top">
+              <h3 data-i18n="habitacion_queen">Habitación Queen</h3>
+              <span class="capacidad-pill">1–2 Huéspedes</span>
+            </div>
+            <div class="tarjeta-divisor"></div>
+            <ul>
+              <li data-i18n="queen_1">1 cama queen size</li>
+              <li data-i18n="queen_2">Baño privado con agua caliente</li>
+              <li data-i18n="queen_3">Wi-Fi + TV por cable</li>
+              <li data-i18n="queen_4">Balcón con vista</li>
+            </ul>
+            <button class="btn btn-primario" onclick="abrirReserva('Habitación Queen','queen')" data-i18n="btn_reservar">Reservar</button>
+          </div>
+        </article>
+
+        <!-- 4. King -->
+        <article class="tarjeta swiper-slide revelar">
+          <div class="foto">
+            <img src="assets/img/Habitacion_Matrimonial.jpg" alt="Habitación King" loading="lazy">
+            <span class="suite-tag">04 · Signature Suite</span>
+            <span class="precio"><span data-i18n="precio_desde">Desde</span> <b>S/ 140</b><span data-i18n="precio_noche">/noche</span></span>
+          </div>
+          <div class="cuerpo">
+            <div class="cuerpo-top">
+              <h3 data-i18n="habitacion_king">Habitación King</h3>
+              <span class="capacidad-pill">1–2 Huéspedes</span>
+            </div>
+            <div class="tarjeta-divisor"></div>
+            <ul>
+              <li data-i18n="king_1">1 cama king size</li>
+              <li data-i18n="king_2">Baño privado con ducha de lluvia</li>
+              <li data-i18n="king_3">Wi-Fi + Smart TV</li>
+              <li data-i18n="king_4">Balcón panorámico</li>
+            </ul>
+            <button class="btn btn-primario" onclick="abrirReserva('Habitación King','king')" data-i18n="btn_reservar">Reservar</button>
+          </div>
+        </article>
+
+        <!-- Duplicado para loop fluido de Swiper (mantiene orden Simple, Matrimonial, Queen, King) -->
+        <article class="tarjeta swiper-slide revelar">
+          <div class="foto">
+            <img src="assets/img/Habitacion_Simple.jpg" alt="Habitación Simple" loading="lazy">
+            <span class="suite-tag">01 · Essential</span>
+            <span class="precio"><span data-i18n="precio_desde">Desde</span> <b>S/ 60</b><span data-i18n="precio_noche">/noche</span></span>
+          </div>
+          <div class="cuerpo">
+            <div class="cuerpo-top">
+              <h3 data-i18n="habitacion_simple">Habitación Simple</h3>
+              <span class="capacidad-pill">1 Huésped</span>
+            </div>
+            <div class="tarjeta-divisor"></div>
+            <ul>
+              <li data-i18n="simple_1">1 cama individual</li>
+              <li data-i18n="simple_2">Baño privado con agua caliente</li>
+              <li data-i18n="simple_3">Wi-Fi de alta velocidad</li>
+              <li data-i18n="simple_4">Vistas a la montaña</li>
+            </ul>
+            <button class="btn btn-primario" onclick="abrirReserva('Habitación Simple','simple')" data-i18n="btn_reservar">Reservar</button>
+          </div>
+        </article>
+
+        <article class="tarjeta swiper-slide revelar">
+          <div class="foto">
+            <img src="assets/img/Habitacion_Matrimonial.jpg" alt="Habitación Matrimonial" loading="lazy">
+            <span class="suite-tag">02 · Classic</span>
+            <span class="precio"><span data-i18n="precio_desde">Desde</span> <b>S/ 80</b><span data-i18n="precio_noche">/noche</span></span>
+          </div>
+          <div class="cuerpo">
+            <div class="cuerpo-top">
+              <h3 data-i18n="habitacion_matrimonial">Habitación Matrimonial</h3>
+              <span class="capacidad-pill">1–2 Huéspedes</span>
+            </div>
+            <div class="tarjeta-divisor"></div>
+            <ul>
+              <li data-i18n="mat_1">1 cama matrimonial</li>
+              <li data-i18n="mat_2">Baño privado con agua caliente</li>
+              <li data-i18n="mat_3">Wi-Fi + TV por cable</li>
+              <li data-i18n="mat_4">Vistas a la montaña</li>
+            </ul>
+            <button class="btn btn-primario" onclick="abrirReserva('Habitación Matrimonial','matrimonial')" data-i18n="btn_reservar">Reservar</button>
+          </div>
+        </article>
+
+        <article class="tarjeta swiper-slide revelar">
+          <div class="foto">
+            <img src="assets/img/Habitacion_Doble.jpg" alt="Habitación Queen" loading="lazy">
+            <span class="suite-tag">03 · Superior</span>
+            <span class="precio"><span data-i18n="precio_desde">Desde</span> <b>S/ 120</b><span data-i18n="precio_noche">/noche</span></span>
+          </div>
+          <div class="cuerpo">
+            <div class="cuerpo-top">
+              <h3 data-i18n="habitacion_queen">Habitación Queen</h3>
+              <span class="capacidad-pill">1–2 Huéspedes</span>
+            </div>
+            <div class="tarjeta-divisor"></div>
+            <ul>
+              <li data-i18n="queen_1">1 cama queen size</li>
+              <li data-i18n="queen_2">Baño privado con agua caliente</li>
+              <li data-i18n="queen_3">Wi-Fi + TV por cable</li>
+              <li data-i18n="queen_4">Balcón con vista</li>
+            </ul>
+            <button class="btn btn-primario" onclick="abrirReserva('Habitación Queen','queen')" data-i18n="btn_reservar">Reservar</button>
+          </div>
+        </article>
+
+        <article class="tarjeta swiper-slide revelar">
+          <div class="foto">
+            <img src="assets/img/Habitacion_Matrimonial.jpg" alt="Habitación King" loading="lazy">
+            <span class="suite-tag">04 · Signature Suite</span>
+            <span class="precio"><span data-i18n="precio_desde">Desde</span> <b>S/ 140</b><span data-i18n="precio_noche">/noche</span></span>
+          </div>
+          <div class="cuerpo">
+            <div class="cuerpo-top">
+              <h3 data-i18n="habitacion_king">Habitación King</h3>
+              <span class="capacidad-pill">1–2 Huéspedes</span>
+            </div>
+            <div class="tarjeta-divisor"></div>
+            <ul>
+              <li data-i18n="king_1">1 cama king size</li>
+              <li data-i18n="king_2">Baño privado con ducha de lluvia</li>
+              <li data-i18n="king_3">Wi-Fi + Smart TV</li>
+              <li data-i18n="king_4">Balcón panorámico</li>
+            </ul>
+            <button class="btn btn-primario" onclick="abrirReserva('Habitación King','king')" data-i18n="btn_reservar">Reservar</button>
+          </div>
+        </article>
+      </div>
+      <div class="swiper-pagination"></div>
+      <div class="swiper-button-next"></div>
+      <div class="swiper-button-prev"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= SECCIÓN AMENIDADES ======================= -->
 <section class="bloque amenidades" id="amenidades">
   <div class="contenedor">
     <div class="cabecera-seccion revelar">
-      <span class="kicker" data-i18n="sec_amenidades">Comodidades</span>
+      <span class="kicker"><span class="kicker-num">03 —</span> <span data-i18n="sec_amenidades">Comodidades</span></span>
       <h2 data-i18n="sec_amenidades_titulo">Amenidades del hotel</h2>
       <p data-i18n="sec_amenidades_lead">Todo lo que necesita para una estadía cómoda y sin preocupaciones.</p>
     </div>
     <div class="grid-amenidades">
       <div class="amen revelar">
-        <div class="ico"><svg viewBox="0 0 24 24"><path d="M5 12.5a6.5 6.5 0 1 1 13 0"/><path d="M2 12.5h3l2-3 2.5 5 2.5-4 2 2h5"/><circle cx="19" cy="12.5" r="1"/></svg></div>
-        <h3 data-i18n="amen_wifi_titulo">Wi-Fi gratis</h3><p data-i18n="amen_wifi_desc">Conexión de alta velocidad en todas las áreas.</p>
+        <div class="amen-head">
+          <div class="ico"><svg viewBox="0 0 24 24"><path d="M5 12.5a6.5 6.5 0 1 1 13 0"/><path d="M2 12.5h3l2-3 2.5 5 2.5-4 2 2h5"/><circle cx="19" cy="12.5" r="1"/></svg></div>
+          <span class="amen-num">01</span>
+        </div>
+        <h3 data-i18n="amen_wifi_titulo">Wi-Fi gratis</h3>
+        <p data-i18n="amen_wifi_desc">Conexión de alta velocidad en todas las áreas.</p>
       </div>
       <div class="amen revelar">
-        <div class="ico"><svg viewBox="0 0 24 24"><path d="M4 18V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10"/><path d="M2 18h20M8 8v3m4-3v3m4-3v3"/></svg></div>
-        <h3 data-i18n="amen_desayuno_titulo">Desayuno (pago aparte)</h3><p data-i18n="amen_desayuno_desc">Opciones calientes para empezar el día.</p>
+        <div class="amen-head">
+          <div class="ico"><svg viewBox="0 0 24 24"><path d="M4 18V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10"/><path d="M2 18h20M8 8v3m4-3v3m4-3v3"/></svg></div>
+          <span class="amen-num">02</span>
+        </div>
+        <h3 data-i18n="amen_desayuno_titulo">Desayuno (pago aparte)</h3>
+        <p data-i18n="amen_desayuno_desc">Opciones calientes para empezar el día.</p>
       </div>
       <div class="amen revelar">
-        <div class="ico"><svg viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="10" rx="2"/><circle cx="8" cy="15" r="1"/><circle cx="16" cy="15" r="1"/></svg></div>
-        <h3 data-i18n="amen_estacionamiento_titulo">Estacionamiento gratis</h3><p data-i18n="amen_estacionamiento_desc">Espacio seguro para su vehículo.</p>
+        <div class="amen-head">
+          <div class="ico"><svg viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="10" rx="2"/><circle cx="8" cy="15" r="1"/><circle cx="16" cy="15" r="1"/></svg></div>
+          <span class="amen-num">03</span>
+        </div>
+        <h3 data-i18n="amen_estacionamiento_titulo">Estacionamiento gratis</h3>
+        <p data-i18n="amen_estacionamiento_desc">Espacio seguro para su vehículo.</p>
       </div>
       <div class="amen revelar">
-        <div class="ico"><svg viewBox="0 0 24 24"><path d="M4 16c4-1 6 1 8 0s4-1 8 0"/><path d="M4 12c4-1 6 1 8 0s4-1 8 0"/><path d="M4 8c4-1 6 1 8 0s4-1 8 0"/></svg></div>
-        <h3 data-i18n="amen_piscina_titulo">Piscina</h3><p data-i18n="amen_piscina_desc">Zona de descanso y recreación.</p>
+        <div class="amen-head">
+          <div class="ico"><svg viewBox="0 0 24 24"><path d="M4 16c4-1 6 1 8 0s4-1 8 0"/><path d="M4 12c4-1 6 1 8 0s4-1 8 0"/><path d="M4 8c4-1 6 1 8 0s4-1 8 0"/></svg></div>
+          <span class="amen-num">04</span>
+        </div>
+        <h3 data-i18n="amen_piscina_titulo">Piscina</h3>
+        <p data-i18n="amen_piscina_desc">Zona de descanso y recreación.</p>
       </div>
       <div class="amen revelar">
-        <div class="ico"><svg viewBox="0 0 24 24"><path d="M8 21c3-3 5 3 8 0"/><path d="M4 4c2 3 2 4 4 6l-2 3"/><circle cx="5" cy="4" r="1"/></svg></div>
-        <h3 data-i18n="amen_pet_titulo">Pet friendly</h3><p data-i18n="amen_pet_desc">Aceptamos mascotas con políticas claras.</p>
+        <div class="amen-head">
+          <div class="ico"><svg viewBox="0 0 24 24"><path d="M8 21c3-3 5 3 8 0"/><path d="M4 4c2 3 2 4 4 6l-2 3"/><circle cx="5" cy="4" r="1"/></svg></div>
+          <span class="amen-num">05</span>
+        </div>
+        <h3 data-i18n="amen_pet_titulo">Pet friendly</h3>
+        <p data-i18n="amen_pet_desc">Aceptamos mascotas con políticas claras.</p>
       </div>
       <div class="amen revelar">
-        <div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg></div>
-        <h3 data-i18n="amen_recepcion_titulo">Recepción 24h</h3><p data-i18n="amen_recepcion_desc">Personal disponible para ayudarle.</p>
+        <div class="amen-head">
+          <div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg></div>
+          <span class="amen-num">06</span>
+        </div>
+        <h3 data-i18n="amen_recepcion_titulo">Recepción 24h</h3>
+        <p data-i18n="amen_recepcion_desc">Personal disponible para ayudarle.</p>
       </div>
     </div>
   </div>
 </section>
 
+<!-- ======================= SECCIÓN UBICACIÓN Y CONTACTO ======================= -->
 <section class="bloque" id="ubicacion">
   <div class="contenedor">
     <div class="cabecera-seccion revelar">
-      <span class="kicker" data-i18n="sec_ubicacion_kicker">Encuéntrenos</span>
+      <span class="kicker"><span class="kicker-num">04 —</span> <span data-i18n="sec_ubicacion_kicker">Encuéntrenos</span></span>
       <h2 data-i18n="sec_ubicacion_titulo">Ubicación y contacto</h2>
       <p data-i18n="sec_ubicacion_lead">Magnolias 197, San Mateo, Huarochirí, Lima — a 3,200 msnm.</p>
     </div>
     <div class="contacto-grid" id="contacto">
-      <div class="mapa revelar">
-        <iframe title="Mapa Hotel Támpur" loading="lazy" src="https://www.google.com/maps?q=Magnolias+197,+San+Mateo,+Huarochir%C3%AD,+Lima&output=embed"></iframe>
-      </div>
-      <div class="datos revelar">
-        <div class="dato"><div class="punto">📍</div><div><h3>Dirección</h3><p>Magnolias 197, San Mateo, Huarochirí, Lima</p></div></div>
-        <div class="dato"><div class="punto">📞</div><div><h3>Teléfono / WhatsApp</h3><p>943 370 504</p></div></div>
-        <div class="dato"><div class="punto">🕐</div><div><h3>Horarios</h3><p>Check-in 1:00 p.m. · Check-out 12:00 p.m.</p></div></div>
-        <div class="dato"><div class="punto">💳</div><div><h3>Medios de pago</h3><p>Yape, Plin y efectivo en recepción</p></div></div>
-
-        <form class="formulario" id="formConsulta">
-          <h3>Envíe su consulta</h3>
-          <div class="fila">
-            <div class="campo-form"><label data-i18n="form_nombre">Nombre</label><input type="text" id="cNombre" required></div>
-            <div class="campo-form"><label data-i18n="form_correo">Correo</label><input type="email" id="cCorreo" required></div>
+      <div class="ubicacion-col-izq revelar">
+        <div class="mapa">
+          <iframe title="Mapa Hotel Támpur" loading="lazy" src="https://www.google.com/maps?q=Magnolias+197,+San+Mateo,+Huarochir%C3%AD,+Lima&output=embed"></iframe>
+        </div>
+        <div class="datos-grid">
+          <div class="dato">
+            <div class="punto">📍</div>
+            <div>
+              <h3 data-i18n="dato_direccion">Dirección</h3>
+              <p>Magnolias 197, San Mateo, Huarochirí, Lima</p>
+            </div>
           </div>
-          <div class="campo-form"><label data-i18n="form_mensaje">Mensaje</label><textarea id="cMensaje" rows="3" placeholder="Quisiera información sobre..."></textarea></div>
-          <button class="btn btn-primario" type="submit" data-i18n="form_enviar">Enviar consulta</button>
+          <div class="dato">
+            <div class="punto">📞</div>
+            <div>
+              <h3 data-i18n="dato_telefono">Teléfono / WhatsApp</h3>
+              <p>943 370 504</p>
+            </div>
+          </div>
+          <div class="dato">
+            <div class="punto">🕐</div>
+            <div>
+              <h3 data-i18n="dato_horarios">Horarios</h3>
+              <p>Check-in 1:00 p.m. · Check-out 12:00 p.m.</p>
+            </div>
+          </div>
+          <div class="dato">
+            <div class="punto">💳</div>
+            <div>
+              <h3 data-i18n="dato_pago">Medios de pago</h3>
+              <p>Yape, Plin y efectivo en recepción</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="datos revelar">
+        <form class="formulario" id="formConsulta">
+          <span class="form-kicker">CONCIERGE DIRECTO</span>
+          <h3 data-i18n="form_consulta">Envíe su consulta</h3>
+          <p class="form-lead">¿Desea organizar una estadía especial o consultar disponibilidad grupal? Escríbanos directamente.</p>
+          <div class="fila">
+            <div class="campo-form">
+              <label data-i18n="form_nombre">Nombre</label>
+              <input type="text" id="cNombre" placeholder="Nombre completo" required>
+            </div>
+            <div class="campo-form">
+              <label data-i18n="form_correo">Correo</label>
+              <input type="email" id="cCorreo" placeholder="correo@ejemplo.com" required>
+            </div>
+          </div>
+          <div class="campo-form">
+            <label data-i18n="form_mensaje">Mensaje</label>
+            <textarea id="cMensaje" rows="4" placeholder="Quisiera información sobre..."></textarea>
+          </div>
+          <button class="btn btn-primario btn-full" type="submit" data-i18n="form_enviar">Enviar consulta</button>
         </form>
       </div>
     </div>
@@ -238,13 +545,22 @@
 
 <footer>
   <div class="contenedor">
+    <div class="footer-brand-banner">
+      <span>TÁMPUR</span>
+    </div>
     <div class="grid">
       <div>
-        <a class="logo" href="#inicio" style="color:#fff;margin-bottom:14px"><img class="marca" src="assets/img/logo-sin-fondo.png" alt="Hotel Támpur" height="42"><span><b>Hotel Támpur</b><small>San Mateo · Huarochirí</small></span></a>
-        <p style="max-width:38ch" data-i18n="footer_desc">Plataforma de reservas directas. Reserve sin comisiones de terceros y disfrute de la mejor tarifa garantizada.</p>
+        <a class="logo" href="#inicio" style="margin-bottom:18px">
+          <div class="logo-marca-wrap">
+            <img class="marca" src="assets/img/logo-sin-fondo.png" alt="Hotel Támpur" height="40">
+          </div>
+          <span><b>Hotel Támpur</b><small>San Mateo · Huarochirí</small></span>
+        </a>
+        <p style="max-width:40ch" data-i18n="footer_desc">Plataforma de reservas directas. Reserve sin comisiones de terceros y disfrute de la mejor tarifa garantizada.</p>
       </div>
       <div>
         <h4 data-i18n="footer_explorar">Explorar</h4>
+        <a href="#experiencia" data-i18n="nav_experiencia">El Refugio</a>
         <a href="#habitaciones" data-i18n="nav_habitaciones">Habitaciones</a>
         <a href="#amenidades" data-i18n="nav_amenidades">Amenidades</a>
         <a href="#ubicacion" data-i18n="nav_ubicacion">Ubicación</a>
@@ -253,10 +569,12 @@
         <h4 data-i18n="footer_contacto">Contacto</h4>
         <a href="https://wa.me/51943370504" target="_blank">WhatsApp: 943 370 504</a>
         <a href="mailto:reservas@hoteltampur.com">reservas@hoteltampur.com</a>
-        <p>Magnolias 197, San Mateo</p>
+        <p>Magnolias 197, San Mateo · 3,200 msnm</p>
       </div>
     </div>
-    <div class="legal">© 2026 Hotel Támpur · San Mateo, Huarochirí, Lima · <span data-i18n="footer_derechos">Todos los derechos reservados</span> · <a href="/admin/" style="color:rgba(255,255,255,.5)" data-i18n="footer_admin">Acceso administrador</a></div>
+    <div class="legal">
+      © 2026 Hotel Támpur · San Mateo, Huarochirí, Lima · <span data-i18n="footer_derechos">Todos los derechos reservados</span> · <a href="/admin/" class="link-admin" data-i18n="footer_admin">Acceso administrador</a>
+    </div>
   </div>
 </footer>
 
@@ -264,9 +582,11 @@
   <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.5 14.2c-.2.7-1.3 1.3-1.9 1.4-.5.1-1.1.2-3.5-.7-3-1.2-4.9-4.1-5-4.3-.2-.2-1.2-1.6-1.2-3s.8-2.1 1-2.4c.3-.3.6-.4.8-.4h.6c.2 0 .4-.1.7.5.2.6.8 2 .9 2.2.1.2.1.4 0 .6-.1.2-.2.4-.4.6-.2.2-.4.4-.6.6-.2.2-.4.4-.2.7.2.4.9 1.5 2 2.4 1.4 1.2 2.5 1.6 2.8 1.7.3.2.5.1.7-.1.2-.2.8-1 1-1.3.2-.3.4-.2.7-.1.3.1 1.8.9 2.1 1 .3.2.5.2.6.4.1.1.1.6-.1 1.3z"/></svg>
 </a>
 
+<!-- ======================= MODAL DE RESERVA ======================= -->
 <div class="modal" id="modalReserva">
   <div class="caja" id="cajaFormulario">
     <button class="cerrar" onclick="cerrarModal()">&times;</button>
+    <span class="modal-kicker">RESERVA DIRECTA · 0% COMISIÓN</span>
     <h3 id="rTitulo">Reserva</h3>
     <p class="sub" id="rSubtitulo">Complete sus datos para confirmar.</p>
     <div class="fila">
@@ -281,19 +601,22 @@
       <div class="campo-form"><label data-i18n="reserva_email">Correo electrónico</label><input type="email" id="rCorreo" placeholder="correo@ejemplo.com" maxlength="100"><span class="campo-error" id="errCorreo"></span></div>
       <div class="campo-form"><label data-i18n="reserva_tel">Teléfono (opcional)</label><input type="tel" id="rTelefono" placeholder="943 000 000" maxlength="15"><span class="campo-error" id="errTelefono"></span></div>
     </div>
-    <div class="campo-form">
-      <label data-i18n="reserva MetodoPago">Método de pago</label>
-      <select id="rMetodo">
-        <option value="yape">Yape</option>
-        <option value="plin">Plin</option>
-        <option value="efectivo" data-i18n="reserva_efectivo">Efectivo en recepción</option>
-      </select>
-    </div>
-    <div class="campo-form">
-      <label data-i18n="reserva_huespedes">Número de huéspedes</label>
-      <select id="rHuespedes">
-        <option value="1">1 huésped</option><option value="2">2 huéspedes</option>
-      </select>
+    <div class="fila">
+      <div class="campo-form">
+        <label data-i18n="reserva MetodoPago">Método de pago</label>
+        <select id="rMetodo">
+          <option value="yape">Yape</option>
+          <option value="plin">Plin</option>
+          <option value="efectivo" data-i18n="reserva_efectivo">Efectivo en recepción</option>
+        </select>
+      </div>
+      <div class="campo-form">
+        <label data-i18n="reserva_huespedes">Número de huéspedes</label>
+        <select id="rHuespedes">
+          <option value="1">1 huésped</option>
+          <option value="2">2 huéspedes</option>
+        </select>
+      </div>
     </div>
     <div id="qrBox" style="display:none">
       <div class="pago-box">
@@ -320,39 +643,39 @@
     </div>
     <div class="resumen">
       <span id="rDetalle">Seleccione fechas</span>
-      <span style="text-align:right"><b id="rTotal">S/ 0</b><br><span id="rTotalConv" style="font-size:.82rem;color:var(--gris)"></span></span>
+      <span style="text-align:right"><b id="rTotal">S/ 0</b><br><span id="rTotalConv" style="font-size:.82rem;color:var(--text-muted)"></span></span>
     </div>
-    <button class="btn btn-primario" id="btnConfirmarReserva" style="width:100%;justify-content:center;margin-top:14px" onclick="confirmarReserva()" data-i18n="reserva_confirmar">Confirmar reserva</button>
+    <button class="btn btn-primario" id="btnConfirmarReserva" style="width:100%;justify-content:center;margin-top:16px" onclick="confirmarReserva()" data-i18n="reserva_confirmar">Confirmar reserva</button>
   </div>
 
-  <div class="caja" id="cajaExito" style="display:none; text-align:center; padding: 40px 30px;">
+  <div class="caja" id="cajaExito" style="display:none; text-align:center; padding: 44px 34px;">
     <button class="cerrar" onclick="cerrarModal()">&times;</button>
-    <div class="alerta-exito">
-      <div style="font-size: 4rem; color: #10b981; margin-bottom: 20px;">
-        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+    <div class="alerta-exito-luxury">
+      <div class="exito-icono-circulo">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
       </div>
-      <h2 id="exitoTitulo" style="font-size:1.8rem; margin-bottom:10px; color: var(--text-main); font-family: 'Playfair Display', serif;">¡Reserva Confirmada!</h2>
-      <p id="exitoSub" style="color: var(--text-muted); font-size: 1.05rem; margin-bottom: 24px;">Hemos recibido tu solicitud.</p>
+      <h2 id="exitoTitulo" class="exito-titulo">¡Reserva Confirmada!</h2>
+      <p id="exitoSub" class="exito-sub">Hemos recibido tu solicitud.</p>
       
-      <div style="background: rgba(16, 185, 129, 0.05); border: 1px dashed rgba(16, 185, 129, 0.4); border-radius: 16px; padding: 20px; margin-bottom: 24px;">
-        <p style="color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px;">Código de Reserva</p>
-        <div id="exitoCodigo" style="font-size: 2.2rem; font-weight: 700; color: #10b981; letter-spacing: 3px;">---</div>
+      <div class="exito-codigo-box">
+        <p class="exito-codigo-lbl">Código de Reserva</p>
+        <div id="exitoCodigo" class="exito-codigo-val">---</div>
       </div>
 
-      <div style="display:flex; justify-content: space-between; text-align:left; background: var(--bg-base); border-radius: 12px; padding: 16px; margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.05);">
+      <div class="exito-horarios-box">
         <div>
-          <p style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 4px;">Check-in</p>
-          <p style="color: var(--text-main); font-weight: 600;">1:00 p.m.</p>
+          <p class="exito-horario-lbl">Check-in</p>
+          <p class="exito-horario-val">1:00 p.m.</p>
         </div>
         <div style="text-align: right;">
-          <p style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 4px;">Check-out</p>
-          <p style="color: var(--text-main); font-weight: 600;">12:00 p.m.</p>
+          <p class="exito-horario-lbl">Check-out</p>
+          <p class="exito-horario-val">12:00 p.m.</p>
         </div>
       </div>
 
       <p id="exitoVoucher" style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 24px; display:none;"></p>
       
-      <button class="btn btn-primario" style="width: 100%; height: 54px; font-size: 1.1rem;" onclick="cerrarModal()">Entendido</button>
+      <button class="btn btn-primario" style="width: 100%; height: 54px; justify-content: center;" onclick="cerrarModal()">Entendido</button>
     </div>
   </div>
 </div>
@@ -389,7 +712,7 @@
   <div class="admin-shell">
     <aside>
       <div class="titulo">
-        <img class="marca" src="assets/img/logo-sin-fondo.png" alt="Hotel Támpur" height="40">
+        <img class="marca" src="assets/img/logo-sin-fondo.png" alt="Hotel Támpur" height="38">
         <span><b>Hotel Támpur</b><small>Backoffice</small></span>
       </div>
       <button data-tab="reservas" class="activo" onclick="cambiarTab('reservas')"><svg class="admin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 14l2 2 4-4"/></svg><span data-i18n="admin_nav_reservas">Monitorear reservas</span></button>
@@ -419,17 +742,23 @@
     function initSwiper() {
       if (!swiperInstance) {
         swiperInstance = new Swiper(".habitaciones-swiper", {
-          effect: "coverflow",
           grabCursor: true,
-          centeredSlides: true,
-          slidesPerView: "auto",
-          coverflowEffect: {
-            rotate: 0,
-            stretch: -10,
-            depth: 250,
-            modifier: 1.5,
-            slideShadows: false,
-            scale: 0.85
+          centeredSlides: false,
+          slidesPerView: 1.08,
+          spaceBetween: 24,
+          breakpoints: {
+            640: {
+              slidesPerView: 1.6,
+              spaceBetween: 28,
+            },
+            1024: {
+              slidesPerView: 2.5,
+              spaceBetween: 32,
+            },
+            1280: {
+              slidesPerView: 3,
+              spaceBetween: 32,
+            }
           },
           pagination: {
             el: ".swiper-pagination",
@@ -441,8 +770,9 @@
           },
           loop: true,
           autoplay: {
-            delay: 3500,
+            delay: 4800,
             disableOnInteraction: false,
+            pauseOnMouseEnter: true
           }
         });
       }
@@ -478,7 +808,7 @@ document.addEventListener('DOMContentLoaded', () => {
       altInput: true,
       altFormat: "j M, Y",
       dateFormat: "Y-m-d",
-      disableMobile: "true" // Forza a usar flatpickr en vez del nativo en móviles
+      disableMobile: "true"
     });
   });
 </script>
