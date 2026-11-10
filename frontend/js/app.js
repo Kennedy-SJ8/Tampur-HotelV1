@@ -1,0 +1,1330 @@
+  // Navbar
+  const header=document.getElementById('header');
+  addEventListener('scroll',()=>header.classList.toggle('scrolled',scrollY>40));
+  document.getElementById('hamburguesa').onclick=()=>document.getElementById('nav').classList.toggle('abierto');
+  document.querySelectorAll('#nav a').forEach(a=>a.addEventListener('click',()=>document.getElementById('nav').classList.remove('abierto')));
+
+  // Reveal on scroll
+  const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}}),{threshold:.12});
+  document.querySelectorAll('.revelar').forEach(el=>obs.observe(el));
+
+  // Buscador hero -> scroll a habitaciones y setear fechas
+    document.getElementById('buscador').addEventListener('submit',e=>{
+    e.preventDefault();
+    const en=document.getElementById('entrada').value, sa=document.getElementById('salida').value;
+    const huespedes=document.getElementById('huespedes').value;
+    document.getElementById('habitaciones').scrollIntoView({behavior:'smooth'});
+    
+    // Update flatpickr instances
+    const rE = document.getElementById('rEntrada');
+    const rS = document.getElementById('rSalida');
+    if(en){
+      if(rE._flatpickr) rE._flatpickr.setDate(en);
+      else rE.value = en;
+    }
+    if(sa){
+      if(rS._flatpickr) rS._flatpickr.setDate(sa);
+      else rS.value = sa;
+    }
+    
+    const selHuespedes=document.getElementById('rHuespedes');
+    if(selHuespedes){ selHuespedes.value=huespedes; }
+  });
+
+  // Deshabilitar habitación Simple si hay 2 huéspedes
+  document.getElementById('huespedes').addEventListener('change',function(){
+    const max=parseInt(this.value)||1;
+    document.querySelectorAll('[onclick*="simple"]').forEach(btn=>{
+      const cardSimple=btn.closest('.tarjeta')||btn;
+      if(max>=2){
+        cardSimple.style.opacity='.42';
+        cardSimple.style.pointerEvents='none';
+        cardSimple.style.position='relative';
+        let badge=cardSimple.querySelector('.badge-no-disponible');
+        if(!badge){
+          badge=document.createElement('span');
+          badge.className='badge-no-disponible';
+          badge.textContent=idiomaActual==='EN'?'Max 1 guest':'Máx 1 huésped';
+          badge.style.cssText='position:absolute;top:16px;right:16px;background:rgba(10,13,12,.88);border:1px solid rgba(255,255,255,.18);color:#fff;padding:6px 14px;border-radius:999px;font-size:.74rem;letter-spacing:1px;text-transform:uppercase;font-weight:600;white-space:nowrap;z-index:5;backdrop-filter:blur(8px)';
+          cardSimple.appendChild(badge);
+        }
+      } else {
+        cardSimple.style.opacity='1';
+        cardSimple.style.pointerEvents='auto';
+        const badge=cardSimple.querySelector('.badge-no-disponible');
+        if(badge) badge.remove();
+      }
+    });
+  });
+
+  // Reserva
+  let tarifaActual=60, habitacionActual='Habitación Simple';
+  const modal=document.getElementById('modalReserva');
+  const TARIFAS={simple:60,matrimonial:80,queen:120,king:140};
+  function cargarTarifas(){
+    try{
+      const raw=localStorage.getItem('tampur_tarifas');
+      if(raw){
+        const t=JSON.parse(raw);
+        // Limpiar claves viejas (doble ya no existe)
+        if(t.doble!=null){ delete t.doble; localStorage.setItem('tampur_tarifas',JSON.stringify(t)); }
+        if(t.simple!=null) TARIFAS.simple=t.simple;
+        if(t.matrimonial!=null) TARIFAS.matrimonial=t.matrimonial;
+        if(t.queen!=null) TARIFAS.queen=t.queen;
+        if(t.king!=null) TARIFAS.king=t.king;
+      }
+    }catch(e){}
+    pintarPrecios();
+  }
+
+  // ===== Conexión con los microservicios =====
+  const API_BASE_URL = 'https://tampur-monolito.onrender.com';
+const API_RESERVAS = API_BASE_URL;
+const API_PAGOS = API_BASE_URL;
+const API_BACKOFFICE = API_BASE_URL;
+
+  async function cargarDisponibilidad(){
+    try{
+      const res=await fetch(API_RESERVAS+'/api/habitaciones');
+      if(!res.ok) return;
+      const rooms=await res.json();
+      if(Array.isArray(rooms) && rooms.length){
+        rooms.forEach(r=>{
+          const tipo=(r.tipo||'').toLowerCase();
+          if(r.precioNoche>0 && TARIFAS[tipo]!==undefined){
+            TARIFAS[tipo]=r.precioNoche;
+          }
+        });
+        localStorage.setItem('tampur_tarifas',JSON.stringify(TARIFAS));
+        pintarPrecios();
+      }
+    }catch(e){}
+  }
+
+  // ===== Conversión de moneda (para huéspedes extranjeros) =====
+  const MONEDAS=[
+    {code:'PEN',simbolo:'S/',nombre:'Soles peruanos'},
+    {code:'USD',simbolo:'US$',nombre:'Dólar estadounidense'},
+    {code:'EUR',simbolo:'€',nombre:'Euro'},
+    {code:'GBP',simbolo:'£',nombre:'Libra esterlina'},
+    {code:'BRL',simbolo:'R$',nombre:'Real brasileño'},
+    {code:'MXN',simbolo:'MX$',nombre:'Peso mexicano'},
+    {code:'ARS',simbolo:'AR$',nombre:'Peso argentino'},
+    {code:'CLP',simbolo:'CL$',nombre:'Peso chileno'}
+  ];
+  const TASAS_FALLBACK={PEN:1,USD:0.27,EUR:0.25,GBP:0.21,BRL:1.35,MXN:4.70,ARS:270,CLP:260};
+  let monedaActual='PEN';
+  let tasasMoneda={...TASAS_FALLBACK};
+
+  /** Carga los tipos de cambio (base PEN) desde una API gratuita, con caché de 6 horas. */
+  async function cargarTasas(){
+    try{
+      const cache=JSON.parse(localStorage.getItem('tampur_tasas'));
+      if(cache && cache.rates && (Date.now()-cache.t)<6*3600*1000){
+        tasasMoneda=cache.rates;
+      } else {
+        localStorage.removeItem('tampur_tasas');
+        const res=await fetch('https://open.er-api.com/v6/latest/PEN');
+        if(!res.ok) throw new Error('bad');
+        const data=await res.json();
+        if(data && data.result==='success' && data.rates){
+          tasasMoneda={...TASAS_FALLBACK,...data.rates};
+          localStorage.setItem('tampur_tasas',JSON.stringify({rates:tasasMoneda,t:Date.now()}));
+        }
+      }
+      pintarPrecios();
+      actualizarPistaMoneda();
+    }catch(e){
+      tasasMoneda={...TASAS_FALLBACK};
+      pintarPrecios();
+      actualizarPistaMoneda();
+    }
+  }
+
+  /** Convierte un monto en soles a la moneda seleccionada y lo formatea. */
+  function formatearPrecio(pen){
+    const valor=pen*(tasasMoneda[monedaActual]||1);
+    let maxDec=0;
+    if(valor<1) maxDec=2;
+    else if(valor<100) maxDec=1;
+    const numero=valor.toLocaleString('es-PE',{minimumFractionDigits:0,maximumFractionDigits:maxDec});
+    const m=MONEDAS.find(x=>x.code===monedaActual);
+    return (m?m.simbolo+' ':'')+numero;
+  }
+
+  function actualizarPistaMoneda(){
+    const hint=document.getElementById('tasaHint');
+    if(!hint) return;
+    if(monedaActual==='PEN'){ hint.textContent=''; return; }
+    const m=MONEDAS.find(x=>x.code===monedaActual);
+    const tasa=tasasMoneda[monedaActual]||1;
+    const porUnidad=(1/tasa).toFixed(tasa>100?4:2);
+    hint.textContent='1 ' + (m?m.code:'') + ' ≈ S/ ' + porUnidad;
+  }
+
+  function pintarPrecios(){
+    const b=document.querySelectorAll('.tarjeta .precio b');
+    const precios=[TARIFAS.simple,TARIFAS.matrimonial,TARIFAS.queen,TARIFAS.king];
+    b.forEach((el,i)=>{ 
+      const precio = precios[i % precios.length];
+      if(precio != null) el.textContent=formatearPrecio(precio); 
+    });
+  }
+
+  function refrescarTotal(){
+    document.getElementById('rTotal').textContent='S/ ' + Number(totalActual).toLocaleString('en-US');
+    const conv=document.getElementById('rTotalConv');
+    if(conv) conv.textContent=(monedaActual!=='PEN'&&totalActual>0)?('≈ '+formatearPrecio(totalActual)):'';
+  }
+
+  function iniciarMoneda(){
+    const sel=document.getElementById('selMoneda');
+    if(!sel) return;
+    const guardada=localStorage.getItem('tampur_moneda');
+    if(guardada){ monedaActual=guardada; sel.value=guardada; }
+    sel.addEventListener('change',()=>{
+      monedaActual=sel.value;
+      localStorage.setItem('tampur_moneda',monedaActual);
+      pintarPrecios();
+      actualizarPistaMoneda();
+    });
+  }
+
+  // ===== Animación de contadores (números que suben al entrar en pantalla) =====
+  function animarContadores(){
+    const els=document.querySelectorAll('[data-contar]');
+    if(!els.length) return;
+    const io=new IntersectionObserver(entradas=>{
+      entradas.forEach(e=>{
+        if(!e.isIntersecting) return;
+        const el=e.target;
+        const objetivo=parseFloat(el.dataset.contar)||0;
+        const dur=1300, inicio=performance.now();
+        const tick=ahora=>{
+          const p=Math.min((ahora-inicio)/dur,1);
+          const suave=1-Math.pow(1-p,3);
+          el.textContent=Math.round(objetivo*suave).toLocaleString('es-PE');
+          if(p<1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+        io.unobserve(el);
+      });
+    },{threshold:.5});
+    els.forEach(el=>io.observe(el));
+  }
+
+  // Identificador único por cada intento de reserva. Se regenera cada vez que
+  // se abre el modal, y viaja al backend para que este pueda detectar si el
+  // mismo intento llega más de una vez (doble clic, doble envío, reintento).
+  let idempotencyKey = null;
+  function nuevaIdempotencyKey(){
+    return (crypto.randomUUID ? crypto.randomUUID() : 'idk-'+Date.now()+'-'+Math.random().toString(36).slice(2));
+  }
+
+  // Evita que se dispare una segunda petición mientras la primera sigue en curso.
+  let reservaEnProceso=false;
+
+  function abrirReserva(nombre,key){
+    document.getElementById('cajaFormulario').style.display = 'block';
+    const cajaExito = document.getElementById('cajaExito');
+    if(cajaExito) cajaExito.style.display = 'none';
+    habitacionActual=nombre; tarifaActual=TARIFAS[key]||60;
+    idempotencyKey=nuevaIdempotencyKey();
+    reservaEnProceso=false;
+    document.getElementById('rTitulo').textContent=nombre;
+    document.getElementById('rSubtitulo').textContent=t('reserva_subtitle');
+    
+    // PRE-LLENAR FECHAS DEL BUSCADOR PRINCIPAL
+    const bEntrada = document.getElementById('entrada').value;
+    const bSalida = document.getElementById('salida').value;
+    const rE = document.getElementById('rEntrada');
+    const rS = document.getElementById('rSalida');
+    if(bEntrada) {
+      if(rE._flatpickr) rE._flatpickr.setDate(bEntrada);
+      else rE.value = bEntrada;
+    }
+    if(bSalida) {
+      if(rS._flatpickr) rS._flatpickr.setDate(bSalida);
+      else rS.value = bSalida;
+    }
+
+    document.getElementById('rDetalle').textContent='Seleccione fechas';
+    document.getElementById('rTotal').textContent='S/ 0';
+    const conv0=document.getElementById('rTotalConv'); if(conv0) conv0.textContent='';
+    totalActual=0;
+    // Ajustar huéspedes según tipo: Simple=1, resto=2
+    const maxH=key==='simple'?1:2;
+    const sel=document.getElementById('rHuespedes');
+    if(sel){
+      sel.innerHTML='';
+      for(let i=1;i<=maxH;i++){
+        const opt=document.createElement('option');
+        opt.value=i;
+        opt.textContent=i===1?(idiomaActual==='EN'?'1 guest':'1 huésped'):(i+' '+(idiomaActual==='EN'?'guests':'huéspedes'));
+        sel.appendChild(opt);
+      }
+    }
+    modal.classList.add('abierto');
+    calcular();
+  }
+  function cerrarModal(){ modal.classList.remove('abierto'); }
+  modal.addEventListener('click',e=>{ if(e.target===modal) cerrarModal(); });
+
+  let totalActual=0;
+  ['rEntrada','rSalida'].forEach(id=>document.getElementById(id).addEventListener('change',calcular));
+  function calcular(){
+    const en=document.getElementById('rEntrada').value, sa=document.getElementById('rSalida').value;
+    if(en&&sa){
+      const d1=new Date(en), d2=new Date(sa);
+      const noches=Math.round((d2-d1)/(1000*60*60*24));
+      if(noches>0){
+        totalActual=noches*tarifaActual;
+        document.getElementById('rDetalle').textContent=noches+' noche'+(noches>1?'s':'')+' · '+habitacionActual;
+        refrescarTotal();
+        if(document.getElementById('qrBox').style.display==='block') generarQrYape();
+      } else { totalActual=0; document.getElementById('rDetalle').textContent='La salida debe ser posterior'; refrescarTotal(); }
+    }
+  }
+
+  function generarQrYape(){
+    const cont=document.getElementById('qrCode');
+    const data='943370504';
+    if(typeof qrcode==='undefined'){ cont.innerHTML='<span style="color:#888;font-size:.85rem">Generador de QR no disponible.</span>'; return; }
+    const qr=qrcode(0,'M'); qr.addData(data); qr.make();
+    cont.innerHTML=qr.createSvgTag({cellSize:5,margin:1});
+    document.getElementById('qrMonto').textContent='S/ ' + Number(totalActual).toLocaleString('en-US');
+  }
+  function actualizarMetodoPago(){
+    const m=document.getElementById('rMetodo').value;
+    const box=document.getElementById('qrBox');
+    const badge=document.getElementById('pagoBadge');
+    const app=document.getElementById('pagoApp');
+    if(m==='yape'||m==='plin'){
+      box.style.display='block';
+      badge.textContent=m.toUpperCase();
+      badge.className='pago-badge '+m;
+      app.textContent=m==='yape'?'Yape':'Plin';
+      generarQrYape();
+    } else {
+      box.style.display='none';
+    }
+  }
+  function mostrarNombreArchivo(input){
+    const nombre=input.files[0]?input.files[0].name:'No seleccionado';
+    document.getElementById('voucherNombre').textContent=nombre;
+  }
+  document.getElementById('rMetodo').addEventListener('change', actualizarMetodoPago);
+
+  /* ── Validación de campos ── */
+  function setError(id,msg,ok){
+    const el=document.getElementById(id);
+    const inp=el?el.previousElementSibling:null;
+    if(el) el.textContent=msg||'';
+    if(inp){
+      inp.classList.remove('input-ok','input-err');
+      if(msg && !ok) inp.classList.add('input-err');
+      else if(!msg && ok!==undefined) inp.classList.add('input-ok');
+    }
+  }
+  function valNombre(v){
+    v=v.trim();
+    if(!v){ setError('errNombre','Ingrese su nombre completo.'); return false; }
+    if(v.length<3){ setError('errNombre','Mínimo 3 caracteres.'); return false; }
+    if(!/^[a-záéíóúñü\s]+$/i.test(v)){ setError('errNombre','Solo letras y espacios.'); return false; }
+    setError('errNombre','',true); return true;
+  }
+  function valDni(v){
+    v=v.trim();
+    if(!v){ setError('errDni','Ingrese DNI o pasaporte.'); return false; }
+    const dniOk=/^\d{8}$/.test(v);
+    const pasOk=/^[A-Za-z0-9]{6,12}$/.test(v);
+    if(!dniOk && !pasOk){ setError('errDni','DNI: 8 dígitos. Pasaporte: 6-12 alfanuméricos.'); return false; }
+    setError('errDni','',true); return true;
+  }
+  function valCorreo(v){
+    v=v.trim();
+    if(!v){ setError('errCorreo','Ingrese su correo electrónico.'); return false; }
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)){ setError('errCorreo','Correo no válido.'); return false; }
+    setError('errCorreo','',true); return true;
+  }
+  function valTelefono(v){
+    v=v.trim();
+    if(!v){ setError('errTelefono','',true); return true; }
+    const limpio=v.replace(/[\s\-]/g,'');
+    if(!/^(\+?51)?9\d{8}$/.test(limpio) && !/^[78]\d{7}$/.test(limpio)){ setError('errTelefono','Ej: 943 000 000 o 01 234 5678.'); return false; }
+    setError('errTelefono','',true); return true;
+  }
+  function valFechas(){
+    const en=document.getElementById('rEntrada').value;
+    const sa=document.getElementById('rSalida').value;
+    const hoy=new Date(); hoy.setHours(0,0,0,0);
+    let ok=true;
+    if(!en){ setError('errEntrada','Seleccione fecha de llegada.'); ok=false; }
+    else if(new Date(en)<hoy){ setError('errEntrada','La fecha no puede ser en el pasado.'); ok=false; }
+    else setError('errEntrada','',true);
+    if(!sa){ setError('errSalida','Seleccione fecha de salida.'); ok=false; }
+    else if(en && new Date(sa)<=new Date(en)){ setError('errSalida','Debe ser posterior a la llegada.'); ok=false; }
+    else setError('errSalida','',true);
+    return ok;
+  }
+  function valVoucher(){
+    const metodo=document.getElementById('rMetodo').value;
+    const voucher=document.getElementById('rVoucher').files[0];
+    if(metodo==='yape'||metodo==='plin'){
+      if(!voucher){ setError('errVoucher','Adjunte el comprobante de pago.'); return false; }
+      setError('errVoucher','',true); return true;
+    }
+    setError('errVoucher','',true); return true;
+  }
+  function validarFormularioReserva(){
+    const n=valNombre(document.getElementById('rNombre').value);
+    const d=valDni(document.getElementById('rDni').value);
+    const c=valCorreo(document.getElementById('rCorreo').value);
+    const t=valTelefono(document.getElementById('rTelefono').value);
+    const f=valFechas();
+    const v=valVoucher();
+    return n&&d&&c&&t&&f&&v;
+  }
+
+  /* Validación en tiempo real */
+  ['rNombre','rDni','rCorreo','rTelefono','rEntrada','rSalida'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    el.addEventListener('blur',()=>{
+      if(id==='rNombre') valNombre(el.value);
+      else if(id==='rDni') valDni(el.value);
+      else if(id==='rCorreo') valCorreo(el.value);
+      else if(id==='rTelefono') valTelefono(el.value);
+      else if(id==='rEntrada'||id==='rSalida') valFechas();
+    });
+    el.addEventListener('input',()=>{
+      if(id==='rNombre' && el.classList.contains('input-err')) valNombre(el.value);
+      else if(id==='rDni' && el.classList.contains('input-err')) valDni(el.value);
+      else if(id==='rCorreo' && el.classList.contains('input-err')) valCorreo(el.value);
+      else if(id==='rTelefono' && el.classList.contains('input-err')) valTelefono(el.value);
+    });
+  });
+
+  async function confirmarReserva(){
+    // Guard: si ya hay una reserva en curso (por ejemplo, el usuario hizo doble clic),
+    // se ignoran los clics adicionales en vez de disparar peticiones repetidas.
+    if(reservaEnProceso) return;
+
+    const nombre=document.getElementById('rNombre').value.trim();
+    const dni=document.getElementById('rDni').value.trim();
+    const correo=document.getElementById('rCorreo').value.trim();
+    const tel=document.getElementById('rTelefono').value.trim();
+    const metodo=document.getElementById('rMetodo').value;
+    const huespedes=parseInt(document.getElementById('rHuespedes').value)||1;
+    const voucherFile=document.getElementById('rVoucher').files[0];
+    const voucherUrl=voucherFile?voucherFile.name:null;
+    const en=document.getElementById('rEntrada').value, sa=document.getElementById('rSalida').value;
+
+    if(!validarFormularioReserva()) return;
+
+    const btn=document.getElementById('btnConfirmarReserva');
+    reservaEnProceso=true;
+    if(btn){ btn.disabled=true; btn.textContent='Procesando...'; }
+
+    let codigo, total, noches, voucher='', pagoEstado='', desdeServidor=false, esDuplicada=false;
+    let respuesta;
+    try{
+      const ctrl=new AbortController();
+      const timer=setTimeout(()=>ctrl.abort(),90000);
+      respuesta=await fetch(API_RESERVAS+'/api/reservas',{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          tipoHabitacion:habitacionActual.replace('Habitación ',''),
+          nombre, dni, correo, telefono:tel,
+          fechaEntrada:en, fechaSalida:sa,
+          metodoPago:metodo,
+          huespedes,
+          idempotencyKey
+        }),
+        signal:ctrl.signal
+      });
+      clearTimeout(timer);
+    }catch(e){
+      respuesta=null;
+    }
+
+    if(respuesta && respuesta.status===400){
+      // Datos inválidos según el backend: se le pide al huésped corregir, no se simula nada.
+      const data=await respuesta.json().catch(()=>null);
+      const mensaje=data && data.errores ? data.errores.join('\n') : 'Revise los datos ingresados.';
+      alert(mensaje);
+      reservaEnProceso=false;
+      if(btn){ btn.disabled=false; btn.textContent='Confirmar reserva'; }
+      return;
+    }
+
+    if(respuesta && respuesta.status===409){
+      // El backend detectó que ya existe una reserva activa con estos mismos datos.
+      const data=await respuesta.json();
+      const existente=data.reservaExistente;
+      codigo=existente.codigo; total=existente.total; noches=existente.noches;
+      desdeServidor=true; esDuplicada=true;
+    } else if(respuesta && respuesta.ok){
+      const data=await respuesta.json();
+      codigo=data.codigo; total=data.total; noches=data.noches; desdeServidor=true;
+
+      try{
+        const pr=await fetch(API_PAGOS+'/api/pagos',{
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({codigoReserva:codigo, metodo:metodo, voucherUrl:voucherUrl, nombre:nombre, correo:correo, monto:total})
+        });
+        if(pr.ok){ const pd=await pr.json(); voucher=pd.voucher; pagoEstado=pd.estado; }
+      }catch(e){ pagoEstado='pago no procesado'; }
+    } else {
+      // Backend no disponible (respuesta=null) o error inesperado del servidor: modo local de respaldo.
+      const d1=new Date(en), d2=new Date(sa);
+      noches=Math.max(1,Math.round((d2-d1)/(1000*60*60*24)));
+      total=noches*tarifaActual;
+      codigo='TMP-'+Math.random().toString(36).slice(2,8).toUpperCase();
+      const reservasLocales=JSON.parse(localStorage.getItem('tampur_reservas')||'[]');
+      reservasLocales.push({codigo,habitacion:habitacionActual,llegada:en,salida:sa,noches,total,nombre,dni,correo,tel,estado:'Pendiente',creado:new Date().toLocaleString('es-PE')});
+      localStorage.setItem('tampur_reservas',JSON.stringify(reservasLocales));
+    }
+
+    
+    const cajaForm = document.getElementById('cajaFormulario');
+    const cajaExito = document.getElementById('cajaExito');
+    
+    if(cajaForm && cajaExito) {
+      cajaForm.style.display = 'none';
+      cajaExito.style.display = 'block';
+      
+      document.getElementById('exitoTitulo').textContent = esDuplicada ? 'Ya tenías esta reserva' : '¡Reserva Confirmada!';
+      document.getElementById('exitoSub').textContent = esDuplicada ? 'Encontramos una reserva activa con los mismos datos.' : (desdeServidor ? 'Hemos recibido tu solicitud y tu habitación está separada.' : 'Tu reserva ha sido guardada en modo local (sin conexión).');
+      document.getElementById('exitoCodigo').textContent = codigo;
+      
+      const vNode = document.getElementById('exitoVoucher');
+      if(voucher) {
+        vNode.style.display = 'block';
+        vNode.innerHTML = `Voucher: <b style="color:var(--text-main);">${voucher}</b> · Pago: <span style="color:#10b981;">${pagoEstado}</span>`;
+      } else {
+        vNode.style.display = 'none';
+      }
+    }
+
+
+    // El modal ya cambió de contenido (botón "Listo" en su lugar), así que no
+    // hace falta reactivar btnConfirmarReserva: para una nueva reserva se
+    // vuelve a llamar a abrirReserva(), que genera una idempotencyKey nueva.
+  }
+
+  // Formulario consulta
+  document.getElementById('formConsulta').addEventListener('submit',e=>{
+    e.preventDefault();
+    const n=document.getElementById('cNombre').value, c=document.getElementById('cCorreo').value;
+    if(!n||!c){ alert('Complete nombre y correo'); return; }
+    const msg='Hola, soy '+encodeURIComponent(n)+'. '+encodeURIComponent(document.getElementById('cMensaje').value||'Quisiera información del hotel.');
+    window.open('https://wa.me/51943370504?text='+msg,'_blank');
+  });
+
+  // ===== ADMIN =====
+  function tokenAdmin(){ return sessionStorage.getItem('tampur_admin_token'); }
+  function headersAdmin(){ const t=tokenAdmin(); const h={'Content-Type':'application/json'}; if(t){ h.Authorization='Bearer '+t; } return h; }
+  async function fetchAdmin(url,opts={}){
+    const res=await fetch(url,{...opts,headers:headersAdmin()});
+    if(res.status===401){
+      sessionStorage.removeItem('tampur_admin_token');
+      cerrarAdmin();
+      document.getElementById('adminLogin').classList.add('abierto');
+      showAdminError('Sesión expirada. Ingrese de nuevo.');
+      throw new Error('401');
+    }
+    return res;
+  }
+  function abrirAdmin(){
+    if(tokenAdmin()){ entrarDash(); }
+    else { document.getElementById('adminLogin').classList.add('abierto'); }
+  }
+  function cerrarAdmin(){
+    document.getElementById('adminLogin').classList.remove('abierto');
+    document.getElementById('adminDash').classList.remove('abierto');
+  }
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){
+      if(document.getElementById('adminDash').classList.contains('abierto')){ salirAdmin(); }
+      else if(document.getElementById('adminLogin').classList.contains('abierto')){ cerrarAdmin(); }
+      else if(modal.classList.contains('abierto')){ cerrarModal(); }
+    }
+  });
+  function toggleAdminPw(){
+    const inp=document.getElementById('aClave');
+    const icoOpen=inp.parentElement.querySelector('.pw-ico-open');
+    const icoHide=inp.parentElement.querySelector('.pw-ico-hide');
+    if(inp.type==='password'){ inp.type='text'; icoOpen.style.display='none'; icoHide.style.display='block'; }
+    else { inp.type='password'; icoOpen.style.display='block'; icoHide.style.display='none'; }
+  }
+  function showAdminError(msg){
+    const el=document.getElementById('aError');
+    el.textContent=msg; el.classList.add('visible');
+  }
+  function hideAdminError(){ document.getElementById('aError').classList.remove('visible'); }
+  async function loginAdmin(){
+    const u=document.getElementById('aUsuario').value.trim();
+    const c=document.getElementById('aClave').value;
+    const btn=document.getElementById('btnAdminLogin');
+    hideAdminError();
+    if(!u||!c){ showAdminError('Ingrese usuario y contraseña.'); return; }
+    btn.disabled=true; btn.querySelector('.btn-text').style.display='none'; btn.querySelector('.btn-loading').style.display='inline';
+    try{
+      const res=await fetch(API_BACKOFFICE+'/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usuario:u,clave:c})});
+      if(res.ok){
+        const data=await res.json();
+        sessionStorage.setItem('tampur_admin_token',data.token);
+        document.getElementById('adminLogin').classList.remove('abierto');
+        document.getElementById('aClave').value='';
+        entrarDash();
+      } else {
+        const data=await res.json().catch(()=>null);
+        showAdminError((data&&data.error)?data.error:'Usuario o contraseña incorrectos.');
+      }
+    }catch(e){
+      showAdminError('No se pudo conectar con el servidor.');
+    }
+    btn.disabled=false; btn.querySelector('.btn-text').style.display='inline'; btn.querySelector('.btn-loading').style.display='none';
+  }
+  function entrarDash(){
+    document.getElementById('adminDash').classList.add('abierto');
+    cambiarTab('reservas');
+  }
+  function salirAdmin(){
+    const t=tokenAdmin();
+    if(t){ fetch(API_BACKOFFICE+'/api/admin/logout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:t})}).catch(()=>{}); }
+    sessionStorage.removeItem('tampur_admin_token');
+    cerrarAdmin();
+  }
+  function getReservas(){ return JSON.parse(localStorage.getItem('tampur_reservas')||'[]'); }
+  function setReservas(r){ localStorage.setItem('tampur_reservas',JSON.stringify(r)); }
+
+  function cambiarTab(tab){
+    document.querySelectorAll('.admin-shell aside button[data-tab]').forEach(b=>b.classList.toggle('activo',b.dataset.tab===tab));
+    if(tab==='reservas') renderReservas();
+    else if(tab==='calendario') renderCalendario();
+    else if(tab==='habitaciones') renderHabitaciones();
+    else if(tab==='limpieza') renderLimpieza();
+    else if(tab==='caja') renderCaja();
+    else if(tab==='tarifas') renderTarifas();
+  }
+
+  function renderAdminPanel(){
+    const activo=document.querySelector('.admin-shell aside button.activo');
+    if(activo) cambiarTab(activo.dataset.tab);
+  }
+
+  async function renderReservas(){
+    document.getElementById('dashTitulo').textContent=t('mon_total')==='Total'?'Monitoreo de reservas':t('mon_total');
+    const cont=document.getElementById('dashContenido');
+    try{
+      const res=await fetch(API_RESERVAS+'/api/reservas');
+      if(!res.ok) throw new Error('offline');
+      const rs=await res.json();
+      if(rs.length===0){ cont.innerHTML='<p style="color:#888">'+t('mon_sin_reservas')+'</p>'; return; }
+
+      // KPIs
+      const conf=rs.filter(r=>r.estado==='Confirmada');
+      const pend=rs.filter(r=>r.estado==='Pendiente');
+      const canc=rs.filter(r=>r.estado==='Cancelada');
+      const ingConf=conf.reduce((s,r)=>s+r.total,0);
+      const checkinHoy=rs.filter(r=>r.checkinHoy).length;
+      const checkoutHoy=rs.filter(r=>r.checkoutHoy).length;
+
+      const kpis=`
+        <div class="tarjetas-kpi">
+          <div class="kpi"><div class="num">${rs.length}</div><div class="lbl">${t('mon_total')}</div></div>
+          <div class="kpi"><div class="num">${conf.length}</div><div class="lbl">${t('mon_confirmadas')}</div></div>
+          <div class="kpi"><div class="num">${pend.length}</div><div class="lbl">${t('mon_pendientes')}</div></div>
+          <div class="kpi"><div class="num">${canc.length}</div><div class="lbl">${t('mon_canceladas')}</div></div>
+          <div class="kpi"><div class="num">S/ ${Number(ingConf).toLocaleString("en-US")}</div><div class="lbl">${t('mon_ingresos')}</div></div>
+          ${checkinHoy?`<div class="kpi kpi-alert"><div class="num">${checkinHoy}</div><div class="lbl">${t('mon_checkin_hoy')}</div></div>`:''}
+          ${checkoutHoy?`<div class="kpi kpi-alert"><div class="num">${checkoutHoy}</div><div class="lbl">${t('mon_checkout_hoy')}</div></div>`:''}
+        </div>`;
+
+      // Filtros
+      const filtros=`
+        <div class="filtro-bar">
+          <input type="text" id="filtroReservas" placeholder="${t('mon_buscar')}" oninput="filtrarReservasDebounce()" class="filtro-input">
+          <select id="filtroEstado" onchange="filtrarReservas()" class="filtro-select">
+            <option value="">${t('mon_filtro_estado')}</option>
+            <option value="Pendiente">${t('mon_filtro_pend')}</option>
+            <option value="Confirmada">${t('mon_filtro_conf')}</option>
+            <option value="Cancelada">${t('mon_filtro_canc')}</option>
+          </select>
+        </div>`;
+
+      const filas=rs.map(r=>{
+        const pagoIcon=r.metodoPago==='yape'?`<span class="badge-pago yape">${t('mon_badge_yape')}</span>`
+          :r.metodoPago==='plin'?`<span class="badge-pago plin">${t('mon_badge_plin')}</span>`
+          :`<span class="badge-pago efectivo">${t('mon_badge_efectivo')}</span>`;
+        const hoyBadge=r.checkinHoy?`<span class="badge-hoy checkin">${t('mon_checkin_hoy')}</span>`
+          :r.checkoutHoy?`<span class="badge-hoy checkout">${t('mon_checkout_hoy')}</span>`:'';
+        return `
+        <tr class="${r.checkinHoy?'fila-checkin':r.checkoutHoy?'fila-checkout':''}">
+          <td><b>${r.codigo}</b>${hoyBadge}</td>
+          <td>${r.nombre}<br><small style="color:#999">DNI: ${r.dni}</small></td>
+          <td>${r.tipoHabitacion}</td>
+          <td style="white-space:nowrap">
+            <input id="hab_${r.codigo}" value="${r.numeroHabitacion||''}" placeholder="N°" class="input-hab">
+            <button class="btn-sm btn-confirmar" onclick="asignarHabitacion('${r.codigo}')">OK</button>
+          </td>
+          <td>${r.fechaEntrada} → ${r.fechaSalida}</td>
+          <td>${r.noches}</td>
+          <td>S/ ${Number(r.total).toLocaleString("en-US")}</td>
+          <td>${pagoIcon}</td>
+          <td><span class="estado ${r.estado}">${r.estado}</span></td>
+          <td style="white-space:nowrap">
+            ${r.estado!=='Confirmada'?`<button class="btn-sm btn-confirmar" onclick="accionReservaBackend('${r.codigo}','Confirmada')">${t('mon_confirmar')}</button> `:''}
+            ${r.estado!=='Cancelada'?`<button class="btn-sm btn-cancelar" onclick="accionReservaBackend('${r.codigo}','Cancelada')">${t('mon_cancelar')}</button> `:''}
+            <button class="btn-sm btn-eliminar" onclick="eliminarReservaBackend('${r.codigo}')">${t('mon_eliminar')}</button>
+          </td>
+        </tr>`}).join('');
+
+      cont.innerHTML=kpis+filtros+`<div class="tabla-wrap"><table class="tabla" id="tablaReservas"><thead><tr><th>${t('mon_th_codigo')}</th><th>${t('mon_th_huesped')}</th><th>${t('mon_th_tipo')}</th><th>${t('mon_th_hab')}</th><th>${t('mon_th_fechas')}</th><th>${t('mon_th_noches')}</th><th>${t('mon_th_total')}</th><th>${t('mon_th_pago')}</th><th>${t('mon_th_estado')}</th><th>${t('mon_th_acciones')}</th></tr></thead><tbody>${filas}</tbody></table></div>`;
+    }catch(e){
+      renderReservasLocal();
+    }
+  }
+  function filtrarReservas(){
+    const busqueda=(document.getElementById('filtroReservas')?.value||'').toLowerCase();
+    const estado=document.getElementById('filtroEstado')?.value||'';
+    const filas=document.querySelectorAll('#tablaReservas tbody tr');
+    filas.forEach(fila=>{
+      const texto=fila.textContent.toLowerCase();
+      const matchBusqueda=!busqueda||texto.includes(busqueda);
+      const matchEstado=!estado||fila.querySelector('.estado')?.textContent===estado;
+      fila.style.display=(matchBusqueda&&matchEstado)?'':'none';
+    });
+  }
+  let _debounceFiltro;
+  function filtrarReservasDebounce(){ clearTimeout(_debounceFiltro); _debounceFiltro=setTimeout(filtrarReservas,200); }
+  async function accionReservaBackend(codigo, estado){
+    const accion=estado==='Confirmada'?'confirmar':'cancelar';
+    if(!confirm('¿Desea '+accion+' la reserva '+codigo+'?')) return;
+    try{ await fetch(API_RESERVAS+'/api/reservas/'+codigo+'/estado',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({estado:estado})}); }catch(e){}
+    calCache=null;
+    renderReservas();
+  }
+  async function asignarHabitacion(codigo){
+    const inp=document.getElementById('hab_'+codigo);
+    const num=inp?inp.value.trim():'';
+    if(!num){ alert('Ingrese el número de habitación.'); return; }
+    try{
+      const res=await fetch(API_RESERVAS+'/api/reservas/'+codigo+'/habitacion',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({numeroHabitacion:num})});
+      if(!res.ok) throw new Error('bad');
+    }catch(e){ alert('No se pudo asignar la habitación. Verifique la conexión.'); }
+    renderReservas();
+  }
+  async function eliminarReservaBackend(codigo){
+    if(!confirm('¿Eliminar permanentemente la reserva '+codigo+'? Esta acción no se puede deshacer.')) return;
+    try{ await fetch(API_RESERVAS+'/api/reservas/'+codigo,{method:'DELETE'}); }catch(e){}
+    calCache=null;
+    renderReservas();
+  }
+  function renderReservasLocal(){
+    const cont=document.getElementById('dashContenido');
+    const rs=getReservas();
+    if(rs.length===0){ cont.innerHTML='<p style="color:#888">No hay reservas aún (sin conexión al servidor).</p>'; return; }
+    const filas=rs.map((r,i)=>`
+      <tr>
+        <td><b>${r.codigo}</b><br><small style="color:#999">${r.creado}</small></td>
+        <td>${r.nombre}<br><small style="color:#999">DNI: ${r.dni}</small></td>
+        <td>${r.habitacion}</td>
+        <td>${r.llegada} → ${r.salida}</td>
+        <td>${r.noches}</td>
+        <td>S/ ${Number(r.total).toLocaleString("en-US")}</td>
+        <td><span class="estado ${r.estado}">${r.estado}</span></td>
+        <td style="white-space:nowrap">
+          ${r.estado!=='Confirmada'?`<button class="btn-sm btn-confirmar" onclick="accionReservaLocal(${i},'Confirmada')">Confirmar</button> `:''}
+          ${r.estado!=='Cancelada'?`<button class="btn-sm btn-cancelar" onclick="accionReservaLocal(${i},'Cancelada')">Cancelar</button> `:''}
+          <button class="btn-sm btn-eliminar" onclick="eliminarReservaLocal(${i})">Eliminar</button>
+        </td>
+      </tr>`).join('');
+    cont.innerHTML=`<div class="tabla-wrap"><table class="tabla"><thead><tr><th>Código</th><th>Huésped</th><th>Habitación</th><th>Fechas</th><th>Noches</th><th>Total</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>${filas}</tbody></table></div>`;
+  }
+  function accionReservaLocal(i,estado){
+    const accion=estado==='Confirmada'?'confirmar':'cancelar';
+    if(!confirm('¿Desea '+accion+' la reserva?')) return;
+    const rs=getReservas(); rs[i].estado=estado; setReservas(rs); renderReservas();
+  }
+  function eliminarReservaLocal(i){
+    if(!confirm('¿Eliminar permanentemente esta reserva? Esta acción no se puede deshacer.')) return;
+    const rs=getReservas(); rs.splice(i,1); setReservas(rs); renderReservas();
+  }
+
+  function getHabitaciones(){
+    const guardadas=localStorage.getItem('tampur_habitaciones');
+    if(guardadas){
+      try{ const arr=JSON.parse(guardadas); if(arr.length>=20) return arr; }catch(e){}
+    }
+    return [{"id":"101","tipo":"Simple","piso":1,"numero":101,"estado":"Libre","limpieza":""},{"id":"102","tipo":"Simple","piso":1,"numero":102,"estado":"Libre","limpieza":""},{"id":"103","tipo":"Simple","piso":1,"numero":103,"estado":"Libre","limpieza":""},{"id":"104","tipo":"Simple","piso":1,"numero":104,"estado":"Libre","limpieza":""},{"id":"105","tipo":"Simple","piso":1,"numero":105,"estado":"Libre","limpieza":""},{"id":"106","tipo":"Simple","piso":1,"numero":106,"estado":"Libre","limpieza":""},{"id":"107","tipo":"Simple","piso":1,"numero":107,"estado":"Libre","limpieza":""},{"id":"201","tipo":"Matrimonial","piso":2,"numero":201,"estado":"Libre","limpieza":""},{"id":"202","tipo":"Matrimonial","piso":2,"numero":202,"estado":"Libre","limpieza":""},{"id":"203","tipo":"Matrimonial","piso":2,"numero":203,"estado":"Libre","limpieza":""},{"id":"204","tipo":"Matrimonial","piso":2,"numero":204,"estado":"Libre","limpieza":""},{"id":"205","tipo":"Matrimonial","piso":2,"numero":205,"estado":"Libre","limpieza":""},{"id":"206","tipo":"Matrimonial","piso":2,"numero":206,"estado":"Libre","limpieza":""},{"id":"207","tipo":"Queen","piso":2,"numero":207,"estado":"Libre","limpieza":""},{"id":"208","tipo":"Queen","piso":2,"numero":208,"estado":"Libre","limpieza":""},{"id":"209","tipo":"Queen","piso":2,"numero":209,"estado":"Libre","limpieza":""},{"id":"210","tipo":"Queen","piso":2,"numero":210,"estado":"Libre","limpieza":""},{"id":"211","tipo":"Queen","piso":2,"numero":211,"estado":"Libre","limpieza":""},{"id":"212","tipo":"Queen","piso":2,"numero":212,"estado":"Libre","limpieza":""},{"id":"301","tipo":"King","piso":3,"numero":301,"estado":"Libre","limpieza":""},{"id":"302","tipo":"King","piso":3,"numero":302,"estado":"Libre","limpieza":""},{"id":"303","tipo":"King","piso":3,"numero":303,"estado":"Libre","limpieza":""},{"id":"304","tipo":"King","piso":3,"numero":304,"estado":"Libre","limpieza":""},{"id":"305","tipo":"King","piso":3,"numero":305,"estado":"Libre","limpieza":""}];
+  }
+  function setHabitaciones(h){ localStorage.setItem('tampur_habitaciones',JSON.stringify(h)); }
+  async function renderHabitaciones(){
+    document.getElementById('dashTitulo').textContent=t('admin_nav_plano');
+    const cont=document.getElementById('dashContenido');
+    try{
+      const res=await fetchAdmin(API_BACKOFFICE+'/api/ocupacion');
+      if(!res.ok) throw new Error('offline');
+      const habs=await res.json();
+      pintarPlano(habs, true);
+    }catch(e){
+      pintarPlano(getHabitaciones(), false);
+    }
+  }
+  function pintarPlano(habs, desdeServidor){
+    const cont=document.getElementById('dashContenido');
+    const contar=e=>habs.filter(h=>h.estado===e).length;
+    const pendLimpieza=habs.filter(h=>h.limpieza==='pendiente').length;
+    const limpiadas=habs.filter(h=>h.limpieza==='limpiada').length;
+    const ocupadas=contar('Ocupada');
+    const pctOcup=Math.round((ocupadas/habs.length)*100);
+
+    // Agrupar por piso
+    const porPiso={};
+    habs.forEach(h=>{ (porPiso[h.piso]=porPiso[h.piso]||[]).push(h); });
+
+    const bloques=Object.keys(porPiso).sort().map(piso=>{
+      const tipoPiso=porPiso[piso][0]?.tipo||'';
+      const filas=porPiso[piso].sort((a,b)=>a.numero-b.numero).map(h=>{
+        const accion=desdeServidor
+          ? `cambiarEstadoHabBackend('${h.id}','${h.estado}')`
+          : `cambiarEstadoHabLocal('${h.id}','${h.estado}')`;
+        const limpIcon=h.limpieza==='limpiada'?`<span class="room-limpieza limp-ok" title="${t('plano_limpiada')}">✓</span>`
+          :h.limpieza==='pendiente'?`<span class="room-limpieza limp-pend" title="${t('plano_pendiente')}">🧹</span>`:'';
+        return `<div class="room room-${h.estado}"><div class="room-top"><span class="room-id">${h.id}</span><span class="room-tipo">${h.tipo}</span>${limpIcon}</div><button class="estado-plano ${h.estado}" onclick="${accion}">${h.estado}</button></div>`;
+      }).join('');
+      return `<div class="plano-grupo"><h3>${t('plano_piso')} ${piso} · ${tipoPiso}</h3><div class="plano">${filas}</div></div>`;
+    }).join('');
+
+    cont.innerHTML=`
+      <div class="plano-leyenda">
+        <span class="chip chip-Libre">${t('plano_libre')}</span>
+        <span class="chip chip-Ocupada">${t('plano_ocupada')}</span>
+        <span class="chip chip-Limpieza">${t('plano_limpieza')}</span>
+        <span class="chip chip-Mantenimiento">${t('plano_mantenimiento')}</span>
+        <span class="chip chip-limp-ok">${t('plano_limpiada')}</span>
+        <span class="chip chip-limp-pend">${t('plano_pendiente')}</span>
+      </div>
+      <div class="tarjetas-kpi">
+        <div class="kpi"><div class="num">${ocupadas}/${habs.length}</div><div class="lbl">${t('plano_ocupacion')} (${pctOcup}%)</div></div>
+        <div class="kpi"><div class="num">${contar('Libre')}</div><div class="lbl">${t('plano_libres')}</div></div>
+        <div class="kpi"><div class="num">${contar('Limpieza')}</div><div class="lbl">${t('plano_en_limpieza')}</div></div>
+        <div class="kpi"><div class="num">${contar('Mantenimiento')}</div><div class="lbl">${t('plano_mant')}</div></div>
+        <div class="kpi"><div class="num">${pendLimpieza}</div><div class="lbl">${t('plano_limp_pend')}</div></div>
+      </div>
+      ${bloques}
+      <p style="color:#888;margin-top:16px;font-size:.85rem">${desdeServidor?t('limp_msj_online'):'Modo local: backend no conectado.'}</p>`;
+  }
+  async function cambiarEstadoHabBackend(id, estado){
+    const orden=['Libre','Ocupada','Limpieza','Mantenimiento'];
+    const sig=orden[(orden.indexOf(estado)+1)%orden.length];
+    try{ await fetchAdmin(API_BACKOFFICE+'/api/ocupacion/'+id+'/estado',{method:'PATCH',body:JSON.stringify({estado:sig})}); }catch(e){}
+    renderHabitaciones();
+  }
+  function cambiarEstadoHabLocal(id, estado){
+    const h=getHabitaciones(); const orden=['Libre','Ocupada','Limpieza','Mantenimiento'];
+    const sig=orden[(orden.indexOf(estado)+1)%orden.length];
+    const idx=h.findIndex(x=>x.id===id);
+    if(idx>=0){ h[idx].estado=sig; setHabitaciones(h); }
+    renderHabitaciones();
+  }
+
+  async function renderCaja(){
+    document.getElementById('dashTitulo').textContent='Control de caja e ingresos';
+    const cont=document.getElementById('dashContenido');
+    let rs;
+    try{
+      const res=await fetch(API_RESERVAS+'/api/reservas');
+      if(!res.ok) throw new Error('offline');
+      rs=await res.json();
+    }catch(e){
+      rs=getReservas().map(r=>({total:r.total,estado:r.estado}));
+    }
+    const confirmadas=rs.filter(r=>r.estado==='Confirmada');
+    const pendientes=rs.filter(r=>r.estado==='Pendiente');
+    const canceladas=rs.filter(r=>r.estado==='Cancelada');
+    const ingConf=confirmadas.reduce((s,r)=>s+r.total,0);
+    const ingPend=pendientes.reduce((s,r)=>s+r.total,0);
+    cont.innerHTML=`
+      <div class="tarjetas-kpi">
+        <div class="kpi"><div class="num">S/ ${Number(ingConf+ingPend).toLocaleString("en-US")}</div><div class="lbl">Ingresos (confirmadas + pendientes)</div></div>
+        <div class="kpi"><div class="num">${rs.length}</div><div class="lbl">Reservas totales</div></div>
+        <div class="kpi"><div class="num">S/ ${Number(ingConf).toLocaleString("en-US")}</div><div class="lbl">Ingresos confirmados</div></div>
+      </div>
+      <div class="tarjetas-kpi">
+        <div class="kpi"><div class="num">${pendientes.length}</div><div class="lbl">Pendientes de confirmar</div></div>
+        <div class="kpi"><div class="num">${confirmadas.length}</div><div class="lbl">Confirmadas</div></div>
+        <div class="kpi"><div class="num">${canceladas.length}</div><div class="lbl">Canceladas</div></div>
+      </div>`;
+  }
+
+  function renderTarifas(){
+    document.getElementById('dashTitulo').textContent='Gestión de tarifas';
+    const t=JSON.parse(localStorage.getItem('tampur_tarifas')||JSON.stringify(TARIFAS));
+    document.getElementById('dashContenido').innerHTML=`
+      <div class="formulario" style="max-width:440px">
+        <p style="color:var(--gris);font-size:.9rem;margin-bottom:16px">Configure el precio por noche para cada tipo de habitación.</p>
+        <div class="campo-form"><label>Habitación Simple (S/ por noche)</label><input type="number" id="tSimple" value="${t.simple}" min="0" step="1"></div>
+        <div class="campo-form"><label>Habitación Matrimonial (S/ por noche)</label><input type="number" id="tMatrimonial" value="${t.matrimonial}" min="0" step="1"></div>
+        <div class="campo-form"><label>Habitación Queen (S/ por noche)</label><input type="number" id="tQueen" value="${t.queen}" min="0" step="1"></div>
+        <div class="campo-form"><label>Habitación King (S/ por noche)</label><input type="number" id="tKing" value="${t.king}" min="0" step="1"></div>
+        <button class="btn btn-primario" onclick="guardarTarifas()">Guardar tarifas</button>
+      </div>`;
+  }
+  async function guardarTarifas(){
+    const s=+document.getElementById('tSimple').value;
+    const m=+document.getElementById('tMatrimonial').value;
+    const q=+document.getElementById('tQueen').value;
+    const k=+document.getElementById('tKing').value;
+    if(isNaN(s)||isNaN(m)||isNaN(q)||isNaN(k)||s<0||m<0||q<0||k<0){ alert('Ingrese valores numéricos válidos (mayores o iguales a 0).'); return; }
+    const t={simple:s,matrimonial:m,queen:q,king:k};
+    localStorage.setItem('tampur_tarifas',JSON.stringify(t));
+    Object.assign(TARIFAS,t);
+    try{
+      await fetchAdmin(API_RESERVAS+'/api/admin/precios',{
+        method:'PATCH',
+        body:JSON.stringify({Simple:s,Matrimonial:m,Queen:q,King:k})
+      });
+    }catch(e){}
+    cargarTarifas();
+    alert('Tarifas actualizadas correctamente');
+  }
+
+  // ===================== CALENDARIO DE HABITACIONES =====================
+  const HAB_CALENDARIO = [
+    {id:'S1',tipo:'Simple',piso:1},{id:'S2',tipo:'Simple',piso:1},
+    {id:'M1',tipo:'Matrimonial',piso:2},{id:'M2',tipo:'Matrimonial',piso:2},
+    {id:'Q1',tipo:'Queen',piso:2},{id:'Q2',tipo:'Queen',piso:2},
+    {id:'K1',tipo:'King',piso:3},{id:'K2',tipo:'King',piso:3}
+  ];
+  let calAnio, calMes, calCache=null, calCacheKey='', calOpen=null;
+  const MESES_CAL=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const DIAS_CAL=['L','M','X','J','V','S','D'];
+
+  function renderCalendario(){
+    const hoy=new Date();
+    if(!calAnio){ calAnio=hoy.getFullYear(); calMes=hoy.getMonth()+1; }
+    document.getElementById('dashTitulo').textContent=t('cal_titulo')||'Calendario de habitaciones';
+    document.getElementById('dashContenido').innerHTML=`
+      <div class="cal-top">
+        <button class="btn-cal-nav" onclick="calNav(-1)">◀</button>
+        <span class="cal-mes-label" id="calMesLabel"></span>
+        <button class="btn-cal-nav" onclick="calNav(1)">▶</button>
+        <button class="btn-cal-hoy" onclick="calHoy()">Hoy</button>
+        <span class="cal-leyenda">
+          <span class="cal-leg-item"><span class="cal-dot cal-libre"></span>${t('cal_libre')||'Libre'}</span>
+          <span class="cal-leg-item"><span class="cal-dot cal-reservada"></span>${t('cal_reservada')||'Reservada'}</span>
+          <span class="cal-leg-item"><span class="cal-dot cal-mantenimiento"></span>${t('cal_mantenimiento')||'Mantenimiento'}</span>
+        </span>
+      </div>
+      <div class="cal-badges" id="calBadges"></div>
+      <div class="cal-panel" id="calPanel" style="display:none"><div id="calPanelInner"></div></div>`;
+    cargarBadges();
+  }
+
+  function calNav(d){
+    calMes+=d;
+    if(calMes>12){calMes=1;calAnio++;}
+    if(calMes<1){calMes=12;calAnio--;}
+    calCache=null;
+    if(calOpen) abrirCalHab(calOpen);
+    else cargarBadges();
+    const ml=document.getElementById('calMesLabel');
+    if(ml) ml.textContent=MESES_CAL[calMes-1]+' '+calAnio;
+  }
+  function calHoy(){
+    const h=new Date(); calAnio=h.getFullYear(); calMes=h.getMonth()+1;
+    calCache=null;
+    if(calOpen) abrirCalHab(calOpen);
+    else cargarBadges();
+    const ml=document.getElementById('calMesLabel');
+    if(ml) ml.textContent=MESES_CAL[calMes-1]+' '+calAnio;
+  }
+
+  async function cargarBadges(){
+    const cont=document.getElementById('calBadges');
+    if(!cont) return;
+    const ml=document.getElementById('calMesLabel');
+    if(ml) ml.textContent=MESES_CAL[calMes-1]+' '+calAnio;
+
+    const numDias=new Date(calAnio,calMes,0).getDate();
+    // Fetch datos
+    let datos;
+    const key=calAnio+'-'+calMes;
+    if(calCache && calCacheKey===key){ datos=calCache; }
+    else {
+      try{
+        const res=await fetch(API_RESERVAS+'/api/calendario?anio='+calAnio+'&mes='+calMes);
+        if(!res.ok) throw new Error();
+        const arr=await res.json();
+        datos={}; arr.forEach(d=>{ datos[d.habitacion+'_'+d.fecha]=d; });
+      }catch(e){ datos={}; }
+      calCache=datos; calCacheKey=key;
+    }
+
+    let html='';
+    HAB_CALENDARIO.forEach(hab=>{
+      let ocu=0;
+      for(let d=1;d<=numDias;d++){
+        const f=calAnio+'-'+String(calMes).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+        if(datos[hab.id+'_'+f]?.estado==='reservada') ocu++;
+      }
+      const libre=numDias-ocu;
+      const estadoCl=ocu===0?'badge-libre':ocu>=numDias?'badge-full':'badge-partial';
+      html+=`<div class="cal-badge ${estadoCl}${calOpen===hab.id?' badge-activo':''}" onclick="abrirCalHab('${hab.id}')" data-hab="${hab.id}">
+        <span class="badge-id">${hab.id}</span>
+        <span class="badge-tipo">${hab.tipo}</span>
+        <span class="badge-ocu">${ocu}/${numDias}</span>
+      </div>`;
+    });
+    cont.innerHTML=html;
+  }
+
+  async function abrirCalHab(habId){
+    const panel=document.getElementById('calPanel');
+    const inner=document.getElementById('calPanelInner');
+    if(!panel||!inner) return;
+
+    // Si ya está abierto, cerrar
+    if(calOpen===habId){
+      calOpen=null;
+      panel.style.display='none';
+      cargarBadges();
+      return;
+    }
+    calOpen=habId;
+    cargarBadges(); // actualizar active state
+
+    const hab=HAB_CALENDARIO.find(h=>h.id===habId);
+    const numDias=new Date(calAnio,calMes,0).getDate();
+    const hoy=new Date();
+
+    let datos;
+    const key=calAnio+'-'+calMes;
+    if(calCache && calCacheKey===key){ datos=calCache; }
+    else {
+      try{
+        const res=await fetch(API_RESERVAS+'/api/calendario?anio='+calAnio+'&mes='+calMes);
+        if(!res.ok) throw new Error();
+        const arr=await res.json();
+        datos={}; arr.forEach(d=>{ datos[d.habitacion+'_'+d.fecha]=d; });
+      }catch(e){ datos={}; }
+      calCache=datos; calCacheKey=key;
+    }
+
+    // Mini calendario
+    const dows=[];
+    for(let d=1;d<=numDias;d++) dows.push(new Date(calAnio,calMes-1,d).getDay());
+
+    let calHtml=`<div class="panel-hdr"><span class="panel-id">${hab.id}</span><span class="panel-tipo">${hab.tipo}</span><span class="panel-piso">Piso ${hab.piso}</span><button class="panel-close" onclick="cerrarCalPanel()">✕</button></div>`;
+    calHtml+='<div class="mini-cal-header">';
+    for(let i=0;i<7;i++) calHtml+=`<span class="mini-cal-dow">${DIAS_CAL[i]}</span>`;
+    calHtml+='</div><div class="mini-cal-dias">';
+
+    const primerDow=(dows[0]+6)%7;
+    for(let p=0;p<primerDow;p++) calHtml+='<span class="mini-cal-vacio"></span>';
+
+    let ocu=0, mant=0;
+    for(let d=1;d<=numDias;d++){
+      const fecha=calAnio+'-'+String(calMes).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+      const clave=hab.id+'_'+fecha;
+      const dato=datos[clave];
+      const estado=dato?dato.estado:'';
+      const reserva=dato?dato.reserva:'';
+      if(estado==='reservada') ocu++;
+      if(estado==='mantenimiento') mant++;
+      const esHoy=d===hoy.getDate()&&calMes===hoy.getMonth()+1&&calAnio===hoy.getFullYear();
+      const cls=['mini-cal-dia'];
+      if(esHoy) cls.push('hoy');
+      if(estado==='reservada') cls.push('reservada');
+      else if(estado==='mantenimiento') cls.push('mantenimiento');
+      calHtml+=`<span class="${cls.join(' ')}" data-hab="${hab.id}" data-fecha="${fecha}" data-estado="${estado}" data-reserva="${reserva}" onclick="toggleMiniCal(this)">${d}</span>`;
+    }
+    calHtml+='</div>';
+
+    const libre=numDias-ocu-mant;
+    calHtml+=`<div class="panel-stats"><span class="ps-libre">${libre} libre${libre!==1?'s':''}</span>${ocu?`<span class="ps-ocu">${ocu} reservado${ocu!==1?'s':''}</span>`:''}${mant?`<span class="ps-mant">${mant} mant.</span>`:''}</div>`;
+
+    inner.innerHTML=calHtml;
+    panel.style.display='block';
+    panel.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+
+  function cerrarCalPanel(){
+    calOpen=null;
+    const panel=document.getElementById('calPanel');
+    if(panel) panel.style.display='none';
+    cargarBadges();
+  }
+
+  async function toggleMiniCal(el){
+    if(el.dataset.estado==='reservada') return;
+    const hab=el.dataset.hab;
+    const fecha=el.dataset.fecha;
+    try{
+      const res=await fetch(API_RESERVAS+'/api/calendario/toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({habitacion:hab,fecha:fecha})});
+      if(!res.ok) throw new Error();
+      const r=await res.json();
+      if(r.accion==='liberada'){
+        el.className=el.className.replace(/reservada|mantenimiento/g,'').trim();
+        el.dataset.estado='';
+      }else{
+        el.className+=' '+(r.estado==='mantenimiento'?'mantenimiento':'reservada');
+        el.dataset.estado=r.estado;
+      }
+      calCache=null;
+      cargarBadges();
+    }catch(e){}
+  }
+
+  cargarTarifas();
+  cargarDisponibilidad();
+  cargarTasas();
+  iniciarMoneda();
+  animarContadores();
+
+  // ===================== LIMPIEZA DEL DÍA =====================
+  // Estructura del hotel simulada (debe coincidir con backoffice-service): Piso 1 = 101-107, Piso 2 = 201-212, Piso 3 = 301-305.
+  const PISOS_LIMPIEZA = [
+    {piso:1, desde:101, hasta:107},
+    {piso:2, desde:201, hasta:212},
+    {piso:3, desde:301, hasta:305}
+  ];
+
+  function generarHabitacionesHotel(){
+    const habitaciones=[];
+    PISOS_LIMPIEZA.forEach(({piso,desde,hasta})=>{
+      for(let n=desde;n<=hasta;n++) habitaciones.push({numero:n,piso});
+    });
+    return habitaciones;
+  }
+
+  /** PRNG simple y determinístico (mulberry32), sembrado con la fecha de hoy: mismo resultado todo el día, distinto cada día. Solo se usa como respaldo si el backend no responde. */
+  function pseudoAleatorioPorFecha(semillaTexto){
+    let h=0;
+    for(let i=0;i<semillaTexto.length;i++){ h=Math.imul(31,h)+semillaTexto.charCodeAt(i)|0; }
+    return function(){
+      h|=0; h=h+0x6D2B79F5|0;
+      let t=Math.imul(h^h>>>15,1|h);
+      t=t+Math.imul(t^t>>>7,61|t)^t;
+      return ((t^t>>>14)>>>0)/4294967296;
+    };
+  }
+
+  function habitacionesQueNecesitanLimpiezaHoyLocal(){
+    const hoy=new Date().toISOString().slice(0,10);
+    const azar=pseudoAleatorioPorFecha('tampur-limpieza-'+hoy);
+    const todas=generarHabitacionesHotel();
+    let seleccionadas=todas.filter(()=>azar()<0.35);
+    // Asegurar al menos 8
+    if(seleccionadas.length<8){
+      const resto=todas.filter(h=>!seleccionadas.find(s=>s.numero===h.numero));
+      while(seleccionadas.length<8&&resto.length) seleccionadas.push(resto.shift());
+    }
+    return seleccionadas;
+  }
+  function getLimpiezaMarcadasLocal(){
+    const hoy=new Date().toISOString().slice(0,10);
+    return new Set(JSON.parse(localStorage.getItem('tampur_limpieza_'+hoy)||'[]'));
+  }
+  function setLimpiezaMarcadasLocal(marcadas){
+    const hoy=new Date().toISOString().slice(0,10);
+    localStorage.setItem('tampur_limpieza_'+hoy, JSON.stringify([...marcadas]));
+  }
+
+  async function renderLimpieza(){
+    document.getElementById('dashTitulo').textContent=t('limp_titulo');
+    try{
+      const res=await fetchAdmin(API_BACKOFFICE+'/api/limpieza');
+      if(!res.ok) throw new Error('offline');
+      const habitaciones=await res.json(); // [{numero,piso,limpiada}]
+      const confirmadas=await obtenerReservasConfirmadas();
+      pintarLimpieza(habitaciones, true, confirmadas);
+    }catch(e){
+      const locales=habitacionesQueNecesitanLimpiezaHoyLocal();
+      const marcadas=getLimpiezaMarcadasLocal();
+      const habitaciones=locales.map(h=>({...h, limpiada:marcadas.has(h.numero)}));
+      const confirmadas=getReservas().filter(r=>r.estado==='Confirmada')
+        .map(r=>({tipoHabitacion:r.habitacion,nombre:r.nombre,fechaEntrada:r.llegada,fechaSalida:r.salida}));
+      pintarLimpieza(habitaciones, false, confirmadas);
+    }
+  }
+
+  /** Obtiene las reservas confirmadas desde el backend para mostrar sus fechas de ocupación. */
+  async function obtenerReservasConfirmadas(){
+    try{
+      const res=await fetch(API_RESERVAS+'/api/reservas');
+      if(!res.ok) return [];
+      const rs=await res.json();
+      return rs.filter(r=>r.estado==='Confirmada')
+        .map(r=>({tipoHabitacion:r.tipoHabitacion,numeroHabitacion:r.numeroHabitacion,nombre:r.nombre,fechaEntrada:r.fechaEntrada,fechaSalida:r.fechaSalida}));
+    }catch(e){ return []; }
+  }
+
+  /** Formatea una fecha ISO (yyyy-mm-dd) a un texto legible en español, sin desfase de zona horaria. */
+  function formatearFechaOcupacion(iso){
+    if(!iso) return '';
+    const d=new Date(iso+'T00:00:00');
+    return d.toLocaleDateString('es-PE',{weekday:'long',day:'numeric',month:'long'});
+  }
+
+  function pintarLimpieza(habitaciones, desdeServidor, confirmadas){
+    const cont=document.getElementById('dashContenido');
+    const hoy=new Date().toLocaleDateString(idiomaActual==='EN'?'en-PE':'es-PE',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+    const confirmadasOrdenadas=[...(confirmadas||[])].sort((a,b)=>(a.fechaEntrada||'').localeCompare(b.fechaEntrada||''));
+    const ocupacionesHtml=confirmadasOrdenadas.length?`
+      <div class="limp-ocupaciones no-imprimir">
+        <h3>${t('limp_ocupaciones')}</h3>
+        <div class="ocupaciones-grid">
+          ${confirmadasOrdenadas.map(r=>`
+            <div class="ocupacion">
+              <div class="ocup-top"><span class="ocup-tipo">${t('limp_habitacion')} ${r.tipoHabitacion}</span>${r.numeroHabitacion?` <span class="ocup-hab-num">#${r.numeroHabitacion}</span>`:''}</div>
+              <div class="ocup-huesped">${r.nombre}</div>
+              <div class="ocup-fecha">
+                <span class="ico-fecha"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 9h18"/></svg></span>
+                <span>${t('limp_checkin')} <b>${formatearFechaOcupacion(r.fechaEntrada)}</b> <span class="hora">${t('limp_horaini')}</span></span>
+              </div>
+              <div class="ocup-fecha">
+                <span class="ico-fecha"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span>
+                <span>${t('limp_checkout')} <b>${formatearFechaOcupacion(r.fechaSalida)}</b> <span class="hora">${t('limp_horafin')}</span></span>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>`:'';
+
+    if(habitaciones.length===0){
+      
+      cont.innerHTML=`
+        ${ocupacionesHtml}
+        <div style="text-align:center; padding: 60px 20px;">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--gris)" stroke-width="1.5" style="margin-bottom:20px; opacity: 0.5;">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <h3 style="color:var(--text-main); font-size:1.4rem;">Todo Limpio</h3>
+          <p style="color:var(--text-muted); font-size:1rem; margin-top:8px;">No hay habitaciones pendientes de limpieza en este momento.</p>
+        </div>`;
+      return;
+
+    }
+
+    const totalLimpiadas=habitaciones.filter(h=>h.limpieza==='limpiada').length;
+    const total=habitaciones.length;
+    const pct=Math.round((totalLimpiadas/total)*100);
+    const porPiso={};
+    habitaciones.forEach(h=>{ (porPiso[h.piso]=porPiso[h.piso]||[]).push(h); });
+
+    // Progreso por piso
+    const progresoPiso=Object.keys(porPiso).sort().map(piso=>{
+      const limpiadasPiso=porPiso[piso].filter(h=>h.limpieza==='limpiada').length;
+      const totalPiso=porPiso[piso].length;
+      const pctPiso=Math.round((limpiadasPiso/totalPiso)*100);
+      return `<div class="progreso-piso"><span class="progreso-label">${t('limp_piso')} ${piso}</span><div class="progreso-bar"><div class="progreso-fill" style="width:${pctPiso}%"></div></div><span class="progreso-num">${limpiadasPiso}/${totalPiso}</span></div>`;
+    }).join('');
+
+    const bloquesPiso=Object.keys(porPiso).sort().map(piso=>{
+      const filas=porPiso[piso].sort((a,b)=>a.numero-b.numero).map(h=>{
+        const esLimpiada=h.limpieza==='limpiada';
+        const prio=h.prioridad===1?'🔴':h.prioridad===2?'🟡':'⚪';
+        const prioLabel=h.prioridad===1?t('limp_urgente'):h.prioridad===2?t('limp_importante'):t('limp_normal');
+        const flujo=h.estadoFlujo||'pendiente';
+        const btnFlujo=flujo==='pendiente'?`<button class="btn-sm btn-iniciar" onclick="iniciarLimpieza(${h.numero},${desdeServidor})">${t('limp_iniciar')}</button>`
+          :flujo==='en_curso'?`<button class="btn-sm btn-completar" onclick="completarLimpieza(${h.numero},${desdeServidor})">${t('limp_completar')}</button>`
+          :'<span class="flujo-completada">✓</span>';
+        const tiempo=h.horaInicio?`<span class="limp-tiempo">${h.horaInicio}${h.horaFin?' → '+h.horaFin:''}</span>`:'';
+        return `
+        <div class="limp-card ${esLimpiada?'limpiada':''} prio-${h.prioridad||3}">
+          <div class="limp-card-top">
+            <span class="limp-prio" title="${prioLabel}">${prio}</span>
+            <span class="limp-num">${h.numero}</span>
+            <span class="limp-tipo">${h.tipo}</span>
+            <span class="limp-estado-occ">${h.estado}</span>
+          </div>
+          <div class="limp-card-mid">
+            <span class="limp-estado">${esLimpiada?t('limp_limpiada'):prioLabel}</span>
+            ${tiempo}
+          </div>
+          <div class="limp-card-bottom">
+            ${btnFlujo}
+            <input type="checkbox" ${esLimpiada?'checked':''} onchange="toggleLimpieza(${h.numero}, this.checked, ${desdeServidor})" class="limp-check">
+          </div>
+        </div>`;
+      }).join('');
+      return `<div class="limp-piso"><h3>${t('limp_piso')} ${piso}</h3><div class="limp-grid">${filas}</div></div>`;
+    }).join('');
+
+    cont.innerHTML=`
+      <div class="limp-cabecera no-imprimir">
+        <div class="tarjetas-kpi" style="margin-bottom:18px">
+          <div class="kpi"><div class="num">${total}</div><div class="lbl">${t('limp_para_limpiar')}</div></div>
+          <div class="kpi"><div class="num">${totalLimpiadas}</div><div class="lbl">${t('limp_ya_limpiadas')}</div></div>
+          <div class="kpi"><div class="num">${total-totalLimpiadas}</div><div class="lbl">${t('limp_pendientes')}</div></div>
+          <div class="kpi kpi-progreso"><div class="num">${pct}%</div><div class="lbl">${t('limp_progreso')}</div></div>
+        </div>
+        <div class="progreso-total">
+          <div class="progreso-bar"><div class="progreso-fill" style="width:${pct}%"></div></div>
+        </div>
+        <div class="progreso-pisos">${progresoPiso}</div>
+        <div class="plano-leyenda" style="margin:14px 0">
+          <span class="chip chip-prio1">🔴 ${t('limp_urgente')}</span>
+          <span class="chip chip-prio2">🟡 ${t('limp_importante')}</span>
+          <span class="chip chip-prio3">⚪ ${t('limp_normal')}</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-primario" onclick="imprimirListaLimpieza()">${t('limp_imprimir')}</button>
+          ${desdeServidor?'':`<span style="color:#c0392b;font-size:.85rem">${t('limp_msj_local')}</span>`}
+        </div>
+      </div>
+      ${ocupacionesHtml}
+      <div id="listaLimpiezaImprimible">
+        <div class="limp-solo-impresion">
+          <h2>Hotel Tampur · ${t('limp_titulo')}</h2>
+          <p>${hoy}</p>
+        </div>
+        ${bloquesPiso}
+      </div>`;
+  }
+
+  async function iniciarLimpieza(numero, desdeServidor){
+    if(!desdeServidor) return;
+    try{
+      await fetchAdmin(API_BACKOFFICE+'/api/limpieza/'+numero+'/estado',{
+        method:'PATCH',
+        body:JSON.stringify({estadoFlujo:'en_curso'})
+      });
+    }catch(e){}
+    renderLimpieza();
+  }
+  async function completarLimpieza(numero, desdeServidor){
+    if(!desdeServidor) return;
+    try{
+      await fetchAdmin(API_BACKOFFICE+'/api/limpieza/'+numero+'/estado',{
+        method:'PATCH',
+        body:JSON.stringify({limpiada:true,estadoFlujo:'completada'})
+      });
+    }catch(e){}
+    renderLimpieza();
+  }
+
+  async function toggleLimpieza(numero, limpiada, desdeServidor){
+    if(desdeServidor){
+      try{
+        await fetchAdmin(API_BACKOFFICE+'/api/limpieza/'+numero+'/estado',{
+          method:'PATCH',
+          body:JSON.stringify({limpiada})
+        });
+      }catch(e){ /* si falla, igual refrescamos: pasará a modo local */ }
+    } else {
+      const marcadas=getLimpiezaMarcadasLocal();
+      limpiada ? marcadas.add(numero) : marcadas.delete(numero);
+      setLimpiezaMarcadasLocal(marcadas);
+    }
+    renderLimpieza();
+  }
+
+  function imprimirListaLimpieza(){
+    window.print();
+  }

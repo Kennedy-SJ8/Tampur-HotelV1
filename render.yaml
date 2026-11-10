@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: tampur-monolito
+    env: docker
+    dockerfilePath: Dockerfile.monolito
+    envVars:
+      - key: SUPABASE_DB_URL
+        value: "jdbc:postgresql://aws-0-us-west-2.pooler.supabase.com:6543/postgres?sslmode=require&pgbouncer=true"
+      - key: SUPABASE_DB_USER
+        value: "postgres.ogzyecgnznbhqfvwizbo"
+      - key: SUPABASE_DB_PASSWORD
+        sync: false
+      - key: SENDGRID_API_KEY
+        sync: false
+      - key: ADMIN_CLAVE
+        sync: false
