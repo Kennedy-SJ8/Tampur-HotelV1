@@ -121,6 +121,22 @@ public class DataSeeder implements CommandLineRunner {
             log.warn("No se pudo crear tabla disponibilidad: {}", e.getMessage());
         }
 
+        // Crear tabla pagos si no existe
+        try {
+            jdbc.execute("""
+                CREATE TABLE IF NOT EXISTS pagos (
+                    id VARCHAR(50) PRIMARY KEY,
+                    codigo_reserva VARCHAR(30),
+                    metodo VARCHAR(20),
+                    estado VARCHAR(30),
+                    voucher VARCHAR(50),
+                    creado_en TIMESTAMP DEFAULT NOW()
+                )
+            """);
+        } catch (Exception e) {
+            log.warn("No se pudo crear tabla pagos: {}", e.getMessage());
+        }
+
         log.info("Esquema de BD verificado.");
     }
 }

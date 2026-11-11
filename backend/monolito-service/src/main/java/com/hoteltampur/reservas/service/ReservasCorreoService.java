@@ -29,8 +29,8 @@ public class ReservasCorreoService {
             .connectTimeout(Duration.ofSeconds(10))
             .build();
 
-    public ReservasCorreoService(@Value("${SENDGRID_API_KEY:}") String apiKey) {
-        this.apiKey = apiKey;
+    public ReservasCorreoService(@Value("${BREVO_API_KEY:${SENDGRID_API_KEY:}}") String apiKey) {
+        this.apiKey = apiKey != null ? apiKey.trim() : "";
     }
 
     public void enviarConfirmacion(Reserva r) {
@@ -38,7 +38,7 @@ public class ReservasCorreoService {
             return;
         }
         if (apiKey == null || apiKey.isBlank()) {
-            log.warn("SENDGRID_API_KEY no configurado; no se envía correo a {}", r.correo());
+            log.warn("BREVO_API_KEY / SENDGRID_API_KEY no configurado; no se envía correo a {}", r.correo());
             return;
         }
         try {
@@ -51,22 +51,23 @@ public class ReservasCorreoService {
 
     private void enviar(String para, String asunto, String html) throws Exception {
         Map<String, Object> body = new HashMap<>();
-        body.put("personalizations", List.of(Map.of("to", List.of(Map.of("email", para)))));
-        body.put("from", Map.of("email", FROM_EMAIL, "name", FROM_NAME));
+        body.put("sender", Map.of("email", FROM_EMAIL, "name", FROM_NAME));
+        body.put("to", List.of(Map.of("email", para)));
         body.put("subject", asunto);
-        body.put("content", List.of(Map.of("type", "text/html", "value", html)));
+        body.put("htmlContent", html);
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://api.sendgrid.com/v3/mail/send"))
+                .uri(URI.create("https://api.brevo.com/v3/smtp/email"))
                 .timeout(Duration.ofSeconds(15))
-                .header("Authorization", "Bearer " + apiKey)
-                .header("Content-Type", "application/json")
+                .header("accept", "application/json")
+                .header("api-key", apiKey)
+                .header("content-type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(body)))
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() >= 400) {
-            throw new RuntimeException("SendGrid " + response.statusCode() + ": " + response.body());
+            throw new RuntimeException("Brevo " + response.statusCode() + ": " + response.body());
         }
     }
 
